@@ -15,6 +15,8 @@
  */
 package org.axonframework.hazelcast.samples;
 
+import org.axonframework.hazelcast.DefaultHazelcastManager;
+import org.axonframework.hazelcast.cache.HazelcastCacheProvider;
 import org.axonframework.hazelcast.samples.helper.AxonApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,18 +24,30 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class SimpleApp {
-
+public class SimpleApp extends AxonApplication{
     private static final Logger LOGGER = LoggerFactory.getLogger(SimpleApp.class);
+
+    /**
+     *
+     */
+    public SimpleApp() {
+        super.setCacheProvider(new HazelcastCacheProvider(new DefaultHazelcastManager()));
+    }
+
+    /**
+     *
+     * @param args
+     */
+    public void run(String[] args) {
+        init();
+        destroy();
+    }
 
     // *************************************************************************
     //
     // *************************************************************************
 
     public static void main(String[] args) {
-        AxonApplication app = new AxonApplication();
-
-        app.init();
-        app.destroy();
+        new SimpleApp().run(args);
     }
 }
