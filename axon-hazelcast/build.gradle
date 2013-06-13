@@ -1,0 +1,15 @@
+project.ext {
+    bundleInportPackages = [ '*' ]
+    bundleExportPackages = [ '*' ]
+}
+
+dependencies {
+    compile 'com.hazelcast:hazelcast-all:2.6'
+}
+
+jar {
+    manifest {
+        instruction 'Import-Package' , bundleInportPackages.join(',')
+        instruction 'Export-Package' , bundleExportPackages.join(',')
+    }
+}
