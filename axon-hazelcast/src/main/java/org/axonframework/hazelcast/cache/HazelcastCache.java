@@ -81,6 +81,7 @@ public class HazelcastCache implements Cache {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void putAll(Map t) {
         m_cache.putAll(t);
     }
@@ -144,6 +145,7 @@ public class HazelcastCache implements Cache {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Map getAll(Collection keys) throws CacheException {
         return m_cache.getAll(Sets.newHashSet(keys));
     }

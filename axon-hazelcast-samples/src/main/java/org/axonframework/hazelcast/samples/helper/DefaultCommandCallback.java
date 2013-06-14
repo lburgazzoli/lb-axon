@@ -13,27 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.store;
+package org.axonframework.hazelcast.samples.helper;
 
-import org.axonframework.eventstore.EventStore;
-
-import java.util.Collection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public interface IHazelcastEventStore extends EventStore {
+public class DefaultCommandCallback<T> extends CommandCallbackAdapter<T> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCommandCallback.class);
 
-    /**
-     *
-     * @param eventStoreId
-     * @return
-     */
-    public HazelcastDomainEventStore getDomainEventStore(String eventStoreId);
-
-    /**
-     *
-     * @return
-     */
-    public Collection<HazelcastDomainEventStore> getDomainEventStores();
+    @Override
+    public void onFailure(Throwable cause) {
+        LOGGER.debug("onFailure => <{}> ",cause.getClass().getName());
+        LOGGER.debug("onFailure",cause);
+    }
 }

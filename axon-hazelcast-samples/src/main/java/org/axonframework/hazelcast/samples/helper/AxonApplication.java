@@ -223,6 +223,7 @@ public class AxonApplication {
      *
      * @param aggregateType
      */
+    @SuppressWarnings("unchecked")
     public void addAggregateType(Class<? extends EventSourcedAggregateRoot> aggregateType) {
         removeAggregateType(aggregateType);
 

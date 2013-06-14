@@ -57,6 +57,10 @@ subprojects {
         manifest.classesDir = new File("$buildDir/classes/main")
         manifest.classpath  = project.runtimeClasspath
     }
+
+    [compileJava, compileTestJava]*.options*.compilerArgs = [
+        "-Xlint:unchecked"
+    ]
 }
 
 // *****************************************************************************

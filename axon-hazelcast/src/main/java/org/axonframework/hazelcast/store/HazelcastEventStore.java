@@ -19,17 +19,17 @@ import com.google.common.collect.Maps;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.domain.SimpleDomainEventStream;
+import org.axonframework.eventstore.EventStore;
 import org.axonframework.hazelcast.IHazelcastManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
 import java.util.Map;
 
 /**
  *
  */
-public class HazelcastEventStore implements IHazelcastEventStore {
+public class HazelcastEventStore implements EventStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastEventStore.class);
 
     private final IHazelcastManager m_hazelcastManager;
@@ -43,20 +43,6 @@ public class HazelcastEventStore implements IHazelcastEventStore {
     public HazelcastEventStore(IHazelcastManager hazelcastManager) {
         m_hazelcastManager = hazelcastManager;
         m_domainEventStore = Maps.newHashMap();
-    }
-
-    // *************************************************************************
-    // IHazelcastEventStore
-    // *************************************************************************
-
-    @Override
-    public HazelcastDomainEventStore getDomainEventStore(String eventStoreId) {
-        return m_domainEventStore.get(eventStoreId);
-    }
-
-    @Override
-    public Collection<HazelcastDomainEventStore> getDomainEventStores() {
-        return m_domainEventStore.values();
     }
 
     // *************************************************************************

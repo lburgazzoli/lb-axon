@@ -134,7 +134,8 @@ public class HazelcastDomainEventMessage<T> implements DomainEventMessage<T> {
     // *************************************************************************
 
     @Override
-    public DomainEventMessage withMetaData(Map<String, ?> metaData) {
+    @SuppressWarnings("unchecked")
+    public DomainEventMessage<T> withMetaData(Map<String, ?> metaData) {
         HazelcastDomainEventMessage dem = new HazelcastDomainEventMessage(this);
         dem.setMetaData(new MetaData(metaData));
 
@@ -142,7 +143,8 @@ public class HazelcastDomainEventMessage<T> implements DomainEventMessage<T> {
     }
 
     @Override
-    public DomainEventMessage andMetaData(Map<String, ?> metaData) {
+    @SuppressWarnings("unchecked")
+    public DomainEventMessage<T> andMetaData(Map<String, ?> metaData) {
         HazelcastDomainEventMessage dem = new HazelcastDomainEventMessage(this);
         dem.getMetaData().mergedWith(metaData);
 

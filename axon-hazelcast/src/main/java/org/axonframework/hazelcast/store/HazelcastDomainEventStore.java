@@ -117,6 +117,7 @@ public class HazelcastDomainEventStore {
      *
      * @param message
      */
+    @SuppressWarnings("unchecked")
     public void add(DomainEventMessage message) {
         m_storage.add(new HazelcastDomainEventMessage(message));
     }
