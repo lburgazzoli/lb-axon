@@ -30,6 +30,16 @@ public interface IHazelcastManager {
 
     /**
      *
+     */
+    public void init();
+
+    /**
+     *
+     */
+    public void destroy();
+
+    /**
+     *
      * @return
      */
     public HazelcastInstance getInstance();

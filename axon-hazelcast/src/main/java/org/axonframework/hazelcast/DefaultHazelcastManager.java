@@ -99,8 +99,6 @@ public class DefaultHazelcastManager implements IHazelcastManager, InstanceListe
 
     public void init() {
         if(m_instance == null) {
-            LOGGER.debug("Initialize Instance");
-
             if(m_config != null) {
                 m_instance = Hazelcast.newHazelcastInstance(m_config);
                 m_instance.addInstanceListener(this);

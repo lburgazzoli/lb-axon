@@ -15,6 +15,8 @@
  */
 package org.axonframework.hazelcast.eventhandling;
 
+import com.hazelcast.core.ITopic;
+import com.hazelcast.core.MessageListener;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.domain.EventMessage;
 import org.axonframework.hazelcast.IHazelcastManager;
@@ -25,7 +27,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class HazelcastEventBusManager {
-    private final static Logger LOGEGR = LoggerFactory.getLogger(HazelcastEventBusManager.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(HazelcastEventBusManager.class);
 
     private final IHazelcastManager m_hazelcastManager;
 
@@ -61,6 +63,38 @@ public class HazelcastEventBusManager {
             tn = topicName + ":" + tn;
         }
 
-        m_hazelcastManager.getTopic(tn).publish(event);
+        LOGGER.debug("TopicName: <{}>",tn);
+        getTopic(tn).publish(event);
+    }
+
+    /**
+     *
+     * @param topicName
+     * @param listener
+     */
+    public void subscribe(String topicName,MessageListener<EventMessage> listener) {
+        getTopic(topicName).addMessageListener(listener);
+    }
+
+    /**
+     *
+     * @param topicName
+     * @param listener
+     */
+    public void unsubscribe(String topicName,MessageListener<EventMessage> listener) {
+        getTopic(topicName).removeMessageListener(listener);
+    }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    /**
+     *
+     * @param topicName
+     * @return
+     */
+    private ITopic<EventMessage> getTopic(String topicName) {
+        return m_hazelcastManager.getTopic(topicName);
     }
 }

@@ -15,15 +15,21 @@
  */
 package org.axonframework.hazelcast.samples;
 
+import com.google.common.collect.Lists;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.commandhandling.gateway.DefaultCommandGateway;
+import org.axonframework.eventhandling.ClusteringEventBus;
 import org.axonframework.eventhandling.EventBus;
-import org.axonframework.eventhandling.SimpleEventBus;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
+import org.axonframework.hazelcast.DefaultHazelcastConfig;
+import org.axonframework.hazelcast.DefaultHazelcastManager;
+import org.axonframework.hazelcast.IHazelcastManager;
+import org.axonframework.hazelcast.eventhandling.HazelcastEventBusManager;
+import org.axonframework.hazelcast.eventhandling.HazelcastEventBusTerminal;
 import org.axonframework.hazelcast.samples.helper.AxonApplication;
 import org.axonframework.hazelcast.samples.helper.DefaultCommandCallback;
 import org.axonframework.hazelcast.samples.helper.MemoryEventStore;
@@ -53,7 +59,9 @@ public class SimpleApp {
     private static final class DataItemEvtHandler {
         @EventHandler
         public void handle(DataItemEvt.Create data) {
-            LOGGER.debug("DataItemEvt.Create <{}> :\n\tid   = {}\n\ttext = {}",
+            LOGGER.debug("DataItemEvt.Create <{}> :"
+                + "\n\tid   = {}"
+                + "\n\ttext = {}",
                 data.getClass().getName(),
                 data.getId(),
                 data.getText());
@@ -61,7 +69,9 @@ public class SimpleApp {
 
         @EventHandler
         public void handle(DataItemEvt.Update data) {
-            LOGGER.debug("DataItemEvt.Update <{}> :\n\tid   = {}\n\ttext = {}",
+            LOGGER.debug("DataItemEvt.Update <{}> :"
+                + "\n\tid   = {}"
+                + "\n\ttext = {}",
                 data.getClass().getName(),
                 data.getId(),
                 data.getText());
@@ -73,10 +83,22 @@ public class SimpleApp {
     // *************************************************************************
 
     public static void main(String[] args) {
+
+        IHazelcastManager hzMgr = new DefaultHazelcastManager(new DefaultHazelcastConfig());
+        hzMgr.init();
+
+        HazelcastEventBusManager hzEvtBusMgr = new HazelcastEventBusManager(hzMgr);
+
+        HazelcastEventBusTerminal evtBusTer = new HazelcastEventBusTerminal(hzEvtBusMgr);
+        evtBusTer.setTopicOfInterest(Lists.newArrayList(
+            "default:org.axonframework.hazelcast.samples.model.DataItemEvt$Create",
+            "default:org.axonframework.hazelcast.samples.model.DataItemEvt$Update")
+        );
+
         CommandBus        cmdBus     = new SimpleCommandBus();
         CommandGateway    cmdGw      = new DefaultCommandGateway(cmdBus);
         EventStore        evtStore   = new MemoryEventStore();
-        EventBus          evtBus     = new SimpleEventBus();
+        EventBus          evtBus     = new ClusteringEventBus(evtBusTer);
 
         AxonApplication app = new AxonApplication();
         //app.setCacheProvider(new HazelcastCacheProvider(new DefaultHazelcastManager()));
@@ -93,5 +115,6 @@ public class SimpleApp {
         app.send(new DataItemCmd.Update("d01",randomUUID().toString()),CMDCBK);
 
         app.destroy();
+        hzMgr.destroy();
     }
 }

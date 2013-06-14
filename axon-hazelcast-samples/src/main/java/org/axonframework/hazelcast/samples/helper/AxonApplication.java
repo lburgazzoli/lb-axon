@@ -88,18 +88,21 @@ public class AxonApplication {
      *
      */
     public void destroy() {
+        LOGGER.debug("Cleanup - EventListeners");
         for(EventListener listener : m_eventListeners) {
             m_eventBus.unsubscribe(listener);
         }
 
         m_eventListeners.clear();
 
+        LOGGER.debug("Cleanup - EventHandlers");
         for(Subscribable subscription : m_eventHandlers.values()) {
             subscription.unsubscribe();
         }
 
         m_eventHandlers.clear();
 
+        LOGGER.debug("Cleanup - AggregateSubscription");
         for(AggregateSubscription subscription : m_aggregates.values()) {
             subscription.handler.unsubscribe();
         }
