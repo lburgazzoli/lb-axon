@@ -74,7 +74,6 @@ public class HazelcastCommandBusManager {
         if(StringUtils.isNotBlank(id)) {
             if(!m_clusterRegistry.containsKey(id)) {
                 m_clusterRegistry.put(id,new HashMap<String,Object>() {{
-                    put(ATTR_HZ_CLUSTER_ID,m_hazelcastManager.getId());
                     put(ATTR_CONNECTOR_ID ,id);
                 }});
 

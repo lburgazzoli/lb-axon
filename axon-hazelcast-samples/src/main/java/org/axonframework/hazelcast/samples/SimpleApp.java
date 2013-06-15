@@ -110,6 +110,11 @@ public class SimpleApp {
         svc.send(new DataItemCmd.Create("d01", randomUUID().toString()), CMDCBK);
         svc.send(new DataItemCmd.Update("d01", randomUUID().toString()), CMDCBK);
 
+        try {
+            Thread.sleep(1000 * 5);
+        } catch (InterruptedException e) {
+        }
+
         svc.destroy();
         hxPx.destroy();
     }

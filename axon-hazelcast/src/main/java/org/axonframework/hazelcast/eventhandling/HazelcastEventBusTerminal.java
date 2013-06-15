@@ -72,6 +72,7 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
         m_topicsOfInterest.addAll(topicsOfInterest);
 
         for(String topicName : m_topicsOfInterest) {
+            LOGGER.debug("Subscribe to <{}>",topicName);
             subscribe(topicName, this);
         }
     }
@@ -109,6 +110,7 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
      * @param event the event to publish
      */
     private void publish(EventMessage event) {
+        LOGGER.debug("Publish <{}>",event.getPayloadType().getName());
         getTopic(event.getPayloadType().getName()).publish(event);
     }
 
