@@ -18,7 +18,7 @@ package org.axonframework.hazelcast.distributed;
 import com.hazelcast.core.MultiMap;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.commandhandling.CommandMessage;
-import org.axonframework.hazelcast.IHazelcastManager;
+import org.axonframework.hazelcast.IHazelcastInstanceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class HazelcastCommandBusManager {
     private final static String ATTR_HZ_CLUSTER_ID    = "hz.cluster.id";
     private final static String ATTR_CONNECTOR_ID     = "conenctor.id";
 
-    private final IHazelcastManager m_hazelcastManager;
+    private final IHazelcastInstanceProxy m_hazelcastManager;
     private final Map<String,Map<String,Object>> m_clusterRegistry;
     private final Map<String,String> m_cmdDestinations;
 
@@ -48,7 +48,7 @@ public class HazelcastCommandBusManager {
      *
      * @param hazelcastManager
      */
-    public HazelcastCommandBusManager(IHazelcastManager hazelcastManager) {
+    public HazelcastCommandBusManager(IHazelcastInstanceProxy hazelcastManager) {
         m_hazelcastManager = hazelcastManager;
         m_clusterRegistry  = m_hazelcastManager.getMap(REG_NODES);
         m_cmdDestinations  = m_hazelcastManager.getMap(REG_CMD_DESTINATIONS);
@@ -62,7 +62,7 @@ public class HazelcastCommandBusManager {
      *
      * @return
      */
-    public IHazelcastManager getManager() {
+    public IHazelcastInstanceProxy getManager() {
         return m_hazelcastManager;
     }
 

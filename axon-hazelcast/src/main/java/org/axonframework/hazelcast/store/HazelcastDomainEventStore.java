@@ -20,7 +20,7 @@ import com.hazelcast.core.IList;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.domain.SimpleDomainEventStream;
-import org.axonframework.hazelcast.IHazelcastManager;
+import org.axonframework.hazelcast.IHazelcastInstanceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class HazelcastDomainEventStore {
     private final String m_aggregateType;
     private final String m_aggregateId;
     private final String m_storageId;
-    private final IHazelcastManager m_hazelcastManager;
+    private final IHazelcastInstanceProxy m_hazelcastManager;
     private final IList<HazelcastDomainEventMessage> m_storage;
 
     /**
@@ -44,7 +44,7 @@ public class HazelcastDomainEventStore {
      * @param aggregateId
      * @param hazelcastManager
      */
-    public HazelcastDomainEventStore(String aggregateType, String aggregateId, IHazelcastManager hazelcastManager) {
+    public HazelcastDomainEventStore(String aggregateType, String aggregateId, IHazelcastInstanceProxy hazelcastManager) {
         m_aggregateType = aggregateType;
         m_aggregateId = aggregateId;
         m_storageId = HazelcastStorageUtils.getStorageIdentifier(m_aggregateType, m_aggregateId);

@@ -23,7 +23,7 @@ import net.sf.jsr107cache.CacheException;
 import net.sf.jsr107cache.CacheListener;
 import net.sf.jsr107cache.CacheStatistics;
 import org.axonframework.domain.AggregateRoot;
-import org.axonframework.hazelcast.IHazelcastManager;
+import org.axonframework.hazelcast.IHazelcastInstanceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +47,7 @@ public class HazelcastCache implements Cache {
      * @param cacheManager
      * @param cacheName
      */
-    public HazelcastCache(IHazelcastManager cacheManager,String cacheName) {
+    public HazelcastCache(IHazelcastInstanceProxy cacheManager,String cacheName) {
         m_classLoader = cacheManager.getClassloader();
         m_cache = cacheManager.getMap(cacheName);
 

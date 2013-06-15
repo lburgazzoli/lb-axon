@@ -26,12 +26,11 @@ import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
 import org.axonframework.hazelcast.DefaultHazelcastConfig;
-import org.axonframework.hazelcast.DefaultHazelcastManager;
-import org.axonframework.hazelcast.IHazelcastManager;
-import org.axonframework.hazelcast.eventhandling.HazelcastEventBusManager;
+import org.axonframework.hazelcast.DefaultHazelcastInstanceProxy;
+import org.axonframework.hazelcast.IHazelcastInstanceProxy;
 import org.axonframework.hazelcast.eventhandling.HazelcastEventBusTerminal;
-import org.axonframework.hazelcast.samples.helper.AxonApplication;
-import org.axonframework.hazelcast.samples.helper.DefaultCommandCallback;
+import org.axonframework.hazelcast.samples.helper.AxonService;
+import org.axonframework.hazelcast.samples.helper.CommandCallbackTracer;
 import org.axonframework.hazelcast.samples.helper.MemoryEventStore;
 import org.axonframework.hazelcast.samples.model.DataItem;
 import org.axonframework.hazelcast.samples.model.DataItemCmd;
@@ -50,7 +49,7 @@ public class SimpleApp {
         LoggerFactory.getLogger(SimpleApp.class);
 
     private static final CommandCallback<Object> CMDCBK =
-        new DefaultCommandCallback<Object>();
+        new CommandCallbackTracer<Object>();
 
     // *************************************************************************
     //
@@ -84,15 +83,13 @@ public class SimpleApp {
 
     public static void main(String[] args) {
 
-        IHazelcastManager hzMgr = new DefaultHazelcastManager(new DefaultHazelcastConfig());
-        hzMgr.init();
+        DefaultHazelcastInstanceProxy hxPx = new DefaultHazelcastInstanceProxy(new DefaultHazelcastConfig());
+        hxPx.init();
 
-        HazelcastEventBusManager hzEvtBusMgr = new HazelcastEventBusManager(hzMgr);
-
-        HazelcastEventBusTerminal evtBusTer = new HazelcastEventBusTerminal(hzEvtBusMgr);
+        HazelcastEventBusTerminal evtBusTer = new HazelcastEventBusTerminal(hxPx);
         evtBusTer.setTopicOfInterest(Lists.newArrayList(
-            "default:org.axonframework.hazelcast.samples.model.DataItemEvt$Create",
-            "default:org.axonframework.hazelcast.samples.model.DataItemEvt$Update")
+            "org.axonframework.hazelcast.samples.model.DataItemEvt$Create",
+            "org.axonframework.hazelcast.samples.model.DataItemEvt$Update")
         );
 
         CommandBus        cmdBus     = new SimpleCommandBus();
@@ -100,21 +97,21 @@ public class SimpleApp {
         EventStore        evtStore   = new MemoryEventStore();
         EventBus          evtBus     = new ClusteringEventBus(evtBusTer);
 
-        AxonApplication app = new AxonApplication();
-        //app.setCacheProvider(new HazelcastCacheProvider(new DefaultHazelcastManager()));
-        app.setCommandBus(cmdBus);
-        app.setCommandGateway(cmdGw);
-        app.setEventStore(evtStore);
-        app.setEventBus(evtBus);
+        AxonService svc = new AxonService();
+        //app.setCacheProvider(new HazelcastCacheProvider(new DefaultHazelcastInstanceProxy()));
+        svc.setCommandBus(cmdBus);
+        svc.setCommandGateway(cmdGw);
+        svc.setEventStore(evtStore);
+        svc.setEventBus(evtBus);
 
-        app.init();
-        app.addEventHandler(new DataItemEvtHandler());
-        app.addAggregateType(DataItem.class);
+        svc.init();
+        svc.addEventHandler(new DataItemEvtHandler());
+        svc.addAggregateType(DataItem.class);
 
-        app.send(new DataItemCmd.Create("d01",randomUUID().toString()),CMDCBK);
-        app.send(new DataItemCmd.Update("d01",randomUUID().toString()),CMDCBK);
+        svc.send(new DataItemCmd.Create("d01", randomUUID().toString()), CMDCBK);
+        svc.send(new DataItemCmd.Update("d01", randomUUID().toString()), CMDCBK);
 
-        app.destroy();
-        hzMgr.destroy();
+        svc.destroy();
+        hxPx.destroy();
     }
 }

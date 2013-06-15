@@ -16,11 +16,13 @@
 package org.axonframework.hazelcast.eventhandling;
 
 import com.google.common.collect.Sets;
+import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 import org.axonframework.domain.EventMessage;
 import org.axonframework.eventhandling.Cluster;
 import org.axonframework.eventhandling.EventBusTerminal;
+import org.axonframework.hazelcast.IHazelcastInstanceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,20 +33,18 @@ import java.util.Set;
  *
  */
 public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListener<EventMessage> {
-    private final static Logger LOGEGR = LoggerFactory.getLogger(HazelcastEventBusTerminal.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(HazelcastEventBusTerminal.class);
 
-    private final HazelcastEventBusManager m_manager;
+    private final IHazelcastInstanceProxy m_proxy;
     private final Set<String> m_topicsOfInterest;
     private final Set<Cluster> m_clusters;
-    private String m_topicName;
 
     /**
      *
-     * @param manager
+     * @param proxy
      */
-    public HazelcastEventBusTerminal(HazelcastEventBusManager manager) {
-        m_manager = manager;
-        m_topicName = "default";
+    public HazelcastEventBusTerminal(IHazelcastInstanceProxy proxy) {
+        m_proxy = proxy;
         m_topicsOfInterest = Sets.newHashSet();
         m_clusters = Sets.newHashSet();
     }
@@ -55,26 +55,18 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
 
     /**
      *
-     * @param topicName
-     */
-    public void setTopicName(String topicName) {
-        m_topicName = topicName;
-    }
-
-    /**
-     *
      * @param topicsOfInterest
      */
     public void setTopicOfInterest(List<String> topicsOfInterest) {
         for(String topicName : m_topicsOfInterest) {
-            m_manager.unsubscribe(topicName,this);
+            unsubscribe(topicName, this);
         }
 
         m_topicsOfInterest.clear();
         m_topicsOfInterest.addAll(topicsOfInterest);
 
         for(String topicName : m_topicsOfInterest) {
-            m_manager.subscribe(topicName,this);
+            subscribe(topicName, this);
         }
     }
 
@@ -85,29 +77,55 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
     @Override
     public void publish(EventMessage... events) {
         for(EventMessage event : events) {
-            LOGEGR.debug("Publish:"
-                + "\n\ttopicGroup = {}"
-                + "\n\teventId    = {}"
-                + "\n\tevent      = {}",m_topicName,event.getIdentifier(),event);
-
-            m_manager.publish(m_topicName,event);
+            publish(event);
         }
     }
 
     @Override
     public void onClusterCreated(Cluster cluster) {
-        LOGEGR.debug("ClusterCreated: <{}>",cluster.getName());
+        LOGGER.debug("ClusterCreated: <{}>",cluster.getName());
         m_clusters.add(cluster);
     }
-
-    // *************************************************************************
-    //
-    // *************************************************************************
 
     @Override
     public void onMessage(Message<EventMessage> event) {
         for(Cluster cluster : m_clusters) {
             cluster.publish(event.getMessageObject());
         }
+    }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    private void publish(EventMessage event) {
+        getTopic(event.getPayloadType().getName()).publish(event);
+    }
+
+    /**
+     *
+     * @param topicName
+     * @param listener
+     */
+    private void subscribe(String topicName,MessageListener<EventMessage> listener) {
+        getTopic(topicName).addMessageListener(listener);
+    }
+
+    /**
+     *
+     * @param topicName
+     * @param listener
+     */
+    private void unsubscribe(String topicName,MessageListener<EventMessage> listener) {
+        getTopic(topicName).removeMessageListener(listener);
+    }
+
+    /**
+     *
+     * @param topicName
+     * @return
+     */
+    private ITopic<EventMessage> getTopic(String topicName) {
+        return m_proxy.getTopic(topicName);
     }
 }

@@ -21,8 +21,13 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class DefaultCommandCallback<T> extends CommandCallbackAdapter<T> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCommandCallback.class);
+public class CommandCallbackTracer<T> extends CommandCallbackAdapter<T> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommandCallbackTracer.class);
+
+    @Override
+    public void onSuccess(T result) {
+        LOGGER.debug("onSuccess => <{}> ",result);
+    }
 
     @Override
     public void onFailure(Throwable cause) {

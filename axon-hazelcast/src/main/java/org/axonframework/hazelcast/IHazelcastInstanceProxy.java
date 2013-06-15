@@ -26,17 +26,7 @@ import com.hazelcast.core.MultiMap;
 /**
  *
  */
-public interface IHazelcastManager {
-
-    /**
-     *
-     */
-    public void init();
-
-    /**
-     *
-     */
-    public void destroy();
+public interface IHazelcastInstanceProxy {
 
     /**
      *
@@ -49,12 +39,6 @@ public interface IHazelcastManager {
      * @return
      */
     public ClassLoader getClassloader();
-
-    /**
-     *
-     * @return
-     */
-    public String getId();
 
     /**
      *

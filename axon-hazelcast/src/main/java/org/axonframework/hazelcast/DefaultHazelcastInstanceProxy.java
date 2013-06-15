@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class DefaultHazelcastManager implements IHazelcastManager, InstanceListener {
+public class DefaultHazelcastInstanceProxy implements IHazelcastInstanceProxy, InstanceListener {
     private static final Logger LOGGER =
-        LoggerFactory.getLogger(DefaultHazelcastManager.class);
+        LoggerFactory.getLogger(DefaultHazelcastInstanceProxy.class);
 
     private HazelcastInstance m_instance;
     private Config m_config;
@@ -45,7 +45,7 @@ public class DefaultHazelcastManager implements IHazelcastManager, InstanceListe
     /**
      * c-tor
      */
-    public DefaultHazelcastManager() {
+    public DefaultHazelcastInstanceProxy() {
         this(null,HazelcastInstance.class.getClassLoader());
     }
 
@@ -54,7 +54,7 @@ public class DefaultHazelcastManager implements IHazelcastManager, InstanceListe
      *
      * @param config
      */
-    public DefaultHazelcastManager(Config config) {
+    public DefaultHazelcastInstanceProxy(Config config) {
         this(config,Thread.currentThread().getContextClassLoader());
     }
 
@@ -64,7 +64,7 @@ public class DefaultHazelcastManager implements IHazelcastManager, InstanceListe
      * @param config
      * @param classLoader
      */
-    public DefaultHazelcastManager(Config config,ClassLoader classLoader) {
+    public DefaultHazelcastInstanceProxy(Config config, ClassLoader classLoader) {
         m_config = config;
         m_classLoader = classLoader;
         m_distributedObjectNamePrefix = null;
@@ -114,7 +114,7 @@ public class DefaultHazelcastManager implements IHazelcastManager, InstanceListe
 
     public void destroy() {
         if(m_instance != null) {
-            LOGGER.debug("Destroy instance {}", m_instance);
+            LOGGER.debug("Destroying instance {}", m_instance);
 
             m_instance.removeInstanceListener(this);
             m_instance.getLifecycleService().shutdown();
@@ -123,16 +123,8 @@ public class DefaultHazelcastManager implements IHazelcastManager, InstanceListe
     }
 
     // *************************************************************************
-    // IHazelcastManager
+    // IHazelcastInstanceProxy
     // *************************************************************************
-
-    /**
-     *
-     * @return
-     */
-    public String getId() {
-        return m_instance.getCluster().getLocalMember().getUuid();
-    }
 
     @Override
     public HazelcastInstance getInstance() {

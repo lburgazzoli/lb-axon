@@ -42,8 +42,8 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
-public class AxonApplication {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AxonApplication.class);
+public class AxonService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AxonService.class);
 
     private CommandBus m_commandBus;
     private CommandGateway m_commandGateway;
@@ -58,7 +58,7 @@ public class AxonApplication {
     /**
      * c-tor
      */
-    public AxonApplication() {
+    public AxonService() {
         m_commandBus = null;
         m_commandGateway = null;
         m_eventStore = null;
