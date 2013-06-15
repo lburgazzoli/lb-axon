@@ -63,7 +63,7 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
     /**
      * @param topicsOfInterest the topics of interest
      */
-    public void setTopicOfInterest(List<String> topicsOfInterest) {
+    public void setTopicsOfInterest(List<String> topicsOfInterest) {
         for(String topicName : m_topicsOfInterest) {
             unsubscribe(topicName, this);
         }

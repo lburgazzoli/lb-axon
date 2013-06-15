@@ -86,9 +86,9 @@ public class SimpleApp {
         hxPx.init();
 
         HazelcastEventBusTerminal evtBusTer = new HazelcastEventBusTerminal(hxPx);
-        evtBusTer.setTopicOfInterest(Lists.newArrayList(
-            "org.axonframework.hazelcast.samples.model.DataItemEvt$Create",
-            "org.axonframework.hazelcast.samples.model.DataItemEvt$Update")
+        evtBusTer.setTopicsOfInterest(Lists.newArrayList(
+                "org.axonframework.hazelcast.samples.model.DataItemEvt$Create",
+                "org.axonframework.hazelcast.samples.model.DataItemEvt$Update")
         );
 
         CommandBus        cmdBus     = new SimpleCommandBus();
