@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast;
+package org.axonframework.hazelcast.samples.helper;
 
 import com.hazelcast.config.Config;
 
 /**
  *
  */
-public class DefaultHazelcastConfig extends Config{
+public class LocalHazelcastConfig extends Config{
 
     /**
      * c-tor
      */
-    public DefaultHazelcastConfig() {
+    public LocalHazelcastConfig() {
         super.setProperty("hazelcast.logging.type","slf4j");
         super.getNetworkConfig().setPortAutoIncrement(false);
         super.getNetworkConfig().getInterfaces().setEnabled(false);

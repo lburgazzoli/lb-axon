@@ -25,9 +25,8 @@ import org.axonframework.eventhandling.ClusteringEventBus;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
-import org.axonframework.hazelcast.DefaultHazelcastConfig;
+import org.axonframework.hazelcast.samples.helper.LocalHazelcastConfig;
 import org.axonframework.hazelcast.DefaultHazelcastInstanceProxy;
-import org.axonframework.hazelcast.IHazelcastInstanceProxy;
 import org.axonframework.hazelcast.eventhandling.HazelcastEventBusTerminal;
 import org.axonframework.hazelcast.samples.helper.AxonService;
 import org.axonframework.hazelcast.samples.helper.CommandCallbackTracer;
@@ -83,7 +82,7 @@ public class SimpleApp {
 
     public static void main(String[] args) {
 
-        DefaultHazelcastInstanceProxy hxPx = new DefaultHazelcastInstanceProxy(new DefaultHazelcastConfig());
+        DefaultHazelcastInstanceProxy hxPx = new DefaultHazelcastInstanceProxy(new LocalHazelcastConfig());
         hxPx.init();
 
         HazelcastEventBusTerminal evtBusTer = new HazelcastEventBusTerminal(hxPx);

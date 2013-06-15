@@ -30,7 +30,13 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * EventBusTerminal implementation that uses an Hazelcast to dispatch event messages.
  *
+ * All outgoing messages are sent to a topic matching the <code>EventMessage.getPayloadType()</code>.
+ * This terminal does not dispatch Events internally, as it relies on each cluster
+ * to listen to the topics of interest.
+ *
+ * @author Luca Burgazzoli
  */
 public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListener<EventMessage> {
     private final static Logger LOGGER = LoggerFactory.getLogger(HazelcastEventBusTerminal.class);
@@ -40,8 +46,9 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
     private final Set<Cluster> m_clusters;
 
     /**
+     * c-tor
      *
-     * @param proxy
+     * @param proxy the hazelcast proxy
      */
     public HazelcastEventBusTerminal(IHazelcastInstanceProxy proxy) {
         m_proxy = proxy;
@@ -54,8 +61,7 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
     // *************************************************************************
 
     /**
-     *
-     * @param topicsOfInterest
+     * @param topicsOfInterest the topics of interest
      */
     public void setTopicOfInterest(List<String> topicsOfInterest) {
         for(String topicName : m_topicsOfInterest) {
@@ -98,14 +104,18 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
     //
     // *************************************************************************
 
+    /**
+     *
+     * @param event the event to publish
+     */
     private void publish(EventMessage event) {
         getTopic(event.getPayloadType().getName()).publish(event);
     }
 
     /**
      *
-     * @param topicName
-     * @param listener
+     * @param topicName the topic name
+     * @param listener the listener
      */
     private void subscribe(String topicName,MessageListener<EventMessage> listener) {
         getTopic(topicName).addMessageListener(listener);
@@ -113,8 +123,8 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
 
     /**
      *
-     * @param topicName
-     * @param listener
+     * @param topicName the topic name
+     * @param listener the listener
      */
     private void unsubscribe(String topicName,MessageListener<EventMessage> listener) {
         getTopic(topicName).removeMessageListener(listener);
@@ -122,8 +132,8 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
 
     /**
      *
-     * @param topicName
-     * @return
+     * @param topicName the topic name
+     * @return the topic
      */
     private ITopic<EventMessage> getTopic(String topicName) {
         return m_proxy.getTopic(topicName);
