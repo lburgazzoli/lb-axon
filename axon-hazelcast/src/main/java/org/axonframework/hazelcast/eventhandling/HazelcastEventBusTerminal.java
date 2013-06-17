@@ -30,7 +30,6 @@ import java.util.Set;
 /**
  * EventBusTerminal implementation that uses an Hazelcast to dispatch event messages.
  *
- * All outgoing messages are sent to a topic matching the <code>EventMessage.getPayloadType()</code>.
  * This terminal does not dispatch Events internally, as it relies on each cluster
  * to listen to the topics of interest.
  *
