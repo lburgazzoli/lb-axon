@@ -15,6 +15,7 @@
  */
 package org.axonframework.hazelcast;
 
+import com.google.common.collect.Lists;
 import com.hazelcast.config.Config;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
@@ -23,17 +24,18 @@ import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
-import com.hazelcast.core.InstanceEvent;
-import com.hazelcast.core.InstanceListener;
+import com.hazelcast.core.Instance;
 import com.hazelcast.core.MultiMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+
 /**
  *
  */
-public class DefaultHazelcastInstanceProxy implements IHazelcastInstanceProxy, InstanceListener {
+public class DefaultHazelcastInstanceProxy implements IHazelcastInstanceProxy {
     private static final Logger LOGGER =
         LoggerFactory.getLogger(DefaultHazelcastInstanceProxy.class);
 
@@ -87,10 +89,10 @@ public class DefaultHazelcastInstanceProxy implements IHazelcastInstanceProxy, I
      * @param name
      * @return
      */
-    private String getItemName(String name) {
+    public String getDistributedObjectName(String name) {
         return StringUtils.isEmpty(m_distributedObjectNamePrefix)
              ? name
-             : m_distributedObjectNamePrefix + "." + name;
+             : m_distributedObjectNamePrefix + "/" + name;
     }
 
     // *************************************************************************
@@ -101,10 +103,8 @@ public class DefaultHazelcastInstanceProxy implements IHazelcastInstanceProxy, I
         if(m_instance == null) {
             if(m_config != null) {
                 m_instance = Hazelcast.newHazelcastInstance(m_config);
-                m_instance.addInstanceListener(this);
             } else {
                 m_instance = Hazelcast.newHazelcastInstance();
-                m_instance.addInstanceListener(this);
             }
 
             LOGGER.debug("New Instance created     : {}", m_instance);
@@ -116,7 +116,6 @@ public class DefaultHazelcastInstanceProxy implements IHazelcastInstanceProxy, I
         if(m_instance != null) {
             LOGGER.debug("Destroying instance {}", m_instance);
 
-            m_instance.removeInstanceListener(this);
             m_instance.getLifecycleService().shutdown();
             m_instance = null;
         }
@@ -143,7 +142,7 @@ public class DefaultHazelcastInstanceProxy implements IHazelcastInstanceProxy, I
 
         try {
             Thread.currentThread().setContextClassLoader(getClassloader());
-            rv = m_instance.getMap(getItemName(name));
+            rv = m_instance.getMap(getDistributedObjectName(name));
         } finally {
             Thread.currentThread().setContextClassLoader(cl);
         }
@@ -158,7 +157,7 @@ public class DefaultHazelcastInstanceProxy implements IHazelcastInstanceProxy, I
 
         try {
             Thread.currentThread().setContextClassLoader(getClassloader());
-            rv = m_instance.getMultiMap(getItemName(name));
+            rv = m_instance.getMultiMap(getDistributedObjectName(name));
         } finally {
             Thread.currentThread().setContextClassLoader(cl);
         }
@@ -173,7 +172,7 @@ public class DefaultHazelcastInstanceProxy implements IHazelcastInstanceProxy, I
 
         try {
             Thread.currentThread().setContextClassLoader(getClassloader());
-            rv = m_instance.getList(getItemName(name));
+            rv = m_instance.getList(getDistributedObjectName(name));
         } finally {
             Thread.currentThread().setContextClassLoader(cl);
         }
@@ -187,7 +186,7 @@ public class DefaultHazelcastInstanceProxy implements IHazelcastInstanceProxy, I
 
         try {
             Thread.currentThread().setContextClassLoader(getClassloader());
-            rv = m_instance.getQueue(getItemName(name));
+            rv = m_instance.getQueue(getDistributedObjectName(name));
         } finally {
             Thread.currentThread().setContextClassLoader(cl);
         }
@@ -202,7 +201,7 @@ public class DefaultHazelcastInstanceProxy implements IHazelcastInstanceProxy, I
 
         try {
             Thread.currentThread().setContextClassLoader(getClassloader());
-            rv = m_instance.getLock(getItemName(name));
+            rv = m_instance.getLock(getDistributedObjectName(name));
         } finally {
             Thread.currentThread().setContextClassLoader(cl);
         }
@@ -217,7 +216,7 @@ public class DefaultHazelcastInstanceProxy implements IHazelcastInstanceProxy, I
 
         try {
             Thread.currentThread().setContextClassLoader(getClassloader());
-            rv = m_instance.getTopic(getItemName(name));
+            rv = m_instance.getTopic(getDistributedObjectName(name));
         } finally {
             Thread.currentThread().setContextClassLoader(cl);
         }
@@ -225,24 +224,30 @@ public class DefaultHazelcastInstanceProxy implements IHazelcastInstanceProxy, I
         return  rv;
     }
 
-    // *************************************************************************
-    // InstanceListener
-    // *************************************************************************
-
-    /**
-     *
-     */
     @Override
-    public void instanceCreated(InstanceEvent event) {
-        LOGGER.debug("Hazelcast Instance Created : {}",event.getInstance().getId());
+    public Collection<Instance> getDistributedObjects() {
+        return  getDistributedObjects(null);
     }
 
-    /**
-     *
-     */
     @Override
-    public void instanceDestroyed(InstanceEvent event) {
-        LOGGER.debug("Hazelcast Instance Destroyed : {}",event.getInstance().getId());
+    public Collection<Instance> getDistributedObjects(Instance.InstanceType type) {
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        Collection<Instance> rv = Lists.newArrayList();
+
+        try {
+            Thread.currentThread().setContextClassLoader(getClassloader());
+            for(Instance instance : m_instance.getInstances()) {
+                if(type == null) {
+                    rv.add(instance);
+                } else if(instance.getInstanceType() == type) {
+                    rv.add(instance);
+                }
+            }
+        } finally {
+            Thread.currentThread().setContextClassLoader(cl);
+        }
+
+        return  rv;
     }
 }
 

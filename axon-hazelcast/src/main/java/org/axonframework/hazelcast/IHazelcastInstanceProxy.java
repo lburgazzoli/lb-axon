@@ -21,7 +21,10 @@ import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
+import com.hazelcast.core.Instance;
 import com.hazelcast.core.MultiMap;
+
+import java.util.Collection;
 
 /**
  *
@@ -88,4 +91,16 @@ public interface IHazelcastInstanceProxy {
      * @return
      */
     public <E> ITopic<E> getTopic(String topicName);
+
+    /**
+     *
+     * @return
+     */
+    public Collection<Instance> getDistributedObjects();
+
+    /**
+     *
+     * @return
+     */
+    public Collection<Instance> getDistributedObjects(Instance.InstanceType type);
 }

@@ -15,7 +15,6 @@
  */
 package org.axonframework.hazelcast.samples;
 
-import com.google.common.collect.Lists;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.SimpleCommandBus;
@@ -25,11 +24,13 @@ import org.axonframework.eventhandling.ClusteringEventBus;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
-import org.axonframework.hazelcast.samples.helper.LocalHazelcastConfig;
 import org.axonframework.hazelcast.DefaultHazelcastInstanceProxy;
 import org.axonframework.hazelcast.eventhandling.HazelcastEventBusTerminal;
+import org.axonframework.hazelcast.eventhandling.impl.DynamicSubscriber;
+import org.axonframework.hazelcast.eventhandling.impl.PackageNamePublisher;
 import org.axonframework.hazelcast.samples.helper.AxonService;
 import org.axonframework.hazelcast.samples.helper.CommandCallbackTracer;
+import org.axonframework.hazelcast.samples.helper.LocalHazelcastConfig;
 import org.axonframework.hazelcast.samples.helper.MemoryEventStore;
 import org.axonframework.hazelcast.samples.model.DataItem;
 import org.axonframework.hazelcast.samples.model.DataItemCmd;
@@ -83,12 +84,13 @@ public class SimpleApp {
     public static void main(String[] args) {
 
         DefaultHazelcastInstanceProxy hxPx = new DefaultHazelcastInstanceProxy(new LocalHazelcastConfig());
+        hxPx.setDistributedObjectNamePrefix("axon");
         hxPx.init();
 
         HazelcastEventBusTerminal evtBusTer = new HazelcastEventBusTerminal(hxPx);
-        evtBusTer.setTopicsOfInterest(Lists.newArrayList(
-                "org.axonframework.hazelcast.samples.model.DataItemEvt$Create",
-                "org.axonframework.hazelcast.samples.model.DataItemEvt$Update")
+        evtBusTer.setPublisher(new PackageNamePublisher(hxPx));
+        evtBusTer.setSubscriber(new DynamicSubscriber(
+            hxPx.getDistributedObjectName("org.axonframework.hazelcast.samples.model.*"))
         );
 
         CommandBus        cmdBus     = new SimpleCommandBus();
