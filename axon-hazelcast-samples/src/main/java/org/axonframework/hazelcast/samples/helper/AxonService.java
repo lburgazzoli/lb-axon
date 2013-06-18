@@ -88,21 +88,21 @@ public class AxonService {
      *
      */
     public void destroy() {
-        LOGGER.debug("Cleanup - EventListeners");
+        LOGGER.debug("Cleanup - EventListeners ({})",m_eventListeners.size());
         for(EventListener listener : m_eventListeners) {
             m_eventBus.unsubscribe(listener);
         }
 
         m_eventListeners.clear();
 
-        LOGGER.debug("Cleanup - EventHandlers");
+        LOGGER.debug("Cleanup - EventHandlers ({})",m_eventHandlers.size());
         for(Subscribable subscription : m_eventHandlers.values()) {
             subscription.unsubscribe();
         }
 
         m_eventHandlers.clear();
 
-        LOGGER.debug("Cleanup - AggregateSubscription");
+        LOGGER.debug("Cleanup - AggregateSubscription ({})",m_aggregates.size());
         for(AggregateSubscription subscription : m_aggregates.values()) {
             subscription.handler.unsubscribe();
         }
