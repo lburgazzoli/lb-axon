@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.eventhandling.publisher;
+package org.axonframework.hazelcast.eventhandling.pub;
 
 import com.hazelcast.core.ITopic;
 import org.axonframework.domain.EventMessage;

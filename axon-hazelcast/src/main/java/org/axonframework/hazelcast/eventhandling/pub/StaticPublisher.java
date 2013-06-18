@@ -13,16 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.eventhandling.publisher;
+package org.axonframework.hazelcast.eventhandling.pub;
 
 import org.axonframework.domain.EventMessage;
+import org.axonframework.hazelcast.IHazelcastInstanceProxy;
 
 /**
  *
  */
-public class PackageNamePublisher extends AbstractPublisher {
+public class StaticPublisher extends AbstractPublisher {
+    private final String m_topicName;
+
+    /**
+     *
+     * @param topicName
+     */
+    public StaticPublisher(IHazelcastInstanceProxy proxy,String topicName) {
+        m_topicName = topicName;
+    }
+
     @Override
     protected String resolve(EventMessage event) {
-        return event.getPayloadType().getPackage().getName();
+        return m_topicName;
     }
 }
