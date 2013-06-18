@@ -89,7 +89,7 @@ public class DataItemEvt {
         @Override
         public String toString() {
             return Objects.toStringHelper(this)
-                .add("id", getId())
+                .add("id"  , getId())
                 .add("text", getText())
                 .toString();
         }

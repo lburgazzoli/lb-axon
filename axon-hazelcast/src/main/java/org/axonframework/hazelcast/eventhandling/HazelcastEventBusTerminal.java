@@ -22,13 +22,12 @@ import org.axonframework.domain.EventMessage;
 import org.axonframework.eventhandling.Cluster;
 import org.axonframework.eventhandling.EventBusTerminal;
 import org.axonframework.hazelcast.IHazelcastInstanceProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * EventBusTerminal implementation that uses an Hazelcast to dispatch event messages.
+ * EventBusTerminal implementation that uses Hazelcast to dispatch event messages.
  *
  * This terminal does not dispatch Events internally, as it relies on each cluster
  * to listen to the topics of interest.
@@ -36,10 +35,10 @@ import java.util.Set;
  * @author Luca Burgazzoli
  */
 public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListener<EventMessage> {
-    private final static Logger LOGGER = LoggerFactory.getLogger(HazelcastEventBusTerminal.class);
-
     private final IHazelcastInstanceProxy m_proxy;
     private final Set<Cluster> m_clusters;
+    private final AtomicBoolean m_subscribed;
+
     private IHazelcastTopicPublisher m_publisher;
     private IHazelcastTopicSubscriber m_subscriber;
 
@@ -53,6 +52,7 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
         m_clusters   = Sets.newHashSet();
         m_publisher  = null;
         m_subscriber = null;
+        m_subscribed = new AtomicBoolean(false);
     }
 
     // *************************************************************************
@@ -60,18 +60,21 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
     // *************************************************************************
 
     /**
-     * @param publisher the topics of interest
+     * @param publisher the TopicPublisher
      */
     public void setPublisher(IHazelcastTopicPublisher publisher) {
         m_publisher = publisher;
     }
 
     /**
-     * @param subscriber the topics of interest
+     * @param subscriber the TopicSubscriber
      */
     public void setSubscriber(IHazelcastTopicSubscriber subscriber) {
+        if(m_subscriber != null) {
+            m_subscriber.unsubscribe(m_proxy,this);
+        }
+
         m_subscriber = subscriber;
-        m_subscriber.subscribe(m_proxy,this);
     }
 
     // *************************************************************************
@@ -81,13 +84,17 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
     @Override
     public void publish(EventMessage... events) {
         for(EventMessage event : events) {
-            m_publisher.publish(event);
+            m_publisher.publish(m_proxy,event);
         }
     }
 
     @Override
     public void onClusterCreated(Cluster cluster) {
-        LOGGER.debug("ClusterCreated: <{}>",cluster.getName());
+        if(m_subscriber != null && m_subscribed.get() == false) {
+            m_subscriber.subscribe(m_proxy,this);
+            m_subscribed.set(true);
+        }
+
         m_clusters.add(cluster);
     }
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.eventhandling.impl;
+package org.axonframework.hazelcast.eventhandling.publisher;
 
 import com.hazelcast.core.ITopic;
 import org.axonframework.domain.EventMessage;
@@ -27,27 +27,23 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractPublisher implements IHazelcastTopicPublisher {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPublisher.class);
-    private final IHazelcastInstanceProxy m_proxy;
 
     /**
      * c-tor
      */
-    public AbstractPublisher(IHazelcastInstanceProxy proxy) {
-        m_proxy = proxy;
+    public AbstractPublisher() {
     }
 
     /**
      *
      * @param event
      */
-    public void publish(EventMessage event) {
-        if(m_proxy != null) {
-            String               topicName = resolve(event);
-            ITopic<EventMessage> topic     = m_proxy.getTopic(topicName);
+    public void publish(IHazelcastInstanceProxy prox,EventMessage event) {
+        String               topicName = resolve(event);
+        ITopic<EventMessage> topic     = prox.getTopic(topicName);
 
-            LOGGER.debug("Publish event <{}> to {}",event.getIdentifier(),topic.getName());
-            topic.publish(event);
-        }
+        LOGGER.debug("Publish event <{}> to {}",event.getIdentifier(),topic.getName());
+        topic.publish(event);
     }
 
     protected abstract String resolve(EventMessage event);

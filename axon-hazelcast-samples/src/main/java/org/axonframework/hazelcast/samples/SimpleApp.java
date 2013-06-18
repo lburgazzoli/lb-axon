@@ -26,8 +26,8 @@ import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
 import org.axonframework.hazelcast.DefaultHazelcastInstanceProxy;
 import org.axonframework.hazelcast.eventhandling.HazelcastEventBusTerminal;
-import org.axonframework.hazelcast.eventhandling.impl.DynamicSubscriber;
-import org.axonframework.hazelcast.eventhandling.impl.PackageNamePublisher;
+import org.axonframework.hazelcast.eventhandling.subscriber.DynamicSubscriber;
+import org.axonframework.hazelcast.eventhandling.publisher.PackageNamePublisher;
 import org.axonframework.hazelcast.samples.helper.AxonService;
 import org.axonframework.hazelcast.samples.helper.CommandCallbackTracer;
 import org.axonframework.hazelcast.samples.helper.LocalHazelcastConfig;
@@ -37,6 +37,8 @@ import org.axonframework.hazelcast.samples.model.DataItemCmd;
 import org.axonframework.hazelcast.samples.model.DataItemEvt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.UUID.randomUUID;
 
@@ -55,25 +57,79 @@ public class SimpleApp {
     //
     // *************************************************************************
 
-    private static final class DataItemEvtHandler {
+    private static AxonService newAxonService(DefaultHazelcastInstanceProxy proxy) {
+        HazelcastEventBusTerminal evtBusTer = new HazelcastEventBusTerminal(proxy);
+        evtBusTer.setPublisher(new PackageNamePublisher());
+        evtBusTer.setSubscriber(new DynamicSubscriber(
+            proxy.getDistributedObjectName("org.axonframework.hazelcast.samples.model.*"))
+        );
+
+        CommandBus     cmdBus   = new SimpleCommandBus();
+        CommandGateway cmdGw    = new DefaultCommandGateway(cmdBus);
+        EventStore     evtStore = new MemoryEventStore();
+        EventBus       evtBus   = new ClusteringEventBus(evtBusTer);
+
+        AxonService svc = new AxonService();
+        svc.setCommandBus(cmdBus);
+        svc.setCommandGateway(cmdGw);
+        svc.setEventStore(evtStore);
+        svc.setEventBus(evtBus);
+
+        return svc;
+    }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    private static final class AxonServiceThread extends Thread {
+        private final DefaultHazelcastInstanceProxy m_proxy;
+        private final AtomicBoolean m_running;
+
+        /**
+         * @param threadName
+         * @param proxy
+         */
+        public AxonServiceThread(String threadName,DefaultHazelcastInstanceProxy proxy) {
+            super(threadName);
+            m_proxy   = proxy;
+            m_running = new AtomicBoolean(false);
+        }
+
+        @Override
+        public void run() {
+            m_running.set(true);
+
+            AxonService svc = newAxonService(m_proxy);
+            svc.init();
+            svc.addEventHandler(this);
+
+            while(m_running.get()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+            }
+
+            svc.destroy();
+        }
+
         @EventHandler
         public void handle(DataItemEvt.Create data) {
-            LOGGER.debug("DataItemEvt.Create <{}> :"
-                + "\n\tid   = {}"
-                + "\n\ttext = {}",
-                data.getClass().getName(),
-                data.getId(),
-                data.getText());
+            LOGGER.debug("DataItemEvt <{}>",data);
         }
 
         @EventHandler
         public void handle(DataItemEvt.Update data) {
-            LOGGER.debug("DataItemEvt.Update <{}> :"
-                + "\n\tid   = {}"
-                + "\n\ttext = {}",
-                data.getClass().getName(),
-                data.getId(),
-                data.getText());
+            LOGGER.debug("DataItemEvt <{}>",data);
+            m_running.set(false);
+        }
+
+        /**
+         *
+         */
+        public void shutdown() {
+            m_running.set(false);
         }
     }
 
@@ -82,38 +138,26 @@ public class SimpleApp {
     // *************************************************************************
 
     public static void main(String[] args) {
-
         DefaultHazelcastInstanceProxy hxPx = new DefaultHazelcastInstanceProxy(new LocalHazelcastConfig());
         hxPx.setDistributedObjectNamePrefix("axon");
         hxPx.init();
 
-        HazelcastEventBusTerminal evtBusTer = new HazelcastEventBusTerminal(hxPx);
-        evtBusTer.setPublisher(new PackageNamePublisher(hxPx));
-        evtBusTer.setSubscriber(new DynamicSubscriber(
-            hxPx.getDistributedObjectName("org.axonframework.hazelcast.samples.model.*"))
-        );
-
-        CommandBus        cmdBus     = new SimpleCommandBus();
-        CommandGateway    cmdGw      = new DefaultCommandGateway(cmdBus);
-        EventStore        evtStore   = new MemoryEventStore();
-        EventBus          evtBus     = new ClusteringEventBus(evtBusTer);
-
-        AxonService svc = new AxonService();
-        //app.setCacheProvider(new HazelcastCacheProvider(new DefaultHazelcastInstanceProxy()));
-        svc.setCommandBus(cmdBus);
-        svc.setCommandGateway(cmdGw);
-        svc.setEventStore(evtStore);
-        svc.setEventBus(evtBus);
-
+        AxonService svc = newAxonService(hxPx);
         svc.init();
-        svc.addEventHandler(new DataItemEvtHandler());
         svc.addAggregateType(DataItem.class);
+
+        AxonServiceThread st1 = new AxonServiceThread("axon-svc1-th",hxPx);
+        AxonServiceThread st2 = new AxonServiceThread("axon-svc2-th",hxPx);
+
+        st1.start();
+        st2.start();
 
         svc.send(new DataItemCmd.Create("d01", randomUUID().toString()), CMDCBK);
         svc.send(new DataItemCmd.Update("d01", randomUUID().toString()), CMDCBK);
 
         try {
-            Thread.sleep(1000 * 5);
+            st1.join();
+            st2.join();
         } catch (InterruptedException e) {
         }
 
