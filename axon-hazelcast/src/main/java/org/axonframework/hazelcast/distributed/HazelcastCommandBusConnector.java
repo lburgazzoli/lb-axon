@@ -29,9 +29,12 @@ import org.axonframework.hazelcast.IHazelcastInstanceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
+import java.util.Date;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -44,18 +47,17 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
     private static final String REG_NODES             = "reg.nodes";
     private static final String REG_CMD_DESTINATIONS  = "reg.cmd.destinations";
     private static final String REG_CMD_HANDLERS      = "reg.cmd.handlers";
-    private static final String ATTR_CLUSTER_NAME     = "cluster.name";
-    private static final String ATTR_NODE_NAME        = "node.name";
 
-
+    private final ScheduledExecutorService m_scheduler;
     private final IHazelcastInstanceProxy m_proxy;
     private final CommandBus m_localSegment;
     private final String m_clusterName;
     private final String m_nodeName;
     private final Set<String> m_supportedCmds;
-    private final IMap<String,Object> m_registry;
+    private final IMap<String,HazelcastNode> m_registry;
     private final IMap<String,String> m_destinations;
 
+    private IQueue<CommandMessage<?>> m_queue;
     private HazelcastCommandListener m_queueListener;
 
     /**
@@ -75,25 +77,31 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
         m_registry      = m_proxy.getMap(REG_NODES);
         m_destinations  = m_proxy.getMap(REG_CMD_DESTINATIONS);
         m_queueListener = null;
+        m_scheduler     = Executors.newScheduledThreadPool(1);
     }
 
     // *************************************************************************
     //
     // *************************************************************************
 
+    /**
+     *
+     */
     public void connect() {
         if(StringUtils.isNotBlank(m_nodeName)) {
             if(!m_registry.containsKey(m_nodeName)) {
-                IQueue<?> queue = m_proxy.getQueue(m_nodeName);
-                m_registry.put(m_nodeName,queue.getName());
+                m_queue = m_proxy.getQueue(m_nodeName);
+                m_registry.put(m_nodeName,new HazelcastNode(m_nodeName,m_queue.getName()));
 
                 LOGGER.debug("{} - registered <{}>",m_nodeName,m_registry.getName());
-                LOGGER.debug("{} - queue.name <{}>",m_nodeName,queue.getName());
+                LOGGER.debug("{} - queue.name <{}>",m_nodeName,m_queue.getName());
 
-                if(queue != null && m_queueListener == null) {
-                    m_queueListener = new HazelcastCommandListener(queue);
+                if(m_queue != null && m_queueListener == null) {
+                    m_queueListener = new HazelcastCommandListener();
                     m_queueListener.run();
                 }
+
+                m_scheduler.scheduleAtFixedRate(new HazelcashNodeHeartBeat(),10,5,TimeUnit.SECONDS);
 
             } else {
                 LOGGER.warn("Service {} already registered",m_nodeName);
@@ -103,6 +111,9 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
         }
     }
 
+    /**
+     *
+     */
     public void disconenct() {
         if(m_proxy != null) {
             m_queueListener.shutdown();
@@ -110,12 +121,14 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
                 m_queueListener.join(1000 * 5);
             } catch (InterruptedException e) {
                 LOGGER.warn("Exception",e);
-            } finally {
-                m_queueListener = null;
             }
         }
 
+        m_scheduler.shutdown();
         m_registry.remove(m_nodeName);
+
+        m_queueListener = null;
+        m_queue = null;
     }
 
     // *************************************************************************
@@ -222,18 +235,34 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
     /**
      *
      */
-    private class HazelcastCommandListener extends Thread {
-
-        private final BlockingQueue<?> m_queue;
-        private final AtomicBoolean m_running;
+    private class HazelcastNode implements Serializable {
+        private String m_name;
+        private String m_queueName;
+        private Date m_lastHeartBeat;
 
         /**
          * c-tor
          *
-         * @param queue
+         * @param name
+         * @param queueName
          */
-        public HazelcastCommandListener(BlockingQueue<?> queue) {
-            m_queue   = queue;
+        public HazelcastNode(String name,String queueName) {
+            m_name = name;
+            m_queueName = queueName;
+            m_lastHeartBeat = new Date();
+        }
+    }
+
+    /**
+     *
+     */
+    private class HazelcastCommandListener extends Thread {
+        private final AtomicBoolean m_running;
+
+        /**
+         * c-tor
+         */
+        public HazelcastCommandListener() {
             m_running = new AtomicBoolean(true);
         }
 
@@ -248,11 +277,28 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
         public void run() {
             while(m_running.get()) {
                 try {
-                    LOGGER.debug("poll : <{}>",m_queue.poll(1, TimeUnit.SECONDS));
-                }
-                catch (InterruptedException e) {
+                    LOGGER.debug("poll...");
+
+                    CommandMessage<?> cmd = m_queue.poll(1, TimeUnit.SECONDS);
+                    if(cmd != null && m_localSegment != null) {
+                        m_localSegment.dispatch(cmd);
+                    }
+
+                } catch (InterruptedException e) {
                     LOGGER.warn("Exception",e);
                 }
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    private class HazelcashNodeHeartBeat implements Runnable {
+        @Override
+        public void run() {
+            if(m_registry != null && m_queue != null) {
+                m_registry.put(m_nodeName,new HazelcastNode(m_nodeName,m_queue.getName()));
             }
         }
     }
