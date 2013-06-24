@@ -18,29 +18,28 @@ package org.axonframework.hazelcast.samples;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.SimpleCommandBus;
+import org.axonframework.commandhandling.distributed.DistributedCommandBus;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.commandhandling.gateway.DefaultCommandGateway;
-import org.axonframework.eventhandling.ClusteringEventBus;
 import org.axonframework.eventhandling.EventBus;
+import org.axonframework.eventhandling.SimpleEventBus;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
 import org.axonframework.hazelcast.DefaultHazelcastInstanceProxy;
+import org.axonframework.hazelcast.distributed.HazelcastCommandBusConnector;
 import org.axonframework.hazelcast.eventhandling.HazelcastEventBusTerminal;
-import org.axonframework.hazelcast.eventhandling.sub.DynamicSubscriber;
 import org.axonframework.hazelcast.eventhandling.pub.PackageNamePublisher;
+import org.axonframework.hazelcast.eventhandling.sub.DynamicSubscriber;
 import org.axonframework.hazelcast.samples.helper.AxonService;
 import org.axonframework.hazelcast.samples.helper.CommandCallbackTracer;
 import org.axonframework.hazelcast.samples.helper.LocalHazelcastConfig;
 import org.axonframework.hazelcast.samples.helper.MemoryEventStore;
 import org.axonframework.hazelcast.samples.model.DataItem;
-import org.axonframework.hazelcast.samples.model.DataItemCmd;
 import org.axonframework.hazelcast.samples.model.DataItemEvt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static java.util.UUID.randomUUID;
 
 /**
  *
@@ -57,17 +56,30 @@ public class SimpleApp {
     //
     // *************************************************************************
 
-    private static AxonService newAxonService(DefaultHazelcastInstanceProxy proxy) {
+    private static AxonService newAxonService(DefaultHazelcastInstanceProxy proxy,boolean remote,String nodeName) {
         HazelcastEventBusTerminal evtBusTer = new HazelcastEventBusTerminal(proxy);
         evtBusTer.setPublisher(new PackageNamePublisher());
         evtBusTer.setSubscriber(new DynamicSubscriber(
             proxy.getDistributedObjectName("org.axonframework.hazelcast.samples.model.*"))
         );
 
-        CommandBus     cmdBus   = new SimpleCommandBus();
-        CommandGateway cmdGw    = new DefaultCommandGateway(cmdBus);
-        EventStore     evtStore = new MemoryEventStore();
-        EventBus       evtBus   = new ClusteringEventBus(evtBusTer);
+        CommandBus cmdBus = null;
+
+        if(remote) {
+            HazelcastCommandBusConnector cmdBusCnx =
+                new HazelcastCommandBusConnector(proxy,new SimpleCommandBus(),"axon",nodeName);
+
+            cmdBusCnx.connect();
+
+            cmdBus = new DistributedCommandBus(cmdBusCnx);
+        } else {
+            cmdBus = new SimpleCommandBus();
+        }
+
+        CommandGateway      cmdGw       = new DefaultCommandGateway(cmdBus);
+        EventStore          evtStore    = new MemoryEventStore();
+        //EventBus            evtBus      = new ClusteringEventBus(evtBusTer);
+        EventBus            evtBus      = new SimpleEventBus();
 
         AxonService svc = new AxonService();
         svc.setCommandBus(cmdBus);
@@ -100,7 +112,7 @@ public class SimpleApp {
         public void run() {
             m_running.set(true);
 
-            AxonService svc = newAxonService(m_proxy);
+            AxonService svc = newAxonService(m_proxy,false,null);
             svc.init();
             svc.addEventHandler(this);
 
@@ -142,12 +154,13 @@ public class SimpleApp {
         hxPx.setDistributedObjectNamePrefix("axon");
         hxPx.init();
 
-        AxonService svc = newAxonService(hxPx);
+        AxonService svc = newAxonService(hxPx,true,"main");
         svc.init();
         svc.addAggregateType(DataItem.class);
 
+        /*
         AxonServiceThread st1 = new AxonServiceThread("axon-svc1-th",hxPx);
-        AxonServiceThread st2 = new AxonServiceThread("axon-svc2-th",hxPx);
+        //AxonServiceThread st2 = new AxonServiceThread("axon-svc2-th",hxPx);
 
         st1.start();
         st2.start();
@@ -158,6 +171,17 @@ public class SimpleApp {
         try {
             st1.join();
             st2.join();
+        } catch (InterruptedException e) {
+        }
+
+        try {
+            Thread.sleep(1000 * 30);
+        } catch (InterruptedException e) {
+        }
+        */
+
+        try {
+            Thread.sleep(1000 * 50);
         } catch (InterruptedException e) {
         }
 

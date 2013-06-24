@@ -16,16 +16,22 @@
 package org.axonframework.hazelcast.distributed;
 
 import com.google.common.collect.Sets;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.IQueue;
+import com.hazelcast.core.MultiMap;
+import org.apache.commons.lang3.StringUtils;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.CommandMessage;
 import org.axonframework.commandhandling.distributed.CommandBusConnector;
+import org.axonframework.hazelcast.IHazelcastInstanceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -35,23 +41,39 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class HazelcastCommandBusConnector implements CommandBusConnector {
     private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastCommandBusConnector.class);
 
-    private final HazelcastCommandBusManager m_manager;
+    private static final String REG_NODES             = "reg.nodes";
+    private static final String REG_CMD_DESTINATIONS  = "reg.cmd.destinations";
+    private static final String REG_CMD_HANDLERS      = "reg.cmd.handlers";
+    private static final String ATTR_CLUSTER_NAME     = "cluster.name";
+    private static final String ATTR_NODE_NAME        = "node.name";
+
+
+    private final IHazelcastInstanceProxy m_proxy;
     private final CommandBus m_localSegment;
-    private final Set<String> m_supportedCommands;
-    private String m_nodeId;
+    private final String m_clusterName;
+    private final String m_nodeName;
+    private final Set<String> m_supportedCmds;
+    private final IMap<String,Object> m_registry;
+    private final IMap<String,String> m_destinations;
+
     private HazelcastCommandListener m_queueListener;
 
     /**
      * c-tor
      *
-     * @param manager
-     * @param localSegment
+     * @param proxy the hazelcast proxy
+     * @param localSegment CommandBus that dispatches Commands destined for the local JVM
+     * @param clusterName the name of the Cluster this segment registers to
+     * @param nodeName
      */
-    public HazelcastCommandBusConnector(HazelcastCommandBusManager manager,CommandBus localSegment) {
-        m_manager = manager;
-        m_localSegment = localSegment;
-        m_supportedCommands = Sets.newCopyOnWriteArraySet();
-        m_nodeId = null;
+    public HazelcastCommandBusConnector(IHazelcastInstanceProxy proxy,CommandBus localSegment,String clusterName,String nodeName) {
+        m_proxy         = proxy;
+        m_localSegment  = localSegment;
+        m_clusterName   = clusterName;
+        m_nodeName      = nodeName + "@" + m_clusterName;
+        m_supportedCmds = Sets.newHashSet();
+        m_registry      = m_proxy.getMap(REG_NODES);
+        m_destinations  = m_proxy.getMap(REG_CMD_DESTINATIONS);
         m_queueListener = null;
     }
 
@@ -59,30 +81,30 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
     //
     // *************************************************************************
 
-    /**
-     *
-     * @param nodeId
-     */
-    public void setNodeId(String nodeId) {
-        m_nodeId = nodeId;
-    }
-
-    /**
-     *
-     */
     public void connect() {
-        BlockingDeque<?> queue = m_manager.join(m_nodeId);
-        if(queue != null && m_queueListener == null) {
-            m_queueListener = new HazelcastCommandListener(queue);
-            m_queueListener.run();
+        if(StringUtils.isNotBlank(m_nodeName)) {
+            if(!m_registry.containsKey(m_nodeName)) {
+                IQueue<?> queue = m_proxy.getQueue(m_nodeName);
+                m_registry.put(m_nodeName,queue.getName());
+
+                LOGGER.debug("{} - registered <{}>",m_nodeName,m_registry.getName());
+                LOGGER.debug("{} - queue.name <{}>",m_nodeName,queue.getName());
+
+                if(queue != null && m_queueListener == null) {
+                    m_queueListener = new HazelcastCommandListener(queue);
+                    m_queueListener.run();
+                }
+
+            } else {
+                LOGGER.warn("Service {} already registered",m_nodeName);
+            }
+        } else {
+            LOGGER.warn("Service does not declare an ID");
         }
     }
 
-    /**
-     *
-     */
     public void disconenct() {
-        if(m_manager != null) {
+        if(m_proxy != null) {
             m_queueListener.shutdown();
             try {
                 m_queueListener.join(1000 * 5);
@@ -93,7 +115,7 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
             }
         }
 
-        m_manager.leave(m_nodeId);
+        m_registry.remove(m_nodeName);
     }
 
     // *************************************************************************
@@ -107,10 +129,12 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
 
     @Override
     public <R> void send(String routingKey, CommandMessage<?> command, CommandCallback<R> callback) throws Exception {
-        String destination = m_manager.getCommandDestination(routingKey, command);
+        String destination = getCommandDestination(routingKey, command);
+
+        m_proxy.getQueue(destination).put(command);
 
         try {
-            m_manager.send(destination, command);
+            m_proxy.getQueue(destination).put(command);
             if(callback != null) {
                 //TODO: do something
             }
@@ -122,17 +146,25 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
 
     @Override
     public <C> void subscribe(String commandName, CommandHandler<? super C> handler) {
-        m_localSegment.subscribe(commandName, handler);
-        if (m_supportedCommands.add(commandName)) {
-            m_manager.registerCommandHandler(commandName, m_nodeId);
+        LOGGER.debug("subscribe: {}",commandName);
+        if(m_supportedCmds.add(commandName)) {
+            m_localSegment.subscribe(commandName,handler);
+            LOGGER.debug("subscribed: {}",commandName);
+
+            m_proxy.getMultiMap(REG_CMD_HANDLERS).put(commandName,m_nodeName);
         }
     }
 
     @Override
     public <C> boolean unsubscribe(String commandName, CommandHandler<? super C> handler) {
+        LOGGER.debug("unsubscribe: {}",commandName);
         if (m_localSegment.unsubscribe(commandName, handler)) {
-            m_supportedCommands.remove(commandName);
-            m_manager.unregisterCommandHandler(commandName, m_nodeId);
+            LOGGER.debug("unsubscribed: {}",commandName);
+
+            if(m_supportedCmds.remove(commandName)) {
+                m_proxy.getMultiMap(REG_CMD_HANDLERS).remove(commandName,m_nodeName);
+            }
+
             return true;
         }
 
@@ -145,10 +177,54 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
 
     /**
      *
+     * @param command
+     * @return
+     */
+    private String getHandlerForCommand(CommandMessage<?> command) {
+        MultiMap<String,String> map   = m_proxy.getMultiMap("");
+        String[]                items = map.get(command.getCommandName()).toArray(new String[]{});
+
+        if(items.length == 1) {
+            return items[0];
+        } else if(items.length > 1) {
+            return items[new Random().nextInt(items.length)];
+        }
+
+        return null;
+    }
+
+    /**
+     *
+     * @param routingKey
+     * @param command
+     * @return
+     */
+    public String getCommandDestination(String routingKey, CommandMessage<?> command) {
+        String destination = m_destinations.get(routingKey);
+        if(StringUtils.isBlank(destination)) {
+            destination = getHandlerForCommand(command);
+            if(m_registry.containsKey(destination)) {
+                m_destinations.put(routingKey,destination);
+            }
+        }
+
+        if(!m_registry.containsKey(destination)) {
+            destination = null;
+        }
+
+        return destination;
+    }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    /**
+     *
      */
     private class HazelcastCommandListener extends Thread {
 
-        private final BlockingDeque<?> m_queue;
+        private final BlockingQueue<?> m_queue;
         private final AtomicBoolean m_running;
 
         /**
@@ -156,8 +232,8 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
          *
          * @param queue
          */
-        public HazelcastCommandListener(BlockingDeque<?> queue) {
-            m_queue = queue;
+        public HazelcastCommandListener(BlockingQueue<?> queue) {
+            m_queue   = queue;
             m_running = new AtomicBoolean(true);
         }
 
@@ -172,7 +248,7 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
         public void run() {
             while(m_running.get()) {
                 try {
-                    m_queue.poll(1, TimeUnit.SECONDS);
+                    LOGGER.debug("poll : <{}>",m_queue.poll(1, TimeUnit.SECONDS));
                 }
                 catch (InterruptedException e) {
                     LOGGER.warn("Exception",e);
