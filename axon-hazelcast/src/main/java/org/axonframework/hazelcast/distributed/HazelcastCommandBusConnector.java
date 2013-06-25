@@ -15,6 +15,7 @@
  */
 package org.axonframework.hazelcast.distributed;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
@@ -30,8 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -56,6 +57,7 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
     private final Set<String> m_supportedCmds;
     private final IMap<String,HazelcastNode> m_registry;
     private final IMap<String,String> m_destinations;
+    private final MultiMap<String,String> m_cmdHandlers;
 
     private IQueue<CommandMessage<?>> m_queue;
     private HazelcastCommandListener m_queueListener;
@@ -76,6 +78,7 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
         m_supportedCmds = Sets.newHashSet();
         m_registry      = m_proxy.getMap(REG_NODES);
         m_destinations  = m_proxy.getMap(REG_CMD_DESTINATIONS);
+        m_cmdHandlers   = m_proxy.getMultiMap(REG_CMD_HANDLERS);
         m_queueListener = null;
         m_scheduler     = Executors.newScheduledThreadPool(1);
     }
@@ -88,26 +91,26 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
      *
      */
     public void connect() {
-        if(StringUtils.isNotBlank(m_nodeName)) {
-            if(!m_registry.containsKey(m_nodeName)) {
-                m_queue = m_proxy.getQueue(m_nodeName);
-                m_registry.put(m_nodeName,new HazelcastNode(m_nodeName,m_queue.getName()));
+        if(!m_registry.containsKey(m_nodeName)) {
+            m_queue = m_proxy.getQueue(m_nodeName);
+            m_registry.put(
+                m_nodeName,
+                new HazelcastNode(m_nodeName,m_queue.getName()),
+                15,
+                TimeUnit.SECONDS);
 
-                LOGGER.debug("{} - registered <{}>",m_nodeName,m_registry.getName());
-                LOGGER.debug("{} - queue.name <{}>",m_nodeName,m_queue.getName());
+            LOGGER.debug("{} - registered <{}>",m_nodeName,m_registry.getName());
+            LOGGER.debug("{} - queue.name <{}>",m_nodeName,m_queue.getName());
 
-                if(m_queue != null && m_queueListener == null) {
-                    m_queueListener = new HazelcastCommandListener();
-                    m_queueListener.run();
-                }
-
-                m_scheduler.scheduleAtFixedRate(new HazelcashNodeHeartBeat(),10,5,TimeUnit.SECONDS);
-
-            } else {
-                LOGGER.warn("Service {} already registered",m_nodeName);
+            if(m_queue != null && m_queueListener == null) {
+                m_queueListener = new HazelcastCommandListener();
+                m_queueListener.start();
             }
+
+            m_scheduler.scheduleAtFixedRate(new HazelcashNodeHeartBeat(), 5, 5, TimeUnit.SECONDS);
+
         } else {
-            LOGGER.warn("Service does not declare an ID");
+            LOGGER.warn("Service {} already registered",m_nodeName);
         }
     }
 
@@ -137,45 +140,40 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
 
     @Override
     public void send(String routingKey, CommandMessage<?> command) throws Exception {
-        send(routingKey,command,null);
+        send(routingKey, command, null);
     }
 
     @Override
     public <R> void send(String routingKey, CommandMessage<?> command, CommandCallback<R> callback) throws Exception {
         String destination = getCommandDestination(routingKey, command);
+        LOGGER.debug("Send command <{}> to <{}>",command.getIdentifier(),destination);
 
-        m_proxy.getQueue(destination).put(command);
-
-        try {
-            m_proxy.getQueue(destination).put(command);
-            if(callback != null) {
-                //TODO: do something
+        if(StringUtils.isNotBlank(destination)) {
+            try {
+                m_proxy.getQueue(destination).put(command);
+                if(callback != null) {
+                    //TODO: do something
+                }
+            } catch(Exception e) {
+                LOGGER.warn("Exception,e");
+                throw e;
             }
-        } catch(Exception e) {
-            LOGGER.warn("Exception,e");
-            throw e;
         }
     }
 
     @Override
     public <C> void subscribe(String commandName, CommandHandler<? super C> handler) {
-        LOGGER.debug("subscribe: {}",commandName);
         if(m_supportedCmds.add(commandName)) {
-            m_localSegment.subscribe(commandName,handler);
-            LOGGER.debug("subscribed: {}",commandName);
-
-            m_proxy.getMultiMap(REG_CMD_HANDLERS).put(commandName,m_nodeName);
+            m_localSegment.subscribe(commandName, handler);
+            m_cmdHandlers.put(commandName, m_nodeName);
         }
     }
 
     @Override
     public <C> boolean unsubscribe(String commandName, CommandHandler<? super C> handler) {
-        LOGGER.debug("unsubscribe: {}",commandName);
         if (m_localSegment.unsubscribe(commandName, handler)) {
-            LOGGER.debug("unsubscribed: {}",commandName);
-
             if(m_supportedCmds.remove(commandName)) {
-                m_proxy.getMultiMap(REG_CMD_HANDLERS).remove(commandName,m_nodeName);
+                m_cmdHandlers.remove(commandName, m_nodeName);
             }
 
             return true;
@@ -194,16 +192,8 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
      * @return
      */
     private String getHandlerForCommand(CommandMessage<?> command) {
-        MultiMap<String,String> map   = m_proxy.getMultiMap("");
-        String[]                items = map.get(command.getCommandName()).toArray(new String[]{});
-
-        if(items.length == 1) {
-            return items[0];
-        } else if(items.length > 1) {
-            return items[new Random().nextInt(items.length)];
-        }
-
-        return null;
+        Collection<String> hds = m_cmdHandlers.get(command.getCommandName());
+        return hds.size() >= 1 ? hds.iterator().next() : null;
     }
 
     /**
@@ -216,7 +206,7 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
         String destination = m_destinations.get(routingKey);
         if(StringUtils.isBlank(destination)) {
             destination = getHandlerForCommand(command);
-            if(m_registry.containsKey(destination)) {
+            if(StringUtils.isNotBlank(destination) && m_registry.containsKey(destination)) {
                 m_destinations.put(routingKey,destination);
             }
         }
@@ -235,7 +225,7 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
     /**
      *
      */
-    private class HazelcastNode implements Serializable {
+    private static class HazelcastNode implements Serializable {
         private String m_name;
         private String m_queueName;
         private Date m_lastHeartBeat;
@@ -250,6 +240,15 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
             m_name = name;
             m_queueName = queueName;
             m_lastHeartBeat = new Date();
+        }
+
+        @Override
+        public String toString() {
+            return Objects.toStringHelper(this)
+                .add("name" , m_name)
+                .add("inbox", m_queueName)
+                .add("lastHeartBeat", m_lastHeartBeat)
+                .toString();
         }
     }
 
@@ -278,9 +277,10 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
             while(m_running.get()) {
                 try {
                     LOGGER.debug("poll...");
-
                     CommandMessage<?> cmd = m_queue.poll(1, TimeUnit.SECONDS);
+
                     if(cmd != null && m_localSegment != null) {
+                        LOGGER.debug(".. got {}",cmd);
                         m_localSegment.dispatch(cmd);
                     }
 
@@ -298,7 +298,9 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
         @Override
         public void run() {
             if(m_registry != null && m_queue != null) {
-                m_registry.put(m_nodeName,new HazelcastNode(m_nodeName,m_queue.getName()));
+                HazelcastNode hb = new HazelcastNode(m_nodeName,m_queue.getName());
+                LOGGER.debug("NodeHeartBeat : {}",hb);
+                m_registry.put(m_nodeName,hb);
             }
         }
     }

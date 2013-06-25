@@ -74,7 +74,7 @@ public class DataItem extends AbstractAnnotatedAggregateRoot implements Serializ
     }
 
     @EventHandler
-    protected void handleDataItemUpdateCommand( DataItemEvt.Update event) {
+    protected void handleDataItemUpdateEvent(DataItemEvt.Update event) {
         m_text = event.getText();
     }
 }

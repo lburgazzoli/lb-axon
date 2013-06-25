@@ -21,8 +21,8 @@ import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.commandhandling.distributed.DistributedCommandBus;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.commandhandling.gateway.DefaultCommandGateway;
+import org.axonframework.eventhandling.ClusteringEventBus;
 import org.axonframework.eventhandling.EventBus;
-import org.axonframework.eventhandling.SimpleEventBus;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
 import org.axonframework.hazelcast.DefaultHazelcastInstanceProxy;
@@ -35,11 +35,14 @@ import org.axonframework.hazelcast.samples.helper.CommandCallbackTracer;
 import org.axonframework.hazelcast.samples.helper.LocalHazelcastConfig;
 import org.axonframework.hazelcast.samples.helper.MemoryEventStore;
 import org.axonframework.hazelcast.samples.model.DataItem;
+import org.axonframework.hazelcast.samples.model.DataItemCmd;
 import org.axonframework.hazelcast.samples.model.DataItemEvt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static java.util.UUID.randomUUID;
 
 /**
  *
@@ -78,8 +81,7 @@ public class SimpleApp {
 
         CommandGateway      cmdGw       = new DefaultCommandGateway(cmdBus);
         EventStore          evtStore    = new MemoryEventStore();
-        //EventBus            evtBus      = new ClusteringEventBus(evtBusTer);
-        EventBus            evtBus      = new SimpleEventBus();
+        EventBus            evtBus      = new ClusteringEventBus(evtBusTer);
 
         AxonService svc = new AxonService();
         svc.setCommandBus(cmdBus);
@@ -158,9 +160,13 @@ public class SimpleApp {
         svc.init();
         svc.addAggregateType(DataItem.class);
 
-        /*
+        try {
+            Thread.sleep(1000 * 5);
+        } catch(Exception e) {
+        }
+
         AxonServiceThread st1 = new AxonServiceThread("axon-svc1-th",hxPx);
-        //AxonServiceThread st2 = new AxonServiceThread("axon-svc2-th",hxPx);
+        AxonServiceThread st2 = new AxonServiceThread("axon-svc2-th",hxPx);
 
         st1.start();
         st2.start();
@@ -171,17 +177,6 @@ public class SimpleApp {
         try {
             st1.join();
             st2.join();
-        } catch (InterruptedException e) {
-        }
-
-        try {
-            Thread.sleep(1000 * 30);
-        } catch (InterruptedException e) {
-        }
-        */
-
-        try {
-            Thread.sleep(1000 * 50);
         } catch (InterruptedException e) {
         }
 
