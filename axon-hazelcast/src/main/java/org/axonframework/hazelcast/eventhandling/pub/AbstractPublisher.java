@@ -17,15 +17,15 @@ package org.axonframework.hazelcast.eventhandling.pub;
 
 import com.hazelcast.core.ITopic;
 import org.axonframework.domain.EventMessage;
-import org.axonframework.hazelcast.IHazelcastInstanceProxy;
-import org.axonframework.hazelcast.eventhandling.IHazelcastTopicPublisher;
+import org.axonframework.hazelcast.IHzInstanceProxy;
+import org.axonframework.hazelcast.eventhandling.IHzTopicPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public abstract class AbstractPublisher implements IHazelcastTopicPublisher {
+public abstract class AbstractPublisher implements IHzTopicPublisher {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractPublisher.class);
 
     /**
@@ -38,7 +38,7 @@ public abstract class AbstractPublisher implements IHazelcastTopicPublisher {
      *
      * @param event
      */
-    public void publish(IHazelcastInstanceProxy prox,EventMessage event) {
+    public void publish(IHzInstanceProxy prox,EventMessage event) {
         String               topicName = resolve(event);
         ITopic<EventMessage> topic     = prox.getTopic(topicName);
 

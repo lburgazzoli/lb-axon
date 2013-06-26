@@ -24,7 +24,7 @@ import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.CommandMessage;
 import org.axonframework.commandhandling.distributed.CommandBusConnector;
-import org.axonframework.hazelcast.IHazelcastInstanceProxy;
+import org.axonframework.hazelcast.IHzInstanceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,17 +34,17 @@ import java.util.Set;
 /**
  *
  */
-public class HazelcastCommandBusConnector implements CommandBusConnector {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastCommandBusConnector.class);
+public class HzCommandBusConnector implements CommandBusConnector {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HzCommandBusConnector.class);
 
-    private final IHazelcastInstanceProxy m_proxy;
+    private final IHzInstanceProxy m_proxy;
     private final CommandBus m_localSegment;
     private final Set<String> m_supportedCmds;
     private final IMap<String,String> m_destinations;
     private final MultiMap<String,String> m_cmdHandlers;
 
-    private HazelcastCommandBusAgent m_agent;
-    private HazelcastCommandListener m_queueListener;
+    private HzCommandBusAgent m_agent;
+    private HzCommandListener m_queueListener;
 
     /**
      * c-tor
@@ -54,14 +54,14 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
      * @param clusterName the name of the Cluster this segment registers to
      * @param nodeName
      */
-    public HazelcastCommandBusConnector(IHazelcastInstanceProxy proxy,CommandBus localSegment,String clusterName,String nodeName) {
+    public HzCommandBusConnector(IHzInstanceProxy proxy, CommandBus localSegment, String clusterName, String nodeName) {
         m_proxy         = proxy;
         m_localSegment  = localSegment;
         m_supportedCmds = Sets.newHashSet();
-        m_destinations  = m_proxy.getMap(HazelcastCommandConstants.REG_CMD_DESTINATIONS);
-        m_cmdHandlers   = m_proxy.getMultiMap(HazelcastCommandConstants.REG_CMD_HANDLERS);
+        m_destinations  = m_proxy.getMap(HzCommandConstants.REG_CMD_DESTINATIONS);
+        m_cmdHandlers   = m_proxy.getMultiMap(HzCommandConstants.REG_CMD_HANDLERS);
         m_queueListener = null;
-        m_agent         = new HazelcastCommandBusAgent(proxy,clusterName,nodeName);
+        m_agent         = new HzCommandBusAgent(proxy,clusterName,nodeName);
     }
 
     // *************************************************************************
@@ -74,7 +74,7 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
     public void connect() {
         if(m_agent.joinCluster()) {
             if(m_queueListener == null) {
-                m_queueListener = new HazelcastCommandListener(m_localSegment,m_agent.getQueue());
+                m_queueListener = new HzCommandListener(m_agent,m_localSegment,m_agent.getQueue());
                 m_queueListener.start();
             }
         } else {
@@ -109,10 +109,9 @@ public class HazelcastCommandBusConnector implements CommandBusConnector {
         if(StringUtils.isNotBlank(destination)) {
             try {
                 m_proxy.getQueue(destination).put(command);
-                if(callback != null) {
-                    //TODO: do something
-                }
+                m_agent.registerCallback(command, destination, callback);
             } catch(Exception e) {
+                m_agent.removeCallback(command);
                 LOGGER.warn("Exception,e");
                 throw e;
             }

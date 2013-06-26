@@ -29,7 +29,7 @@ import java.util.Collection;
 /**
  *
  */
-public interface IHazelcastInstanceProxy {
+public interface IHzInstanceProxy {
 
     /**
      *

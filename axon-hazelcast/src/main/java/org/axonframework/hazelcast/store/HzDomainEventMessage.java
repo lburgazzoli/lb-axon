@@ -24,7 +24,7 @@ import java.util.Map;
 /**
  *
  */
-public class HazelcastDomainEventMessage<T> implements DomainEventMessage<T> {
+public class HzDomainEventMessage<T> implements DomainEventMessage<T> {
 
     private long m_sequenceNumber;
     private Object m_aggregateIdentifier;
@@ -37,7 +37,7 @@ public class HazelcastDomainEventMessage<T> implements DomainEventMessage<T> {
     /**
      *
      */
-    public HazelcastDomainEventMessage() {
+    public HzDomainEventMessage() {
         m_sequenceNumber = 0;
         m_aggregateIdentifier = null;
         m_identifier = null;
@@ -51,7 +51,7 @@ public class HazelcastDomainEventMessage<T> implements DomainEventMessage<T> {
      *
      * @param domainEventMessage
      */
-    public HazelcastDomainEventMessage(DomainEventMessage<T> domainEventMessage) {
+    public HzDomainEventMessage(DomainEventMessage<T> domainEventMessage) {
         m_sequenceNumber = domainEventMessage.getSequenceNumber();
         m_aggregateIdentifier = domainEventMessage.getAggregateIdentifier();
         m_identifier = domainEventMessage.getIdentifier();
@@ -136,7 +136,7 @@ public class HazelcastDomainEventMessage<T> implements DomainEventMessage<T> {
     @Override
     @SuppressWarnings("unchecked")
     public DomainEventMessage<T> withMetaData(Map<String, ?> metaData) {
-        HazelcastDomainEventMessage dem = new HazelcastDomainEventMessage(this);
+        HzDomainEventMessage dem = new HzDomainEventMessage(this);
         dem.setMetaData(new MetaData(metaData));
 
         return dem;
@@ -145,7 +145,7 @@ public class HazelcastDomainEventMessage<T> implements DomainEventMessage<T> {
     @Override
     @SuppressWarnings("unchecked")
     public DomainEventMessage<T> andMetaData(Map<String, ?> metaData) {
-        HazelcastDomainEventMessage dem = new HazelcastDomainEventMessage(this);
+        HzDomainEventMessage dem = new HzDomainEventMessage(this);
         dem.getMetaData().mergedWith(metaData);
 
         return dem;

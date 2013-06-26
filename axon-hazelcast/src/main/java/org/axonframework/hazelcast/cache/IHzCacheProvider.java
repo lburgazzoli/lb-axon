@@ -6,7 +6,7 @@ import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
 /**
  *
  */
-public interface ICacheProvider {
+public interface IHzCacheProvider {
     /**
      *
      * @param aggregateType

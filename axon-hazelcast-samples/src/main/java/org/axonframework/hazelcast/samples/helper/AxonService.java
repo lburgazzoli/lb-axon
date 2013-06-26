@@ -31,7 +31,7 @@ import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
 import org.axonframework.eventsourcing.EventSourcingRepository;
 import org.axonframework.eventsourcing.GenericAggregateFactory;
 import org.axonframework.eventstore.EventStore;
-import org.axonframework.hazelcast.cache.ICacheProvider;
+import org.axonframework.hazelcast.cache.IHzCacheProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +49,7 @@ public class AxonService {
     private CommandGateway m_commandGateway;
     private EventStore m_eventStore;
     private EventBus m_eventBus;
-    private ICacheProvider m_cacheProvider;
+    private IHzCacheProvider m_cacheProvider;
 
     private final Set<EventListener> m_eventListeners;
     private final Map<Object,Subscribable> m_eventHandlers;
@@ -81,7 +81,7 @@ public class AxonService {
         LOGGER.debug("CommandGateway : {}",m_commandGateway);
         LOGGER.debug("EventStore     : {}",m_eventStore);
         LOGGER.debug("EventBus       : {}",m_eventBus);
-        LOGGER.debug("ICacheProvider : {}",m_cacheProvider);
+        LOGGER.debug("IHzCacheProvider : {}",m_cacheProvider);
     }
 
     /**
@@ -146,11 +146,11 @@ public class AxonService {
         m_eventBus = eventBus;
     }
 
-    public ICacheProvider getCacheProvider() {
+    public IHzCacheProvider getCacheProvider() {
         return m_cacheProvider;
     }
 
-    public void setCacheProvider(ICacheProvider cacheProvider) {
+    public void setCacheProvider(IHzCacheProvider cacheProvider) {
         m_cacheProvider = cacheProvider;
     }
 

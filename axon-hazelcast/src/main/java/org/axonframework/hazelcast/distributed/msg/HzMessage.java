@@ -13,18 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.eventhandling;
+package org.axonframework.hazelcast.distributed.msg;
 
-import org.axonframework.domain.EventMessage;
-import org.axonframework.hazelcast.IHazelcastInstanceProxy;
+import java.io.Serializable;
 
 /**
  *
  */
-public interface IHazelcastTopicPublisher {
-    /**
-     *
-     * @param event
-     */
-    public void publish(IHazelcastInstanceProxy proxy,EventMessage event);
+public class HzMessage implements Serializable {
 }

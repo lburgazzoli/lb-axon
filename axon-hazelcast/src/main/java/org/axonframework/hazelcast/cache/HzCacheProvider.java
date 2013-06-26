@@ -17,25 +17,25 @@ package org.axonframework.hazelcast.cache;
 
 import net.sf.jsr107cache.Cache;
 import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
-import org.axonframework.hazelcast.IHazelcastInstanceProxy;
+import org.axonframework.hazelcast.IHzInstanceProxy;
 
 /**
  *
  */
-public class HazelcastCacheProvider implements ICacheProvider {
-    private final IHazelcastInstanceProxy m_hazelcastManager;
+public class HzCacheProvider implements IHzCacheProvider {
+    private final IHzInstanceProxy m_hazelcastManager;
 
     /**
      *
      * @param hazelcastManager
      */
-    public HazelcastCacheProvider(IHazelcastInstanceProxy hazelcastManager) {
+    public HzCacheProvider(IHzInstanceProxy hazelcastManager) {
         m_hazelcastManager = hazelcastManager;
     }
 
     @Override
     public Cache getCache(Class<? extends EventSourcedAggregateRoot> aggregateType) {
-        return new HazelcastCache(
+        return new HzCache(
             m_hazelcastManager,
             "axon-cache-<" + aggregateType.getName() + ">");
     }

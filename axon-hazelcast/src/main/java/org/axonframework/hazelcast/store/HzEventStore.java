@@ -20,7 +20,7 @@ import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.domain.SimpleDomainEventStream;
 import org.axonframework.eventstore.EventStore;
-import org.axonframework.hazelcast.IHazelcastInstanceProxy;
+import org.axonframework.hazelcast.IHzInstanceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,18 +29,18 @@ import java.util.Map;
 /**
  *
  */
-public class HazelcastEventStore implements EventStore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastEventStore.class);
+public class HzEventStore implements EventStore {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HzEventStore.class);
 
-    private final IHazelcastInstanceProxy m_hazelcastManager;
-    private final Map<String,HazelcastDomainEventStore> m_domainEventStore;
+    private final IHzInstanceProxy m_hazelcastManager;
+    private final Map<String,HzDomainEventStore> m_domainEventStore;
 
     /**
      * c-tor
      *
      * @param hazelcastManager
      */
-    public HazelcastEventStore(IHazelcastInstanceProxy hazelcastManager) {
+    public HzEventStore(IHzInstanceProxy hazelcastManager) {
         m_hazelcastManager = hazelcastManager;
         m_domainEventStore = Maps.newHashMap();
     }
@@ -54,16 +54,16 @@ public class HazelcastEventStore implements EventStore {
         int size = 0;
 
         String listId = null;
-        HazelcastDomainEventStore hdes = null;
+        HzDomainEventStore hdes = null;
 
         while(events.hasNext()) {
             DomainEventMessage dem = events.next();
             if(size == 0) {
-                listId = HazelcastStorageUtils.getStorageIdentifier(type, dem);
+                listId = HzStorageUtils.getStorageIdentifier(type, dem);
                 hdes   = m_domainEventStore.get(listId);
 
                 if(hdes == null) {
-                    hdes = new HazelcastDomainEventStore(
+                    hdes = new HzDomainEventStore(
                         type,dem.getAggregateIdentifier().toString(),m_hazelcastManager);
 
                     m_domainEventStore.put(hdes.getStorageId(),hdes);
@@ -87,8 +87,8 @@ public class HazelcastEventStore implements EventStore {
 
     @Override
     public DomainEventStream readEvents(String type, Object identifier) {
-        String listId = HazelcastStorageUtils.getStorageIdentifier(type,identifier.toString());
-        HazelcastDomainEventStore hdes = m_domainEventStore.get(listId);
+        String listId = HzStorageUtils.getStorageIdentifier(type, identifier.toString());
+        HzDomainEventStore hdes = m_domainEventStore.get(listId);
 
         if(hdes != null) {
             // Workaround for HZ serialization issues

@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.distributed;
+package org.axonframework.hazelcast.distributed.msg;
 
 import org.axonframework.commandhandling.CommandMessage;
 
 /**
  *
  */
-public class HazelcastCommand {
+public class HzCommand extends HzMessage {
     private boolean m_callback;
     private CommandMessage<?> m_message;
 
     /**
      * c-tor
      */
-    public HazelcastCommand() {
+    public HzCommand() {
         this(null,false);
     }
 
@@ -36,7 +36,7 @@ public class HazelcastCommand {
      *
      * @param message
      */
-    public HazelcastCommand(CommandMessage<?> message) {
+    public HzCommand(CommandMessage<?> message) {
         this(message,false);
     }
 
@@ -46,7 +46,7 @@ public class HazelcastCommand {
      * @param message
      * @param callback
      */
-    public HazelcastCommand(CommandMessage<?> message, boolean callback) {
+    public HzCommand(CommandMessage<?> message, boolean callback) {
         m_callback = callback;
         m_message  = message;
     }

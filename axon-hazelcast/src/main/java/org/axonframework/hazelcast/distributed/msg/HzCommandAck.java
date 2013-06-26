@@ -13,25 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.eventhandling;
-
-import org.axonframework.hazelcast.IHazelcastInstanceProxy;
+package org.axonframework.hazelcast.distributed.msg;
 
 /**
  *
  */
-public interface IHazelcastTopicSubscriber {
+public class HzCommandAck extends HzMessage {
+
+    private String m_commandId;
+
     /**
-     *
-     * @param proxy
-     * @param terminal
+     * c-tor
      */
-    public void subscribe(IHazelcastInstanceProxy proxy,HazelcastEventBusTerminal terminal);
+    public HzCommandAck() {
+        this(null);
+    }
+
+    /**
+     * c-tor
+     *
+     * @param commandId
+     */
+    public HzCommandAck(String commandId) {
+        m_commandId = commandId;
+    }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
 
     /**
      *
-     * @param proxy
-     * @param terminal
+     * @return
      */
-    public void unsubscribe(IHazelcastInstanceProxy proxy,HazelcastEventBusTerminal terminal);
+    public String getCommandId() {
+        return m_commandId;
+    }
 }

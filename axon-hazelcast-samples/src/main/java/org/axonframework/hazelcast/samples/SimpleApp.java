@@ -25,9 +25,9 @@ import org.axonframework.eventhandling.ClusteringEventBus;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
-import org.axonframework.hazelcast.DefaultHazelcastInstanceProxy;
-import org.axonframework.hazelcast.distributed.HazelcastCommandBusConnector;
-import org.axonframework.hazelcast.eventhandling.HazelcastEventBusTerminal;
+import org.axonframework.hazelcast.DefaultHzInstanceProxy;
+import org.axonframework.hazelcast.distributed.HzCommandBusConnector;
+import org.axonframework.hazelcast.eventhandling.HzEventBusTerminal;
 import org.axonframework.hazelcast.eventhandling.pub.PackageNamePublisher;
 import org.axonframework.hazelcast.eventhandling.sub.DynamicSubscriber;
 import org.axonframework.hazelcast.samples.helper.AxonService;
@@ -59,8 +59,8 @@ public class SimpleApp {
     //
     // *************************************************************************
 
-    private static AxonService newAxonService(DefaultHazelcastInstanceProxy proxy,boolean remote,String nodeName) {
-        HazelcastEventBusTerminal evtBusTer = new HazelcastEventBusTerminal(proxy);
+    private static AxonService newAxonService(DefaultHzInstanceProxy proxy,boolean remote,String nodeName) {
+        HzEventBusTerminal evtBusTer = new HzEventBusTerminal(proxy);
         evtBusTer.setPublisher(new PackageNamePublisher());
         evtBusTer.setSubscriber(new DynamicSubscriber(
             proxy.getDistributedObjectName("org.axonframework.hazelcast.samples.model.*"))
@@ -69,8 +69,8 @@ public class SimpleApp {
         CommandBus cmdBus = null;
 
         if(remote) {
-            HazelcastCommandBusConnector cmdBusCnx =
-                new HazelcastCommandBusConnector(proxy,new SimpleCommandBus(),"axon",nodeName);
+            HzCommandBusConnector cmdBusCnx =
+                new HzCommandBusConnector(proxy,new SimpleCommandBus(),"axon",nodeName);
 
             cmdBusCnx.connect();
 
@@ -97,14 +97,14 @@ public class SimpleApp {
     // *************************************************************************
 
     private static final class AxonServiceThread extends Thread {
-        private final DefaultHazelcastInstanceProxy m_proxy;
+        private final DefaultHzInstanceProxy m_proxy;
         private final AtomicBoolean m_running;
 
         /**
          * @param threadName
          * @param proxy
          */
-        public AxonServiceThread(String threadName,DefaultHazelcastInstanceProxy proxy) {
+        public AxonServiceThread(String threadName,DefaultHzInstanceProxy proxy) {
             super(threadName);
             m_proxy   = proxy;
             m_running = new AtomicBoolean(false);
@@ -152,7 +152,7 @@ public class SimpleApp {
     // *************************************************************************
 
     public static void main(String[] args) {
-        DefaultHazelcastInstanceProxy hxPx = new DefaultHazelcastInstanceProxy(new LocalHazelcastConfig());
+        DefaultHzInstanceProxy hxPx = new DefaultHzInstanceProxy(new LocalHazelcastConfig());
         hxPx.setDistributedObjectNamePrefix("axon");
         hxPx.init();
 

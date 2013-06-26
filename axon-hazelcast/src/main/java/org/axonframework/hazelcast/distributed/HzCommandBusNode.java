@@ -26,7 +26,7 @@ import java.util.Date;
 /**
  *
  */
-public class HazelcastCommandBusNode implements DataSerializable {
+public class HzCommandBusNode implements DataSerializable {
     private String m_name;
     private String m_queueName;
     private Long m_lastHeartBeat;
@@ -34,7 +34,7 @@ public class HazelcastCommandBusNode implements DataSerializable {
     /**
      * c-tor
      */
-    public HazelcastCommandBusNode() {
+    public HzCommandBusNode() {
         m_name          = null;
         m_queueName     = null;
         m_lastHeartBeat = null;
@@ -46,10 +46,26 @@ public class HazelcastCommandBusNode implements DataSerializable {
      * @param name
      * @param queueName
      */
-    public HazelcastCommandBusNode(String name,String queueName) {
+    public HzCommandBusNode(String name, String queueName) {
         m_name          = name;
         m_queueName     = queueName;
         m_lastHeartBeat = System.currentTimeMillis();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getName() {
+        return m_name;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getQueueName() {
+        return m_queueName;
     }
 
     @Override

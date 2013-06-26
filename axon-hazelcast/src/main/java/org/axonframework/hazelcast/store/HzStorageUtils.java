@@ -24,7 +24,7 @@ import java.net.URLEncoder;
 /**
  *
  */
-public class HazelcastStorageUtils {
+public class HzStorageUtils {
 
     /**
      *

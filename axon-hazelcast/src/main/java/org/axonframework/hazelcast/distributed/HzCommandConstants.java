@@ -18,7 +18,7 @@ package org.axonframework.hazelcast.distributed;
 /**
  *
  */
-public class HazelcastCommandConstants {
+public class HzCommandConstants {
     public static final String REG_CMD_NODES         = "reg.cmd.nodes";
     public static final String REG_CMD_DESTINATIONS  = "reg.cmd.destinations";
     public static final String REG_CMD_HANDLERS      = "reg.cmd.handlers";

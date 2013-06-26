@@ -20,7 +20,7 @@ import com.hazelcast.core.IList;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.domain.SimpleDomainEventStream;
-import org.axonframework.hazelcast.IHazelcastInstanceProxy;
+import org.axonframework.hazelcast.IHzInstanceProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,14 +29,14 @@ import java.util.List;
 /**
  *
  */
-public class HazelcastDomainEventStore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HazelcastDomainEventStore.class);
+public class HzDomainEventStore {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HzDomainEventStore.class);
 
     private final String m_aggregateType;
     private final String m_aggregateId;
     private final String m_storageId;
-    private final IHazelcastInstanceProxy m_hazelcastManager;
-    private final IList<HazelcastDomainEventMessage> m_storage;
+    private final IHzInstanceProxy m_hazelcastManager;
+    private final IList<HzDomainEventMessage> m_storage;
 
     /**
      *
@@ -44,10 +44,10 @@ public class HazelcastDomainEventStore {
      * @param aggregateId
      * @param hazelcastManager
      */
-    public HazelcastDomainEventStore(String aggregateType, String aggregateId, IHazelcastInstanceProxy hazelcastManager) {
+    public HzDomainEventStore(String aggregateType, String aggregateId, IHzInstanceProxy hazelcastManager) {
         m_aggregateType = aggregateType;
         m_aggregateId = aggregateId;
-        m_storageId = HazelcastStorageUtils.getStorageIdentifier(m_aggregateType, m_aggregateId);
+        m_storageId = HzStorageUtils.getStorageIdentifier(m_aggregateType, m_aggregateId);
         m_hazelcastManager = hazelcastManager;
         m_storage = m_hazelcastManager.getList(m_storageId);
     }
@@ -101,7 +101,7 @@ public class HazelcastDomainEventStore {
      *
      * @return
      */
-    public IList<HazelcastDomainEventMessage> getStorage() {
+    public IList<HzDomainEventMessage> getStorage() {
         return m_storage;
     }
 
@@ -119,7 +119,7 @@ public class HazelcastDomainEventStore {
      */
     @SuppressWarnings("unchecked")
     public void add(DomainEventMessage message) {
-        m_storage.add(new HazelcastDomainEventMessage(message));
+        m_storage.add(new HzDomainEventMessage(message));
     }
 
     /**

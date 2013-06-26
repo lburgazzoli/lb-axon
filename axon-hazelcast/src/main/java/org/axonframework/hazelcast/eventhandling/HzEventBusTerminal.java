@@ -21,7 +21,7 @@ import com.hazelcast.core.MessageListener;
 import org.axonframework.domain.EventMessage;
 import org.axonframework.eventhandling.Cluster;
 import org.axonframework.eventhandling.EventBusTerminal;
-import org.axonframework.hazelcast.IHazelcastInstanceProxy;
+import org.axonframework.hazelcast.IHzInstanceProxy;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,20 +34,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author Luca Burgazzoli
  */
-public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListener<EventMessage> {
-    private final IHazelcastInstanceProxy m_proxy;
+public class HzEventBusTerminal implements EventBusTerminal,MessageListener<EventMessage> {
+    private final IHzInstanceProxy m_proxy;
     private final Set<Cluster> m_clusters;
     private final AtomicBoolean m_subscribed;
 
-    private IHazelcastTopicPublisher m_publisher;
-    private IHazelcastTopicSubscriber m_subscriber;
+    private IHzTopicPublisher m_publisher;
+    private IHzTopicSubscriber m_subscriber;
 
     /**
      * c-tor
      *
      * @param proxy the hazelcast proxy
      */
-    public HazelcastEventBusTerminal(IHazelcastInstanceProxy proxy) {
+    public HzEventBusTerminal(IHzInstanceProxy proxy) {
         m_proxy      = proxy;
         m_clusters   = Sets.newHashSet();
         m_publisher  = null;
@@ -62,14 +62,14 @@ public class HazelcastEventBusTerminal implements EventBusTerminal,MessageListen
     /**
      * @param publisher the TopicPublisher
      */
-    public void setPublisher(IHazelcastTopicPublisher publisher) {
+    public void setPublisher(IHzTopicPublisher publisher) {
         m_publisher = publisher;
     }
 
     /**
      * @param subscriber the TopicSubscriber
      */
-    public void setSubscriber(IHazelcastTopicSubscriber subscriber) {
+    public void setSubscriber(IHzTopicSubscriber subscriber) {
         if(m_subscriber != null) {
             m_subscriber.unsubscribe(m_proxy,this);
         }
