@@ -18,7 +18,7 @@ package org.axonframework.hazelcast.eventhandling.sub;
 import com.google.common.collect.Sets;
 import com.hazelcast.core.ITopic;
 import org.axonframework.domain.EventMessage;
-import org.axonframework.hazelcast.IHzInstanceProxy;
+import org.axonframework.hazelcast.IHzProxy;
 import org.axonframework.hazelcast.eventhandling.HzEventBusTerminal;
 import org.axonframework.hazelcast.eventhandling.IHzTopicSubscriber;
 import org.slf4j.Logger;
@@ -66,7 +66,7 @@ public class StaticSubscriber implements IHzTopicSubscriber {
     }
 
     @Override
-    public void subscribe(IHzInstanceProxy proxy,HzEventBusTerminal terminal) {
+    public void subscribe(IHzProxy proxy,HzEventBusTerminal terminal) {
         for(String topicName : m_topicNames) {
             LOGGER.debug("Subscribing to <{}>",topicName);
             ITopic<EventMessage> topic = proxy.getTopic(topicName);
@@ -75,7 +75,7 @@ public class StaticSubscriber implements IHzTopicSubscriber {
     }
 
     @Override
-    public void unsubscribe(IHzInstanceProxy proxy,HzEventBusTerminal terminal) {
+    public void unsubscribe(IHzProxy proxy,HzEventBusTerminal terminal) {
         for(String topicName : m_topicNames) {
             LOGGER.debug("Unsubscribing from <{}>",topicName);
             ITopic<EventMessage> topic = proxy.getTopic(topicName);

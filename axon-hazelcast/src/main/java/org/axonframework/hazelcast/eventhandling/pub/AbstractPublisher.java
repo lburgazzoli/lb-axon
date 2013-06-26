@@ -17,7 +17,7 @@ package org.axonframework.hazelcast.eventhandling.pub;
 
 import com.hazelcast.core.ITopic;
 import org.axonframework.domain.EventMessage;
-import org.axonframework.hazelcast.IHzInstanceProxy;
+import org.axonframework.hazelcast.IHzProxy;
 import org.axonframework.hazelcast.eventhandling.IHzTopicPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public abstract class AbstractPublisher implements IHzTopicPublisher {
      *
      * @param event
      */
-    public void publish(IHzInstanceProxy prox,EventMessage event) {
+    public void publish(IHzProxy prox,EventMessage event) {
         String               topicName = resolve(event);
         ITopic<EventMessage> topic     = prox.getTopic(topicName);
 

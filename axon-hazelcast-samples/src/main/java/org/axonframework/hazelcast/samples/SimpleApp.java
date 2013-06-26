@@ -25,7 +25,7 @@ import org.axonframework.eventhandling.ClusteringEventBus;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
-import org.axonframework.hazelcast.DefaultHzInstanceProxy;
+import org.axonframework.hazelcast.HzProxy;
 import org.axonframework.hazelcast.distributed.HzCommandBusConnector;
 import org.axonframework.hazelcast.eventhandling.HzEventBusTerminal;
 import org.axonframework.hazelcast.eventhandling.pub.PackageNamePublisher;
@@ -59,7 +59,7 @@ public class SimpleApp {
     //
     // *************************************************************************
 
-    private static AxonService newAxonService(DefaultHzInstanceProxy proxy,boolean remote,String nodeName) {
+    private static AxonService newAxonService(HzProxy proxy,boolean remote,String nodeName) {
         HzEventBusTerminal evtBusTer = new HzEventBusTerminal(proxy);
         evtBusTer.setPublisher(new PackageNamePublisher());
         evtBusTer.setSubscriber(new DynamicSubscriber(
@@ -97,14 +97,14 @@ public class SimpleApp {
     // *************************************************************************
 
     private static final class AxonServiceThread extends Thread {
-        private final DefaultHzInstanceProxy m_proxy;
+        private final HzProxy m_proxy;
         private final AtomicBoolean m_running;
 
         /**
          * @param threadName
          * @param proxy
          */
-        public AxonServiceThread(String threadName,DefaultHzInstanceProxy proxy) {
+        public AxonServiceThread(String threadName,HzProxy proxy) {
             super(threadName);
             m_proxy   = proxy;
             m_running = new AtomicBoolean(false);
@@ -152,7 +152,7 @@ public class SimpleApp {
     // *************************************************************************
 
     public static void main(String[] args) {
-        DefaultHzInstanceProxy hxPx = new DefaultHzInstanceProxy(new LocalHazelcastConfig());
+        HzProxy hxPx = new HzProxy(new LocalHazelcastConfig());
         hxPx.setDistributedObjectNamePrefix("axon");
         hxPx.init();
 

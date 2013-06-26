@@ -17,19 +17,19 @@ package org.axonframework.hazelcast.cache;
 
 import net.sf.jsr107cache.Cache;
 import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
-import org.axonframework.hazelcast.IHzInstanceProxy;
+import org.axonframework.hazelcast.IHzProxy;
 
 /**
  *
  */
 public class HzCacheProvider implements IHzCacheProvider {
-    private final IHzInstanceProxy m_hazelcastManager;
+    private final IHzProxy m_hazelcastManager;
 
     /**
      *
      * @param hazelcastManager
      */
-    public HzCacheProvider(IHzInstanceProxy hazelcastManager) {
+    public HzCacheProvider(IHzProxy hazelcastManager) {
         m_hazelcastManager = hazelcastManager;
     }
 

@@ -35,9 +35,9 @@ import java.util.Collection;
 /**
  *
  */
-public class DefaultHzInstanceProxy implements IHzInstanceProxy {
+public class HzProxy implements IHzProxy {
     private static final Logger LOGGER =
-        LoggerFactory.getLogger(DefaultHzInstanceProxy.class);
+        LoggerFactory.getLogger(HzProxy.class);
 
     private HazelcastInstance m_instance;
     private Config m_config;
@@ -47,7 +47,7 @@ public class DefaultHzInstanceProxy implements IHzInstanceProxy {
     /**
      * c-tor
      */
-    public DefaultHzInstanceProxy() {
+    public HzProxy() {
         this(null,HazelcastInstance.class.getClassLoader());
     }
 
@@ -56,7 +56,7 @@ public class DefaultHzInstanceProxy implements IHzInstanceProxy {
      *
      * @param config
      */
-    public DefaultHzInstanceProxy(Config config) {
+    public HzProxy(Config config) {
         this(config,Thread.currentThread().getContextClassLoader());
     }
 
@@ -66,7 +66,7 @@ public class DefaultHzInstanceProxy implements IHzInstanceProxy {
      * @param config
      * @param classLoader
      */
-    public DefaultHzInstanceProxy(Config config, ClassLoader classLoader) {
+    public HzProxy(Config config, ClassLoader classLoader) {
         m_config = config;
         m_classLoader = classLoader;
         m_distributedObjectNamePrefix = null;
@@ -122,7 +122,7 @@ public class DefaultHzInstanceProxy implements IHzInstanceProxy {
     }
 
     // *************************************************************************
-    // IHzInstanceProxy
+    // IHzProxy
     // *************************************************************************
 
     @Override

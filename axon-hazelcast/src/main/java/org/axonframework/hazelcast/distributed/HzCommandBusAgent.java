@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.CommandMessage;
 import org.axonframework.commandhandling.distributed.RemoteCommandHandlingException;
-import org.axonframework.hazelcast.IHzInstanceProxy;
+import org.axonframework.hazelcast.IHzProxy;
 import org.axonframework.hazelcast.distributed.msg.HzMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class HzCommandBusAgent {
     private static final Logger LOGGER = LoggerFactory.getLogger(HzCommandBusAgent.class);
 
-    private final IHzInstanceProxy m_proxy;
+    private final IHzProxy m_proxy;
     private final String m_clusterName;
     private final String m_nodeName;
     private final IQueue<HzMessage> m_queue;
@@ -54,7 +54,7 @@ public class HzCommandBusAgent {
      * @param clusterName
      * @param nodeName
      */
-    public HzCommandBusAgent(IHzInstanceProxy proxy, String clusterName, String nodeName) {
+    public HzCommandBusAgent(IHzProxy proxy, String clusterName, String nodeName) {
         m_proxy       = proxy;
         m_clusterName = clusterName;
         m_nodeName    = nodeName + "@" + m_clusterName;

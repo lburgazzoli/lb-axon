@@ -24,7 +24,7 @@ import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.CommandMessage;
 import org.axonframework.commandhandling.distributed.CommandBusConnector;
-import org.axonframework.hazelcast.IHzInstanceProxy;
+import org.axonframework.hazelcast.IHzProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ import java.util.Set;
 public class HzCommandBusConnector implements CommandBusConnector {
     private static final Logger LOGGER = LoggerFactory.getLogger(HzCommandBusConnector.class);
 
-    private final IHzInstanceProxy m_proxy;
+    private final IHzProxy m_proxy;
     private final CommandBus m_localSegment;
     private final Set<String> m_supportedCmds;
     private final IMap<String,String> m_destinations;
@@ -54,7 +54,7 @@ public class HzCommandBusConnector implements CommandBusConnector {
      * @param clusterName the name of the Cluster this segment registers to
      * @param nodeName
      */
-    public HzCommandBusConnector(IHzInstanceProxy proxy, CommandBus localSegment, String clusterName, String nodeName) {
+    public HzCommandBusConnector(IHzProxy proxy, CommandBus localSegment, String clusterName, String nodeName) {
         m_proxy         = proxy;
         m_localSegment  = localSegment;
         m_supportedCmds = Sets.newHashSet();

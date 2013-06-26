@@ -21,7 +21,7 @@ import com.hazelcast.core.Instance;
 import com.hazelcast.core.InstanceEvent;
 import com.hazelcast.core.InstanceListener;
 import org.axonframework.domain.EventMessage;
-import org.axonframework.hazelcast.IHzInstanceProxy;
+import org.axonframework.hazelcast.IHzProxy;
 import org.axonframework.hazelcast.eventhandling.HzEventBusTerminal;
 import org.axonframework.hazelcast.eventhandling.IHzTopicSubscriber;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class DynamicSubscriber implements IHzTopicSubscriber, InstanceListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(DynamicSubscriber.class);
 
     private final Set<String> m_topicNames;
-    private IHzInstanceProxy m_proxy;
+    private IHzProxy m_proxy;
     private HzEventBusTerminal m_terminal;
 
     /**
@@ -72,7 +72,7 @@ public class DynamicSubscriber implements IHzTopicSubscriber, InstanceListener {
     }
 
     @Override
-    public void subscribe(IHzInstanceProxy proxy,HzEventBusTerminal terminal) {
+    public void subscribe(IHzProxy proxy,HzEventBusTerminal terminal) {
         m_proxy    = proxy;
         m_terminal = terminal;
 
@@ -86,7 +86,7 @@ public class DynamicSubscriber implements IHzTopicSubscriber, InstanceListener {
     }
 
     @Override
-    public void unsubscribe(IHzInstanceProxy proxy,HzEventBusTerminal terminal) {
+    public void unsubscribe(IHzProxy proxy,HzEventBusTerminal terminal) {
         for(Instance instance : m_proxy.getDistributedObjects(Instance.InstanceType.TOPIC)) {
             unsubscribeTopic(instance);
         }

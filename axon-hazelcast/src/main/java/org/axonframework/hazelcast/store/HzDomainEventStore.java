@@ -20,7 +20,7 @@ import com.hazelcast.core.IList;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.domain.SimpleDomainEventStream;
-import org.axonframework.hazelcast.IHzInstanceProxy;
+import org.axonframework.hazelcast.IHzProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +35,7 @@ public class HzDomainEventStore {
     private final String m_aggregateType;
     private final String m_aggregateId;
     private final String m_storageId;
-    private final IHzInstanceProxy m_hazelcastManager;
+    private final IHzProxy m_hazelcastManager;
     private final IList<HzDomainEventMessage> m_storage;
 
     /**
@@ -44,7 +44,7 @@ public class HzDomainEventStore {
      * @param aggregateId
      * @param hazelcastManager
      */
-    public HzDomainEventStore(String aggregateType, String aggregateId, IHzInstanceProxy hazelcastManager) {
+    public HzDomainEventStore(String aggregateType, String aggregateId, IHzProxy hazelcastManager) {
         m_aggregateType = aggregateType;
         m_aggregateId = aggregateId;
         m_storageId = HzStorageUtils.getStorageIdentifier(m_aggregateType, m_aggregateId);

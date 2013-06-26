@@ -20,7 +20,7 @@ import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.domain.SimpleDomainEventStream;
 import org.axonframework.eventstore.EventStore;
-import org.axonframework.hazelcast.IHzInstanceProxy;
+import org.axonframework.hazelcast.IHzProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +32,7 @@ import java.util.Map;
 public class HzEventStore implements EventStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(HzEventStore.class);
 
-    private final IHzInstanceProxy m_hazelcastManager;
+    private final IHzProxy m_hazelcastManager;
     private final Map<String,HzDomainEventStore> m_domainEventStore;
 
     /**
@@ -40,7 +40,7 @@ public class HzEventStore implements EventStore {
      *
      * @param hazelcastManager
      */
-    public HzEventStore(IHzInstanceProxy hazelcastManager) {
+    public HzEventStore(IHzProxy hazelcastManager) {
         m_hazelcastManager = hazelcastManager;
         m_domainEventStore = Maps.newHashMap();
     }
