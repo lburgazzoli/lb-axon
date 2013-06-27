@@ -21,7 +21,6 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import org.apache.commons.lang3.StringUtils;
-import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.CommandMessage;
 import org.axonframework.commandhandling.distributed.RemoteCommandHandlingException;
 import org.axonframework.hazelcast.IHzProxy;
@@ -115,26 +114,25 @@ public class HzCommandBusAgent {
     // callback
     // *************************************************************************
 
+
     /**
      *
      * @param command
-     * @param nodeName
      * @param callback
      * @param <T>
      */
-    public <T> void registerCallback(CommandMessage<?> command,String nodeName,CommandCallback<T> callback) {
-        registerCallback(command.getIdentifier(),nodeName,callback);
+    public <T> void registerCallback(CommandMessage<?> command,HzCommandCallback<T> callback) {
+        registerCallback(command.getIdentifier(), callback);
     }
 
     /**
      *
      * @param commandId
-     * @param nodeName
      * @param callback
      * @param <T>
      */
-    public <T> void registerCallback(String commandId,String nodeName,CommandCallback<T> callback) {
-        m_callbacks.put(commandId, new HzCommandCallback(nodeName, callback));
+    public <T> void registerCallback(String commandId,HzCommandCallback<T> callback) {
+        m_callbacks.put(commandId, callback);
     }
 
     /**
@@ -142,7 +140,7 @@ public class HzCommandBusAgent {
      * @param commandId
      * @return
      */
-    public <T> CommandCallback<T> getCallback(String commandId) {
+    public <T> HzCommandCallback<T> getCallback(String commandId) {
         return m_callbacks.get(commandId);
     }
 
@@ -151,7 +149,7 @@ public class HzCommandBusAgent {
      * @param command
      * @return
      */
-    public <T> CommandCallback<T> removeCallback(CommandMessage<?> command) {
+    public <T> HzCommandCallback<T> removeCallback(CommandMessage<?> command) {
         return removeCallback(command.getIdentifier());
     }
 
@@ -160,7 +158,7 @@ public class HzCommandBusAgent {
      * @param commandId
      * @return
      */
-    public <T> CommandCallback<T> removeCallback(String commandId) {
+    public <T> HzCommandCallback<T> removeCallback(String commandId) {
         return m_callbacks.remove(commandId);
     }
 

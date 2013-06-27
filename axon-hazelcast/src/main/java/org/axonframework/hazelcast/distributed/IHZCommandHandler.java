@@ -13,40 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.distributed.msg;
+package org.axonframework.hazelcast.distributed;
+
+import org.axonframework.hazelcast.distributed.msg.HzCommand;
+import org.axonframework.hazelcast.distributed.msg.HzCommandReply;
 
 /**
  *
  */
-public class HzCommandAck extends HzMessage {
-
-    private String m_commandId;
-
+public interface IHZCommandHandler {
     /**
-     * c-tor
-     */
-    public HzCommandAck() {
-        this(null);
-    }
-
-    /**
-     * c-tor
      *
-     * @param commandId
+     * @param msg
      */
-    public HzCommandAck(String commandId) {
-        m_commandId = commandId;
-    }
-
-    // *************************************************************************
-    //
-    // *************************************************************************
+    public void onHzCommand(HzCommand msg);
 
     /**
      *
-     * @return
+     * @param msg
      */
-    public String getCommandId() {
-        return m_commandId;
-    }
+    public void onHzCommandReply(HzCommandReply msg);
 }

@@ -20,6 +20,7 @@ package org.axonframework.hazelcast.distributed.msg;
  */
 public class HzCommandReply extends HzMessage {
 
+    private String m_sourceNodeId;
     private String m_commandId;
     private Object m_returnValue;
     private boolean m_success;
@@ -28,27 +29,40 @@ public class HzCommandReply extends HzMessage {
      * c-tor
      */
     public HzCommandReply() {
-        this(null,null,false);
+        this(null,null,null,false);
+    }
+
+    /**
+     * c-tor
+     */
+    public HzCommandReply(String nodeId) {
+        this(nodeId,null,null,false);
     }
 
     /**
      * c-tor
      *
+     * @param nodeId
      * @param commandId
      * @param returnValue
      */
-    public HzCommandReply(String commandId, Object returnValue) {
-       this(commandId,returnValue,!(returnValue instanceof Throwable));
+    public HzCommandReply(String nodeId,String commandId, Object returnValue) {
+        this(nodeId,commandId,returnValue,
+            returnValue != null
+                ? !(returnValue instanceof Throwable)
+                : true);
     }
 
     /**
      * c-tor
      *
+     * @param nodeId
      * @param commandId
      * @param returnValue
      * @param success
      */
-    public HzCommandReply(String commandId, Object returnValue, boolean success) {
+    public HzCommandReply(String nodeId,String commandId, Object returnValue, boolean success) {
+        m_sourceNodeId = nodeId;
         m_commandId = commandId;
         m_returnValue = returnValue;
         m_success = success;
@@ -57,6 +71,14 @@ public class HzCommandReply extends HzMessage {
     // *************************************************************************
     //
     // *************************************************************************
+
+    /**
+     *
+     * @return
+     */
+    public String getSourceNodeId() {
+        return m_sourceNodeId;
+    }
 
     /**
      *

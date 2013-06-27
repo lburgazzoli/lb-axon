@@ -17,9 +17,7 @@ package org.axonframework.hazelcast.distributed;
 
 import com.hazelcast.core.IQueue;
 import org.axonframework.commandhandling.CommandBus;
-import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.hazelcast.distributed.msg.HzCommand;
-import org.axonframework.hazelcast.distributed.msg.HzCommandAck;
 import org.axonframework.hazelcast.distributed.msg.HzCommandReply;
 import org.axonframework.hazelcast.distributed.msg.HzMessage;
 import org.slf4j.Logger;
@@ -37,19 +35,20 @@ public class HzCommandListener extends Thread {
     private final CommandBus m_segment;
     private final IQueue<HzMessage> m_queue;
     private final AtomicBoolean m_running;
-    private final HzCommandBusAgent m_agent;
+    private final IHZCommandHandler m_handler;
 
     /**
      * c-tor
      *
+     * @param handler
      * @param segment
      * @param queue
      */
-    public HzCommandListener(HzCommandBusAgent agent, CommandBus segment, IQueue<HzMessage> queue) {
+    public HzCommandListener(IHZCommandHandler handler, CommandBus segment, IQueue<HzMessage> queue) {
         m_segment = segment;
         m_queue   = queue;
         m_running = new AtomicBoolean(true);
-        m_agent   = agent;
+        m_handler = handler;
     }
 
     /**
@@ -69,16 +68,13 @@ public class HzCommandListener extends Thread {
     public void run() {
         while(m_running.get()) {
             try {
-                LOGGER.debug("poll...");
                 HzMessage msg = m_queue.poll(1, TimeUnit.SECONDS);
                 if(msg != null) {
-                    LOGGER.debug(".. got a message of type {}",msg.getClass().getName());
+                    LOGGER.debug("Got a message of type {}",msg.getClass().getName());
                     if(msg instanceof HzCommand) {
-                        onHazelcastCommand((HzCommand)msg);
+                        m_handler.onHzCommand((HzCommand) msg);
                     } else if(msg instanceof HzCommandReply) {
-                        onHazelcastCommandReply((HzCommandReply) msg);
-                    } else if(msg instanceof HzCommandAck) {
-                        onHazelcastCommandReply((HzCommandAck)msg);
+                        m_handler.onHzCommandReply((HzCommandReply) msg);
                     }
                 }
 
@@ -86,43 +82,5 @@ public class HzCommandListener extends Thread {
                 LOGGER.warn("Exception",e);
             }
         }
-    }
-
-    // *************************************************************************
-    //
-    // *************************************************************************
-
-    /**
-     *
-     * @param msg
-     */
-    private void onHazelcastCommand(HzCommand msg) {
-        if(m_segment != null) {
-            HzCommand cmd = (HzCommand)msg;
-            m_segment.dispatch(cmd.getMessage());
-        }
-    }
-
-    /**
-     *
-     * @param msg
-     */
-    private void onHazelcastCommandReply(HzCommandReply msg) {
-        HzCommandReply rpl = (HzCommandReply)msg;
-        CommandCallback       cbk = m_agent.getCallback(rpl.getCommandId());
-        if(cbk != null) {
-            if(rpl.isSuccess()) {
-                cbk.onSuccess(rpl.getReturnValue());
-            } else {
-                cbk.onFailure(rpl.getError());
-            }
-        }
-    }
-
-    /**
-     *
-     * @param msg
-     */
-    private void onHazelcastCommandReply(HzCommandAck msg) {
     }
 }

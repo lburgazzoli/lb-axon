@@ -15,6 +15,7 @@
  */
 package org.axonframework.hazelcast.samples;
 
+import com.google.common.collect.Lists;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.SimpleCommandBus;
@@ -40,9 +41,8 @@ import org.axonframework.hazelcast.samples.model.DataItemEvt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static java.util.UUID.randomUUID;
 
 /**
  *
@@ -53,7 +53,7 @@ public class SimpleApp {
         LoggerFactory.getLogger(SimpleApp.class);
 
     private static final CommandCallback<Object> CMDCBK =
-        new CommandCallbackTracer<Object>();
+        new CommandCallbackTracer<Object>(LOGGER);
 
     // *************************************************************************
     //
@@ -99,6 +99,7 @@ public class SimpleApp {
     private static final class AxonServiceThread extends Thread {
         private final HzProxy m_proxy;
         private final AtomicBoolean m_running;
+        private final Logger m_logger;
 
         /**
          * @param threadName
@@ -108,6 +109,7 @@ public class SimpleApp {
             super(threadName);
             m_proxy   = proxy;
             m_running = new AtomicBoolean(false);
+            m_logger  = LoggerFactory.getLogger(threadName);
         }
 
         @Override
@@ -130,13 +132,59 @@ public class SimpleApp {
 
         @EventHandler
         public void handle(DataItemEvt.Create data) {
-            LOGGER.debug("DataItemEvt <{}>",data);
+            m_logger.debug("DataItemEvt <{}>",data);
         }
 
         @EventHandler
         public void handle(DataItemEvt.Update data) {
-            LOGGER.debug("DataItemEvt <{}>",data);
+            m_logger.debug("DataItemEvt <{}>",data);
             m_running.set(false);
+        }
+
+        /**
+         *
+         */
+        public void shutdown() {
+            m_running.set(false);
+        }
+    }
+
+
+    private static final class AxonRemoteServiceThread extends Thread {
+        private final HzProxy m_proxy;
+        private final AtomicBoolean m_running;
+        private final String m_nodeName;
+        private final Logger m_logger;
+
+        /**
+         * @param nodeName
+         * @param threadName
+         * @param proxy
+         */
+        public AxonRemoteServiceThread(String nodeName,String threadName,HzProxy proxy) {
+            super(threadName);
+            m_proxy    = proxy;
+            m_running  = new AtomicBoolean(false);
+            m_nodeName = nodeName;
+            m_logger   = LoggerFactory.getLogger(threadName);
+        }
+
+        @Override
+        public void run() {
+            m_running.set(true);
+
+            AxonService svc = newAxonService(m_proxy,true,m_nodeName);
+            svc.init();
+            svc.addAggregateType(DataItem.class);
+
+            while(m_running.get()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+            }
+
+            svc.destroy();
         }
 
         /**
@@ -165,18 +213,47 @@ public class SimpleApp {
         } catch(Exception e) {
         }
 
-        AxonServiceThread st1 = new AxonServiceThread("axon-svc1-th",hxPx);
-        AxonServiceThread st2 = new AxonServiceThread("axon-svc2-th",hxPx);
+        List<Thread> sts = Lists.newArrayList();
 
-        st1.start();
-        st2.start();
+        for(int i=0;i<10;i++) {
+            AxonRemoteServiceThread st =
+                new AxonRemoteServiceThread(
+                    "axon-svc-r-" + i,
+                    "axon-svc-r-" + i + "-th",
+                    hxPx);
 
-        svc.send(new DataItemCmd.Create("d01", randomUUID().toString()), CMDCBK);
-        svc.send(new DataItemCmd.Update("d01", randomUUID().toString()), CMDCBK);
+            sts.add(st);
+            st.start();
+        }
+
+        for(int i=0;i<5;i++) {
+            AxonServiceThread st =
+                new AxonServiceThread(
+                    "axon-svc-r-" + i + "-th",
+                    hxPx);
+
+            sts.add(st);
+            st.start();
+        }
 
         try {
-            st1.join();
-            st2.join();
+            Thread.sleep(1000 * 5);
+        } catch(Exception e) {
+        }
+
+        for(int i=0;i<10;i++) {
+            svc.send(new DataItemCmd.Create(
+                    String.format("d_%02d",i),
+                    String.format("t_%02d",i)),
+                CMDCBK
+            );
+        }
+
+
+        try {
+            for(Thread st : sts) {
+               st.join();
+            }
         } catch (InterruptedException e) {
         }
 

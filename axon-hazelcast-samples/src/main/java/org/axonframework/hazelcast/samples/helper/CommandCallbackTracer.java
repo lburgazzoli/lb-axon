@@ -22,16 +22,51 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class CommandCallbackTracer<T> extends CommandCallbackAdapter<T> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CommandCallbackTracer.class);
+    private final Logger m_logger;
+
+    /**
+     * c-tor
+     */
+    public CommandCallbackTracer() {
+        this(CommandCallbackTracer.class.getName());
+    }
+
+    /**
+     * c-tor
+     *
+     * @param type
+     */
+    public <C> CommandCallbackTracer(Class<C> type) {
+        this(type.getName());
+    }
+
+    /**
+     * c-tor
+     *
+     * @param loggerId
+     */
+    public CommandCallbackTracer(String loggerId) {
+        this(LoggerFactory.getLogger(loggerId));
+    }
+
+    /**
+     * c-tor
+     *
+     * @param logger
+     */
+    public CommandCallbackTracer(Logger logger) {
+        m_logger = logger;
+    }
+
 
     @Override
     public void onSuccess(T result) {
-        LOGGER.debug("onSuccess => <{}> ",result);
+        m_logger.debug("onSuccess => <{}> ",result);
     }
 
     @Override
     public void onFailure(Throwable cause) {
-        LOGGER.debug("onFailure => <{}> ",cause.getClass().getName());
-        LOGGER.debug("onFailure",cause);
+        m_logger.debug("onFailure => <{}> ",cause.getClass().getName());
+        m_logger.debug("onFailure",cause);
     }
 }

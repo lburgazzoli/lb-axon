@@ -21,6 +21,7 @@ import org.axonframework.commandhandling.CommandMessage;
  *
  */
 public class HzCommand extends HzMessage {
+    private String m_sourceNodeId;
     private boolean m_callback;
     private CommandMessage<?> m_message;
 
@@ -28,25 +29,28 @@ public class HzCommand extends HzMessage {
      * c-tor
      */
     public HzCommand() {
-        this(null,false);
+        this(null,null,false);
     }
 
     /**
      * c-tor
      *
+     * @param nodeId
      * @param message
      */
-    public HzCommand(CommandMessage<?> message) {
-        this(message,false);
+    public HzCommand(String nodeId,CommandMessage<?> message) {
+        this(nodeId,message,false);
     }
 
     /**
      * c-tor
      *
+     * @param sourceNodeId
      * @param message
      * @param callback
      */
-    public HzCommand(CommandMessage<?> message, boolean callback) {
+    public HzCommand(String sourceNodeId,CommandMessage<?> message, boolean callback) {
+        m_sourceNodeId = sourceNodeId;
         m_callback = callback;
         m_message  = message;
     }
@@ -65,5 +69,13 @@ public class HzCommand extends HzMessage {
      */
     public boolean isCallbackRequired() {
         return m_callback;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public String getSourceNodeId() {
+        return m_sourceNodeId;
     }
 }

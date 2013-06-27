@@ -81,7 +81,7 @@ public class AxonService {
         LOGGER.debug("CommandGateway : {}",m_commandGateway);
         LOGGER.debug("EventStore     : {}",m_eventStore);
         LOGGER.debug("EventBus       : {}",m_eventBus);
-        LOGGER.debug("IHzCacheProvider : {}",m_cacheProvider);
+        LOGGER.debug("CacheProvider  : {}",m_cacheProvider);
     }
 
     /**

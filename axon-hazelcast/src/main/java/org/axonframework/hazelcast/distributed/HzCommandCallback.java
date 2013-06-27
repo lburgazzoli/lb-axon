@@ -21,6 +21,7 @@ import org.axonframework.commandhandling.CommandCallback;
  *
  */
 public class HzCommandCallback<T> implements CommandCallback<T> {
+    private final boolean m_local;
     private final String m_nodeName;
     private final CommandCallback<T> m_callback;
 
@@ -31,8 +32,28 @@ public class HzCommandCallback<T> implements CommandCallback<T> {
      * @param callback
      */
     public HzCommandCallback(String nodeName, CommandCallback<T> callback) {
+        this(false, nodeName, callback);
+    }
+
+    /**
+     * c-tor
+     *
+     * @param local
+     * @param nodeName
+     * @param callback
+     */
+    public HzCommandCallback(boolean local,String nodeName, CommandCallback<T> callback) {
+        m_local    = local;
         m_nodeName = nodeName;
         m_callback = callback;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isLocal() {
+        return m_local;
     }
 
     /**
