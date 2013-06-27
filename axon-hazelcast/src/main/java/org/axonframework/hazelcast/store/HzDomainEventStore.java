@@ -47,7 +47,7 @@ public class HzDomainEventStore {
     public HzDomainEventStore(String aggregateType, String aggregateId, IHzProxy hazelcastManager) {
         m_aggregateType = aggregateType;
         m_aggregateId = aggregateId;
-        m_storageId = HzStorageUtils.getStorageIdentifier(m_aggregateType, m_aggregateId);
+        m_storageId = HzEventStoreUtils.getStorageIdentifier(m_aggregateType, m_aggregateId);
         m_hazelcastManager = hazelcastManager;
         m_storage = m_hazelcastManager.getList(m_storageId);
     }

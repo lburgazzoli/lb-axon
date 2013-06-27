@@ -59,7 +59,7 @@ public class HzEventStore implements EventStore {
         while(events.hasNext()) {
             DomainEventMessage dem = events.next();
             if(size == 0) {
-                listId = HzStorageUtils.getStorageIdentifier(type, dem);
+                listId = HzEventStoreUtils.getStorageIdentifier(type, dem);
                 hdes   = m_domainEventStore.get(listId);
 
                 if(hdes == null) {
@@ -87,7 +87,7 @@ public class HzEventStore implements EventStore {
 
     @Override
     public DomainEventStream readEvents(String type, Object identifier) {
-        String listId = HzStorageUtils.getStorageIdentifier(type, identifier.toString());
+        String listId = HzEventStoreUtils.getStorageIdentifier(type, identifier.toString());
         HzDomainEventStore hdes = m_domainEventStore.get(listId);
 
         if(hdes != null) {
