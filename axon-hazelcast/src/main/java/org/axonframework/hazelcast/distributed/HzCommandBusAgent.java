@@ -20,9 +20,7 @@ import com.hazelcast.core.EntryAdapter;
 import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
-import org.apache.commons.lang3.StringUtils;
 import org.axonframework.commandhandling.CommandMessage;
-import org.axonframework.commandhandling.distributed.RemoteCommandHandlingException;
 import org.axonframework.hazelcast.IHzProxy;
 import org.axonframework.hazelcast.distributed.msg.HzMessage;
 import org.slf4j.Logger;
@@ -230,6 +228,8 @@ public class HzCommandBusAgent {
          *
          */
         private void notifyCommandFailure(String nodeName) {
+            LOGGER.debug("Node <{}> down",nodeName);
+            /*
             for(Map.Entry<String,HzCommandCallback> entry : m_callbacks.entrySet()) {
                 HzCommandCallback callback = m_callbacks.remove(entry.getKey());
                 if(StringUtils.equals(callback.getNodeName(),nodeName)) {
@@ -237,6 +237,7 @@ public class HzCommandBusAgent {
                         "The connection with the destination was lost before the result was reported."));
                 }
             }
+            */
         }
     }
 }
