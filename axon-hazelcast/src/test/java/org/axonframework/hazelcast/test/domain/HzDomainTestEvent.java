@@ -22,14 +22,14 @@ import java.io.Serializable;
 /**
  *
  */
-public class HzDomainEvent implements Serializable {
+public class HzDomainTestEvent implements Serializable {
 
     private final Object m_data;
 
     /**
      * c-tor
      */
-    public HzDomainEvent() {
+    public HzDomainTestEvent() {
         this(null);
     }
 
@@ -38,7 +38,7 @@ public class HzDomainEvent implements Serializable {
      *
      * @param data
      */
-    public HzDomainEvent(Object data) {
+    public HzDomainTestEvent(Object data) {
         m_data = data;
     }
 

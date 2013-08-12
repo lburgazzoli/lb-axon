@@ -18,13 +18,12 @@ package org.axonframework.hazelcast.test.store;
 import com.google.common.collect.Lists;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
-import org.axonframework.domain.GenericDomainEventMessage;
 import org.axonframework.domain.SimpleDomainEventStream;
 import org.axonframework.eventstore.EventStore;
 import org.axonframework.hazelcast.HzProxy;
 import org.axonframework.hazelcast.store.HzEventStore;
 import org.axonframework.hazelcast.test.HzTestBase;
-import org.axonframework.hazelcast.test.domain.HzDomainEvent;
+import org.axonframework.hazelcast.test.domain.HzDomainTestEventMessage;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,20 +63,16 @@ public class HzEventStoreTest extends HzTestBase {
         String     type  = "test";
         String     aid   = UUID.randomUUID().toString();
         EventStore store = new HzEventStore(m_proxy);
-        int        evts  = 2;
+        int        evts  = 10;
 
-        List<DomainEventMessage<?>> demWrite = Lists.newArrayListWithCapacity(2);
+        List<DomainEventMessage<?>> demWrite = Lists.newArrayListWithCapacity(evts);
         for(int i=0;i<evts;i++) {
-            demWrite.add(
-                new GenericDomainEventMessage<HzDomainEvent>(
-                    aid,
-                    i,
-                    new HzDomainEvent("evt-" + i)));
+            demWrite.add(new HzDomainTestEventMessage(aid,i,"evt-" + i));
         }
 
         store.appendEvents(type,new SimpleDomainEventStream(demWrite));
 
-        List<DomainEventMessage<?>> demRead = Lists.newArrayListWithCapacity(2);
+        List<DomainEventMessage<?>> demRead = Lists.newArrayListWithCapacity(evts);
         DomainEventStream des = store.readEvents(type,aid);
         while (des.hasNext()) {
             demRead.add(des.next());
