@@ -18,7 +18,6 @@ package org.axonframework.hazelcast.store;
 import com.google.common.collect.Maps;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
-import org.axonframework.domain.SimpleDomainEventStream;
 import org.axonframework.eventstore.EventStore;
 import org.axonframework.hazelcast.IHzProxy;
 import org.slf4j.Logger;
@@ -107,6 +106,6 @@ public class HzEventStore implements EventStore {
             return des;
         }
 
-        return new SimpleDomainEventStream();
+        return HzDomainEventStream.EMPTY;
     }
 }

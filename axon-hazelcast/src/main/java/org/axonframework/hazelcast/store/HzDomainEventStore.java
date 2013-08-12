@@ -15,16 +15,14 @@
  */
 package org.axonframework.hazelcast.store;
 
-import com.google.common.collect.Lists;
-import com.hazelcast.core.IList;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
-import org.axonframework.domain.SimpleDomainEventStream;
 import org.axonframework.hazelcast.IHzProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -36,7 +34,8 @@ public class HzDomainEventStore {
     private final String m_aggregateId;
     private final String m_storageId;
     private final IHzProxy m_hazelcastManager;
-    private final IList<HzDomainEventMessage> m_storage;
+    private final Map<Integer,HzDomainEventMessage> m_storage;
+    private final AtomicInteger m_storageSeq;
 
     /**
      *
@@ -49,7 +48,8 @@ public class HzDomainEventStore {
         m_aggregateId = aggregateId;
         m_storageId = HzEventStoreUtils.getStorageIdentifier(m_aggregateType, m_aggregateId);
         m_hazelcastManager = hazelcastManager;
-        m_storage = m_hazelcastManager.getList(m_storageId);
+        m_storage = m_hazelcastManager.getMap(m_storageId);
+        m_storageSeq = new AtomicInteger(m_storage.size());
     }
 
     /**
@@ -101,7 +101,7 @@ public class HzDomainEventStore {
      *
      * @return
      */
-    public IList<HzDomainEventMessage> getStorage() {
+    public Map<Integer,HzDomainEventMessage> getStorage() {
         return m_storage;
     }
 
@@ -119,7 +119,7 @@ public class HzDomainEventStore {
      */
     @SuppressWarnings("unchecked")
     public void add(DomainEventMessage message) {
-        m_storage.add(new HzDomainEventMessage(message));
+        m_storage.put(m_storageSeq.incrementAndGet(), new HzDomainEventMessage(message));
     }
 
     /**
@@ -133,10 +133,7 @@ public class HzDomainEventStore {
         try {
             Thread.currentThread().setContextClassLoader(getClassLoader());
 
-            List<DomainEventMessage> messages =
-                Lists.newArrayListWithCapacity(m_storage.size());
-
-            des = new SimpleDomainEventStream(m_storage);
+            des = new HzDomainEventStream(m_storage);
         } finally {
             Thread.currentThread().setContextClassLoader(cl);
         }

@@ -103,11 +103,13 @@ public class HzCommandBusConnector implements CommandBusConnector, IHZCommandHan
     // *************************************************************************
 
     @Override
+    @SuppressWarnings("unchecked")
     public void send(String routingKey, CommandMessage<?> command) throws Exception {
         send(routingKey,command,null);
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <R> void send(String routingKey, CommandMessage<?> command, CommandCallback<R> callback) throws Exception {
         String destination = getCommandDestination(routingKey, command);
         m_logger.debug("Send command <{}> to <{}>",command.getIdentifier(),destination);
@@ -167,6 +169,7 @@ public class HzCommandBusConnector implements CommandBusConnector, IHZCommandHan
     //
     // *************************************************************************
 
+    @Override
     public void onHzCommand(final HzCommand command) {
         m_logger.debug("Got HzCommand from <{}>",command.getSourceNodeId());
 
@@ -178,7 +181,8 @@ public class HzCommandBusConnector implements CommandBusConnector, IHZCommandHan
         }
     }
 
-
+    @Override
+    @SuppressWarnings("unchecked")
     public void onHzCommandReply(final HzCommandReply reply) {
         m_logger.debug("Got HzCommandReply from <{}>",reply.getSourceNodeId());
 

@@ -42,6 +42,8 @@ subprojects {
         compile 'net.sf.jsr107cache:jsr107cache:1.1'
         compile 'org.axonframework:axon-core:2.0.2'
         compile 'org.axonframework:axon-distributed-commandbus:2.0.2'
+
+        testCompile 'junit:junit:4.11'
     }
 
     jar {
@@ -59,6 +61,13 @@ subprojects {
         manifest.classpath  = project.runtimeClasspath
     }
 
+    test {
+        testLogging {
+            events "failed"
+            exceptionFormat "full"
+        }
+    }
+
     [compileJava, compileTestJava]*.options*.compilerArgs = [
         "-Xlint:unchecked"
     ]
@@ -69,6 +78,6 @@ subprojects {
 // *****************************************************************************
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.6'
+    gradleVersion = '1.7'
 }
 

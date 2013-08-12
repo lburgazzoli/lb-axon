@@ -15,8 +15,10 @@
  */
 package org.axonframework.hazelcast.eventhandling.sub;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.hazelcast.core.ITopic;
+import org.apache.commons.lang3.StringUtils;
 import org.axonframework.domain.EventMessage;
 import org.axonframework.hazelcast.IHzProxy;
 import org.axonframework.hazelcast.eventhandling.HzEventBusTerminal;
@@ -25,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -34,12 +37,14 @@ public class StaticSubscriber implements IHzTopicSubscriber {
     private static final Logger LOGGER = LoggerFactory.getLogger(StaticSubscriber.class);
 
     private final Set<String> m_topicNames;
+    private final Map<String,String> m_subKeys;
 
     /**
      *
      */
     public StaticSubscriber() {
         m_topicNames = Sets.newHashSet();
+        m_subKeys    = Maps.newHashMap();
     }
 
     /**
@@ -47,6 +52,7 @@ public class StaticSubscriber implements IHzTopicSubscriber {
      */
     public StaticSubscriber(String... topicNames) {
         m_topicNames = Sets.newHashSet(topicNames);
+        m_subKeys    = Maps.newHashMap();
     }
 
     /**
@@ -54,6 +60,7 @@ public class StaticSubscriber implements IHzTopicSubscriber {
      */
     public StaticSubscriber(List<String> topicNames) {
         m_topicNames = Sets.newHashSet(topicNames);
+        m_subKeys    = Maps.newHashMap();
     }
 
     /**
@@ -70,7 +77,7 @@ public class StaticSubscriber implements IHzTopicSubscriber {
         for(String topicName : m_topicNames) {
             LOGGER.debug("Subscribing to <{}>",topicName);
             ITopic<EventMessage> topic = proxy.getTopic(topicName);
-            topic.addMessageListener(terminal);
+            m_subKeys.put(topicName, topic.addMessageListener(terminal));
         }
     }
 
@@ -79,7 +86,11 @@ public class StaticSubscriber implements IHzTopicSubscriber {
         for(String topicName : m_topicNames) {
             LOGGER.debug("Unsubscribing from <{}>",topicName);
             ITopic<EventMessage> topic = proxy.getTopic(topicName);
-            topic.removeMessageListener(terminal);
+
+            String key = m_subKeys.remove(topicName);
+            if(StringUtils.isNotEmpty(key)) {
+                topic.removeMessageListener(key);
+            }
         }
     }
 }

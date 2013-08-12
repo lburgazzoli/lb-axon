@@ -16,10 +16,10 @@
 package org.axonframework.hazelcast.distributed;
 
 import com.google.common.base.Objects;
-import com.hazelcast.nio.DataSerializable;
+import com.hazelcast.nio.ObjectDataInput;
+import com.hazelcast.nio.ObjectDataOutput;
+import com.hazelcast.nio.serialization.DataSerializable;
 
-import java.io.DataInput;
-import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Date;
 
@@ -69,14 +69,14 @@ public class HzCommandBusNode implements DataSerializable {
     }
 
     @Override
-    public void writeData(DataOutput dataOutput) throws IOException {
+    public void writeData(ObjectDataOutput dataOutput) throws IOException {
         dataOutput.writeUTF(m_name);
         dataOutput.writeUTF(m_queueName);
         dataOutput.writeLong(m_lastHeartBeat);
     }
 
     @Override
-    public void readData(DataInput dataInput) throws IOException {
+    public void readData(ObjectDataInput dataInput) throws IOException {
         m_name          = dataInput.readUTF();
         m_queueName     = dataInput.readUTF();
         m_lastHeartBeat = dataInput.readLong();

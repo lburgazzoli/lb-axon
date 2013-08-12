@@ -21,7 +21,7 @@ import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
-import com.hazelcast.core.Instance;
+import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.MultiMap;
 
 import java.util.Collection;
@@ -96,11 +96,12 @@ public interface IHzProxy {
      *
      * @return
      */
-    public Collection<Instance> getDistributedObjects();
+    public Collection<DistributedObject> getDistributedObjects();
 
     /**
      *
+     * @param type
      * @return
      */
-    public Collection<Instance> getDistributedObjects(Instance.InstanceType type);
+    public Collection<DistributedObject> getDistributedObjects(Class<?> type);
 }

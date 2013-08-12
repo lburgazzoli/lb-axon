@@ -138,6 +138,7 @@ public class HzCommandBusAgent {
      * @param commandId
      * @return
      */
+    @SuppressWarnings("unchecked")
     public <T> HzCommandCallback<T> getCallback(String commandId) {
         return m_callbacks.get(commandId);
     }
@@ -147,6 +148,7 @@ public class HzCommandBusAgent {
      * @param command
      * @return
      */
+    @SuppressWarnings("unchecked")
     public <T> HzCommandCallback<T> removeCallback(CommandMessage<?> command) {
         return removeCallback(command.getIdentifier());
     }
@@ -156,6 +158,7 @@ public class HzCommandBusAgent {
      * @param commandId
      * @return
      */
+    @SuppressWarnings("unchecked")
     public <T> HzCommandCallback<T> removeCallback(String commandId) {
         return m_callbacks.remove(commandId);
     }

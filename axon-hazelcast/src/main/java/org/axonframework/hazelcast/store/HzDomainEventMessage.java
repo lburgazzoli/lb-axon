@@ -15,6 +15,7 @@
  */
 package org.axonframework.hazelcast.store;
 
+import com.hazelcast.core.PartitionAware;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.MetaData;
 import org.joda.time.DateTime;
@@ -24,7 +25,7 @@ import java.util.Map;
 /**
  *
  */
-public class HzDomainEventMessage<T> implements DomainEventMessage<T> {
+public class HzDomainEventMessage<T> implements DomainEventMessage<T>, PartitionAware {
 
     private long m_sequenceNumber;
     private Object m_aggregateIdentifier;
@@ -149,5 +150,14 @@ public class HzDomainEventMessage<T> implements DomainEventMessage<T> {
         dem.getMetaData().mergedWith(metaData);
 
         return dem;
+    }
+
+    // *************************************************************************
+    // PartitionAware
+    // *************************************************************************
+
+    @Override
+    public Object getPartitionKey() {
+        return m_aggregateIdentifier;
     }
 }

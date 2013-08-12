@@ -17,6 +17,7 @@ package org.axonframework.hazelcast;
 
 import com.google.common.collect.Lists;
 import com.hazelcast.config.Config;
+import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IList;
@@ -24,7 +25,6 @@ import com.hazelcast.core.ILock;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import com.hazelcast.core.ITopic;
-import com.hazelcast.core.Instance;
 import com.hazelcast.core.MultiMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -225,22 +225,22 @@ public class HzProxy implements IHzProxy {
     }
 
     @Override
-    public Collection<Instance> getDistributedObjects() {
-        return  getDistributedObjects(null);
+    public Collection<DistributedObject> getDistributedObjects() {
+        return  getDistributedObjects();
     }
 
     @Override
-    public Collection<Instance> getDistributedObjects(Instance.InstanceType type) {
+    public Collection<DistributedObject> getDistributedObjects(Class<?> type) {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        Collection<Instance> rv = Lists.newArrayList();
+        Collection<DistributedObject> rv = Lists.newArrayList();
 
         try {
             Thread.currentThread().setContextClassLoader(getClassloader());
-            for(Instance instance : m_instance.getInstances()) {
+            for(DistributedObject object : m_instance.getDistributedObjects()) {
                 if(type == null) {
-                    rv.add(instance);
-                } else if(instance.getInstanceType() == type) {
-                    rv.add(instance);
+                    rv.add(object);
+                } else if(type.isAssignableFrom(object.getClass())) {
+                    rv.add(object);
                 }
             }
         } finally {

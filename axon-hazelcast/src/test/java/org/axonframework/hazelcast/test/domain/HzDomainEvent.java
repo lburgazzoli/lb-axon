@@ -13,24 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.samples.helper;
+package org.axonframework.hazelcast.test.domain;
 
-import com.hazelcast.config.Config;
+import com.google.common.base.Objects;
+
+import java.io.Serializable;
 
 /**
  *
  */
-public class LocalHazelcastConfig extends Config {
+public class HzDomainEvent implements Serializable {
+
+    private final Object m_data;
 
     /**
      * c-tor
      */
-    public LocalHazelcastConfig() {
-        super.setProperty("hazelcast.logging.type","slf4j");
-        super.getNetworkConfig().setPortAutoIncrement(false);
-        super.getNetworkConfig().getInterfaces().setEnabled(false);
-        super.getNetworkConfig().getJoin().getAwsConfig().setEnabled(false);
-        super.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
-        super.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(false);
+    public HzDomainEvent() {
+        this(null);
+    }
+
+    /**
+     * c-tor
+     *
+     * @param data
+     */
+    public HzDomainEvent(Object data) {
+        m_data = data;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Object getData() {
+        return m_data;
+    }
+
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+            .add("data" , m_data)
+            .toString();
     }
 }

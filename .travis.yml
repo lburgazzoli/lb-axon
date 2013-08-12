@@ -3,7 +3,8 @@ language:
 
 script: 
   - ./gradlew clean
-  - ./gradlew jar
+  - ./gradlew compileJava
+  - ./gradlew test
 
 jdk:
   - oraclejdk7

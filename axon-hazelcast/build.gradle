@@ -4,7 +4,7 @@ project.ext {
 }
 
 dependencies {
-    compile 'com.hazelcast:hazelcast-all:2.6'
+    compile 'com.hazelcast:hazelcast-all:3.0'
 }
 
 jar {
