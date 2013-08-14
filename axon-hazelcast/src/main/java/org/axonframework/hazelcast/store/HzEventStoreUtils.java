@@ -33,7 +33,7 @@ public class HzEventStoreUtils {
      * @return
      */
     public static String getStorageIdentifier(String type,String identifier) {
-        return String.format("%s_%s",
+        return String.format("%s:%s",
             type,
             safeIdentifier(identifier));
     }

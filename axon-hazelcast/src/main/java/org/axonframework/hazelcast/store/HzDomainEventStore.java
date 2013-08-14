@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -34,31 +33,33 @@ public class HzDomainEventStore {
     private final String m_aggregateId;
     private final String m_storageId;
     private final IHzProxy m_hazelcastManager;
-    private final Map<Integer,HzDomainEventMessage> m_storage;
-    private final AtomicInteger m_storageSeq;
+    private final Map<Long,HzDomainEventMessage> m_storage;
 
     /**
+     * c-tor
      *
+     * @param storageId
      * @param aggregateType
      * @param aggregateId
      * @param hazelcastManager
      */
-    public HzDomainEventStore(String aggregateType, String aggregateId, IHzProxy hazelcastManager) {
+    public HzDomainEventStore(String storageId, String aggregateType, String aggregateId, IHzProxy hazelcastManager) {
         m_aggregateType = aggregateType;
         m_aggregateId = aggregateId;
-        m_storageId = HzEventStoreUtils.getStorageIdentifier(m_aggregateType, m_aggregateId);
+        m_storageId = storageId;
         m_hazelcastManager = hazelcastManager;
         m_storage = m_hazelcastManager.getMap(m_storageId);
-        m_storageSeq = new AtomicInteger(m_storage.size());
     }
 
     /**
-     *
+     * clean the stored events
      */
     public void clear() {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        ClassLoader newCl = m_hazelcastManager.getClassloader();
+
         try {
-            Thread.currentThread().setContextClassLoader(getClassLoader());
+            Thread.currentThread().setContextClassLoader(newCl);
             m_storage.clear();
         } finally {
             Thread.currentThread().setContextClassLoader(cl);
@@ -67,15 +68,7 @@ public class HzDomainEventStore {
 
     /**
      *
-     * @return
-     */
-    public ClassLoader getClassLoader() {
-        return m_hazelcastManager.getClassloader();
-    }
-
-    /**
-     *
-     * @return
+     * @return the aggregate type
      */
     public String getAggregateType() {
         return m_aggregateType;
@@ -83,7 +76,7 @@ public class HzDomainEventStore {
 
     /**
      *
-     * @return
+     * @return the aggregate id
      */
     public String getAggregateId() {
         return m_aggregateId;
@@ -91,7 +84,7 @@ public class HzDomainEventStore {
 
     /**
      *
-     * @return
+     * @return the storage id
      */
     public String getStorageId() {
         return m_storageId;
@@ -99,15 +92,7 @@ public class HzDomainEventStore {
 
     /**
      *
-     * @return
-     */
-    public Map<Integer,HzDomainEventMessage> getStorage() {
-        return m_storage;
-    }
-
-    /**
-     *
-     * @return
+     * @return the number of items stored
      */
     public int getStorageSize() {
         return m_storage.size();
@@ -119,20 +104,21 @@ public class HzDomainEventStore {
      */
     @SuppressWarnings("unchecked")
     public void add(DomainEventMessage message) {
-        m_storage.put(m_storageSeq.incrementAndGet(), new HzDomainEventMessage(message));
+        m_storage.put(message.getSequenceNumber(),new HzDomainEventMessage(message));
     }
 
     /**
      *
-     * @return
+     * @return the event stream
      */
     public DomainEventStream getEventStream() {
         DomainEventStream des = null;
+
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        ClassLoader newCl = m_hazelcastManager.getClassloader();
 
         try {
-            Thread.currentThread().setContextClassLoader(getClassLoader());
-
+            Thread.currentThread().setContextClassLoader(newCl);
             des = new HzDomainEventStream(m_storage);
         } finally {
             Thread.currentThread().setContextClassLoader(cl);

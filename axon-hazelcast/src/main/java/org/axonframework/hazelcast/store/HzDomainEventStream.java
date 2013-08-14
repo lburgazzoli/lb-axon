@@ -32,15 +32,15 @@ public class HzDomainEventStream implements DomainEventStream {
     public static final HzDomainEventStream EMPTY = new HzDomainEventStream();
 
     private int m_nextIndex;
-    private final Integer[] m_keys;
-    private final Map<Integer,HzDomainEventMessage> m_data;
+    private final Long[] m_keys;
+    private final Map<Long,HzDomainEventMessage> m_data;
 
     /**
      *
      */
     private HzDomainEventStream() {
         m_data      = null;
-        m_keys      = ArrayUtils.EMPTY_INTEGER_OBJECT_ARRAY;
+        m_keys      = ArrayUtils.EMPTY_LONG_OBJECT_ARRAY;
         m_nextIndex = 0;
     }
 
@@ -49,9 +49,9 @@ public class HzDomainEventStream implements DomainEventStream {
      *
      * @param data
      */
-    public HzDomainEventStream(Map<Integer,HzDomainEventMessage> data) {
+    public HzDomainEventStream(Map<Long,HzDomainEventMessage> data) {
         m_data      = data;
-        m_keys      = new TreeSet<Integer>(m_data.keySet()).toArray(new Integer[]{});
+        m_keys      = new TreeSet<Long>(m_data.keySet()).toArray(new Long[]{});
         m_nextIndex = 0;
 
         Arrays.sort(m_keys);

@@ -52,18 +52,18 @@ public class HzEventStore implements EventStore {
     public void appendEvents(String type, DomainEventStream events) {
         int size = 0;
 
-        String listId = null;
+        String mapId = null;
         HzDomainEventStore hdes = null;
 
         while(events.hasNext()) {
             DomainEventMessage dem = events.next();
             if(size == 0) {
-                listId = HzEventStoreUtils.getStorageIdentifier(type, dem);
-                hdes   = m_domainEventStore.get(listId);
+                mapId = HzEventStoreUtils.getStorageIdentifier(type, dem);
+                hdes  = m_domainEventStore.get(mapId);
 
                 if(hdes == null) {
                     hdes = new HzDomainEventStore(
-                        type,dem.getAggregateIdentifier().toString(),m_hazelcastManager);
+                        mapId,type,dem.getAggregateIdentifier().toString(),m_hazelcastManager);
 
                     m_domainEventStore.put(hdes.getStorageId(),hdes);
                 }
@@ -86,22 +86,22 @@ public class HzEventStore implements EventStore {
 
     @Override
     public DomainEventStream readEvents(String type, Object identifier) {
-        String listId = HzEventStoreUtils.getStorageIdentifier(type, identifier.toString());
-        HzDomainEventStore hdes = m_domainEventStore.get(listId);
+        String mapId = HzEventStoreUtils.getStorageIdentifier(type, identifier.toString());
+        HzDomainEventStore hdes = m_domainEventStore.get(mapId);
 
         if(hdes != null) {
             // Workaround for HZ serialization issues
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
+            ClassLoader newCl = m_hazelcastManager.getClassloader();
+
             DomainEventStream des = null;
 
             try {
-                Thread.currentThread().setContextClassLoader(m_hazelcastManager.getClassloader());
+                Thread.currentThread().setContextClassLoader(newCl);
                 des = hdes.getEventStream();
             } finally {
                 Thread.currentThread().setContextClassLoader(cl);
             }
-
-            LOGGER.debug("readEvents: type={}, nbStoredEvents={}",type,hdes.getStorageSize());
 
             return des;
         }
