@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.test.domain;
+package org.axonframework.hazelcast.test.model;
 
 import com.google.common.base.Objects;
 
@@ -22,14 +22,14 @@ import java.io.Serializable;
 /**
  *
  */
-public class HzDomainEvent implements Serializable {
+public class HzAxonEvent implements Serializable {
 
     private final Object m_data;
 
     /**
      * c-tor
      */
-    public HzDomainEvent() {
+    public HzAxonEvent() {
         this(null);
     }
 
@@ -38,7 +38,7 @@ public class HzDomainEvent implements Serializable {
      *
      * @param data
      */
-    public HzDomainEvent(Object data) {
+    public HzAxonEvent(Object data) {
         m_data = data;
     }
 

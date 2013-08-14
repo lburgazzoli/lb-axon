@@ -2,11 +2,14 @@ package org.axonframework.hazelcast.test;
 
 import com.hazelcast.config.Config;
 import org.axonframework.hazelcast.HzProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class HzTestBase {
+    protected static final Logger LOGGER = LoggerFactory.getLogger("hz-axon-test");
 
     /**
      *
