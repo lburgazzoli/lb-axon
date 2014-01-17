@@ -90,20 +90,7 @@ public class HzEventStore implements EventStore {
         HzDomainEventStore hdes = m_domainEventStore.get(mapId);
 
         if(hdes != null) {
-            // Workaround for HZ serialization issues
-            ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            ClassLoader newCl = m_hazelcastManager.getClassloader();
-
-            DomainEventStream des = null;
-
-            try {
-                Thread.currentThread().setContextClassLoader(newCl);
-                des = hdes.getEventStream();
-            } finally {
-                Thread.currentThread().setContextClassLoader(cl);
-            }
-
-            return des;
+            return hdes.getEventStream();
         }
 
         return HzDomainEventStream.EMPTY;

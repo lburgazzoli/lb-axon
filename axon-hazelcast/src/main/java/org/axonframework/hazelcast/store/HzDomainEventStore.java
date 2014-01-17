@@ -112,18 +112,6 @@ public class HzDomainEventStore {
      * @return the event stream
      */
     public DomainEventStream getEventStream() {
-        DomainEventStream des = null;
-
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        ClassLoader newCl = m_hazelcastManager.getClassloader();
-
-        try {
-            Thread.currentThread().setContextClassLoader(newCl);
-            des = new HzDomainEventStream(m_storage);
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
-        }
-
-        return des;
+        return new HzDomainEventStream(m_storage);
     }
 }

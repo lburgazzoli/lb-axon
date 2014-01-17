@@ -12,26 +12,19 @@ subprojects {
     version  = '1.0.0.SNAPSHOT'
     group    = 'com.github.lburgazzoli'
 
-    project.ext.projectPrefix           = 'lb'
-    project.ext.slf4jVersion            = '1.7.5'
-    project.ext.log4jVersion            = '1.2.17'
-    project.ext.jacksonVersion          = '2.3.0'
-    project.ext.hazelcastVersion        = '3.1.3'
-    project.ext.osgiVersion             = '5.0.0'
-    project.ext.guavaVersion            = '15.0'
-    project.ext.axonVersion             = '2.0.7'
-    project.ext.junitVersion            = '4.11'
+    project.ext.projectPrefix     = 'lb'
+    project.ext.slf4jVersion      = '1.7.5'
+    project.ext.log4jVersion      = '1.2.17'
+    project.ext.jacksonVersion    = '2.3.0'
+    project.ext.hazelcastVersion  = '3.1.3'
+    project.ext.osgiVersion       = '5.0.0'
+    project.ext.guavaVersion      = '15.0'
+    project.ext.axonVersion       = '2.0.7'
+    project.ext.junitVersion      = '4.11'
 
     repositories {
         maven { url 'http://repo1.maven.org/maven2' }
         maven { url 'http://repo2.maven.org/maven2' }
-        maven { url 'http://repo.springsource.org/release' }
-        maven { url 'http://repository.springsource.com/maven/bundles/release' }
-        maven { url 'http://repository.jboss.org/nexus/content/repositories/releases' }
-        maven { url 'http://repository.jboss.org/nexus/content/groups/public/' }
-        maven { url 'http://snapshots.jboss.org/maven2/' }
-        maven { url 'http://download.oracle.com/maven' }
-        maven { url 'https://oss.sonatype.org/content/repositories/releases' }
 
         mavenLocal()
     }

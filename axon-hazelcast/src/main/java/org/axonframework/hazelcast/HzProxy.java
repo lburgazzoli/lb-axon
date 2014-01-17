@@ -41,14 +41,13 @@ public class HzProxy implements IHzProxy {
 
     private HazelcastInstance m_instance;
     private Config m_config;
-    private ClassLoader m_classLoader;
     private String m_distributedObjectNamePrefix;
 
     /**
      * c-tor
      */
     public HzProxy() {
-        this(null,HazelcastInstance.class.getClassLoader());
+        this(null);
     }
 
     /**
@@ -57,18 +56,7 @@ public class HzProxy implements IHzProxy {
      * @param config
      */
     public HzProxy(Config config) {
-        this(config,Thread.currentThread().getContextClassLoader());
-    }
-
-    /**
-     * c-tor
-     *
-     * @param config
-     * @param classLoader
-     */
-    public HzProxy(Config config, ClassLoader classLoader) {
         m_config = config;
-        m_classLoader = classLoader;
         m_distributedObjectNamePrefix = null;
     }
 
@@ -92,13 +80,16 @@ public class HzProxy implements IHzProxy {
     public String getDistributedObjectName(String name) {
         return StringUtils.isEmpty(m_distributedObjectNamePrefix)
              ? name
-             : m_distributedObjectNamePrefix + "/" + name;
+             : m_distributedObjectNamePrefix + ":" + name;
     }
 
     // *************************************************************************
     //
     // *************************************************************************
 
+    /**
+     *
+     */
     public void init() {
         if(m_instance == null) {
             if(m_config != null) {
@@ -106,12 +97,12 @@ public class HzProxy implements IHzProxy {
             } else {
                 m_instance = Hazelcast.newHazelcastInstance();
             }
-
-            LOGGER.debug("New Instance created     : {}", m_instance);
-            LOGGER.debug("New Instance ClassLoader : {}", m_instance.getConfig().getClassLoader());
         }
     }
 
+    /**
+     *
+     */
     public void destroy() {
         if(m_instance != null) {
             LOGGER.debug("Destroying instance {}", m_instance);
@@ -137,91 +128,31 @@ public class HzProxy implements IHzProxy {
 
     @Override
     public <K,V> IMap<K,V> getMap(String name) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        IMap<K,V> rv = null;
-
-        try {
-            Thread.currentThread().setContextClassLoader(getClassloader());
-            rv = m_instance.getMap(getDistributedObjectName(name));
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
-        }
-
-        return  rv;
+        return m_instance.getMap(getDistributedObjectName(name));
     }
 
     @Override
     public <K,V> MultiMap<K,V> getMultiMap(String name) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        MultiMap<K,V> rv = null;
-
-        try {
-            Thread.currentThread().setContextClassLoader(getClassloader());
-            rv = m_instance.getMultiMap(getDistributedObjectName(name));
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
-        }
-
-        return  rv;
+        return  m_instance.getMultiMap(getDistributedObjectName(name));
     }
 
     @Override
     public <T> IList<T> getList(String name) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        IList<T> rv = null;
-
-        try {
-            Thread.currentThread().setContextClassLoader(getClassloader());
-            rv = m_instance.getList(getDistributedObjectName(name));
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
-        }
-
-        return  rv;
+        return  m_instance.getList(getDistributedObjectName(name));
     }
 
     public <T> IQueue<T> getQueue(String name) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        IQueue<T> rv = null;
-
-        try {
-            Thread.currentThread().setContextClassLoader(getClassloader());
-            rv = m_instance.getQueue(getDistributedObjectName(name));
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
-        }
-
-        return  rv;
+        return  m_instance.getQueue(getDistributedObjectName(name));
     }
 
     @Override
     public ILock getLock(String name) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        ILock rv = null;
-
-        try {
-            Thread.currentThread().setContextClassLoader(getClassloader());
-            rv = m_instance.getLock(getDistributedObjectName(name));
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
-        }
-
-        return  rv;
+        return m_instance.getLock(getDistributedObjectName(name));
     }
 
     @Override
     public <T> ITopic<T> getTopic(String name) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
-        ITopic<T> rv = null;
-
-        try {
-            Thread.currentThread().setContextClassLoader(getClassloader());
-            rv = m_instance.getTopic(getDistributedObjectName(name));
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
-        }
-
-        return  rv;
+        return m_instance.getTopic(getDistributedObjectName(name));
     }
 
     @Override
@@ -231,20 +162,13 @@ public class HzProxy implements IHzProxy {
 
     @Override
     public Collection<DistributedObject> getDistributedObjects(Class<?> type) {
-        ClassLoader cl = Thread.currentThread().getContextClassLoader();
         Collection<DistributedObject> rv = Lists.newArrayList();
-
-        try {
-            Thread.currentThread().setContextClassLoader(getClassloader());
-            for(DistributedObject object : m_instance.getDistributedObjects()) {
-                if(type == null) {
-                    rv.add(object);
-                } else if(type.isAssignableFrom(object.getClass())) {
-                    rv.add(object);
-                }
+        for(DistributedObject object : m_instance.getDistributedObjects()) {
+            if(type == null) {
+                rv.add(object);
+            } else if(type.isAssignableFrom(object.getClass())) {
+                rv.add(object);
             }
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
         }
 
         return  rv;

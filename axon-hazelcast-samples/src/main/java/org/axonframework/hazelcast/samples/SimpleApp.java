@@ -27,7 +27,7 @@ import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
 import org.axonframework.hazelcast.HzProxy;
-import org.axonframework.hazelcast.distributed.HzCommandBusConnector;
+import org.axonframework.hazelcast.distributed.cmd.HzCommandBusConnector;
 import org.axonframework.hazelcast.eventhandling.HzEventBusTerminal;
 import org.axonframework.hazelcast.eventhandling.pub.PackageNamePublisher;
 import org.axonframework.hazelcast.eventhandling.sub.DynamicSubscriber;

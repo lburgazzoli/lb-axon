@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.distributed;
+package org.axonframework.hazelcast.distributed.cmd;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -26,9 +26,9 @@ import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.CommandMessage;
 import org.axonframework.commandhandling.distributed.CommandBusConnector;
 import org.axonframework.hazelcast.IHzProxy;
-import org.axonframework.hazelcast.distributed.msg.HzCommand;
-import org.axonframework.hazelcast.distributed.msg.HzCommandReply;
-import org.axonframework.hazelcast.distributed.msg.HzCommandReplyCallback;
+import org.axonframework.hazelcast.distributed.cmd.msg.HzCommand;
+import org.axonframework.hazelcast.distributed.cmd.msg.HzCommandReply;
+import org.axonframework.hazelcast.distributed.cmd.msg.HzCommandReplyCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

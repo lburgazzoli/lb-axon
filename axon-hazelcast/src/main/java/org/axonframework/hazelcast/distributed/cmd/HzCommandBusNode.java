@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.distributed;
+package org.axonframework.hazelcast.distributed.cmd;
 
 import com.google.common.base.Objects;
 import com.hazelcast.nio.ObjectDataInput;

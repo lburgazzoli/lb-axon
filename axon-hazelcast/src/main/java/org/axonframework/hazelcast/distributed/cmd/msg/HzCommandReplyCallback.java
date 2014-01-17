@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.distributed.msg;
+package org.axonframework.hazelcast.distributed.cmd.msg;
 
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.hazelcast.IHzProxy;
-import org.axonframework.hazelcast.distributed.HzCommandBusAgent;
+import org.axonframework.hazelcast.distributed.cmd.HzCommandBusAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

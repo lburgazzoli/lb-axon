@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.distributed;
+package org.axonframework.hazelcast.distributed.cmd;
 
 import com.google.common.collect.Maps;
 import com.hazelcast.core.EntryAdapter;
@@ -22,7 +22,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import org.axonframework.commandhandling.CommandMessage;
 import org.axonframework.hazelcast.IHzProxy;
-import org.axonframework.hazelcast.distributed.msg.HzMessage;
+import org.axonframework.hazelcast.distributed.cmd.msg.HzMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -38,7 +38,6 @@ public class HzCache implements Cache {
     private final static Logger LOGGER = LoggerFactory.getLogger(HzCache.class);
 
     private final IMap<Object,Object> m_cache;
-    private final ClassLoader m_classLoader;
 
 
     /**
@@ -48,11 +47,7 @@ public class HzCache implements Cache {
      * @param cacheName
      */
     public HzCache(IHzProxy cacheManager, String cacheName) {
-        m_classLoader = cacheManager.getClassloader();
         m_cache = cacheManager.getMap(cacheName);
-
-        LOGGER.debug("{} - ClassLoader {}",m_cache.getName(),m_classLoader);
-        LOGGER.debug("{} - Cache       {}",m_cache.getName(),m_cache);
     }
 
     @Override
@@ -98,21 +93,10 @@ public class HzCache implements Cache {
 
     @Override
     public Object get(Object key) {
-        ClassLoader cl  = Thread.currentThread().getContextClassLoader();
-        Object      obj = null;
-
-        try {
-            Thread.currentThread().setContextClassLoader(m_classLoader);
-            obj = m_cache.get(key);
-
-            if(obj instanceof AggregateRoot) {
-                AggregateRoot ar = (AggregateRoot)obj;
-                LOGGER.debug("Cache.get : id={}, version={}",
-                    ar.getIdentifier(),ar.getVersion());
-            }
-
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
+        Object obj = m_cache.get(key);
+        if(obj instanceof AggregateRoot) {
+            AggregateRoot ar = (AggregateRoot)obj;
+            LOGGER.debug("Cache.get : id={}, version={}",ar.getIdentifier(),ar.getVersion());
         }
 
         return obj;
@@ -125,21 +109,13 @@ public class HzCache implements Cache {
 
     @Override
     public Object put(Object key, Object value) {
-        ClassLoader cl  = Thread.currentThread().getContextClassLoader();
-        Object      obj = null;
-
-        try {
-            Thread.currentThread().setContextClassLoader(m_classLoader);
-            if(value instanceof AggregateRoot) {
-                AggregateRoot ar = (AggregateRoot)value;
-                LOGGER.debug("Cache.put : id={}, version={}",
-                    ar.getIdentifier(),ar.getVersion());
-            }
-
-            obj = m_cache.put(key,value);
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
+        Object obj = null;
+        if(value instanceof AggregateRoot) {
+            AggregateRoot ar = (AggregateRoot)value;
+            LOGGER.debug("Cache.put : id={}, version={}",ar.getIdentifier(),ar.getVersion());
         }
+
+        obj = m_cache.put(key,value);
 
         return obj;
     }
@@ -172,28 +148,12 @@ public class HzCache implements Cache {
 
     @Override
     public Object remove(Object key) {
-        ClassLoader cl  = Thread.currentThread().getContextClassLoader();
-        Object      obj = null;
-
-        try {
-            Thread.currentThread().setContextClassLoader(m_classLoader);
-            obj = m_cache.remove(key);
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
-        }
-
-        return obj;
+        return m_cache.remove(key);
     }
 
     @Override
     public void clear() {
-        ClassLoader cl  = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(m_classLoader);
-            m_cache.clear();
-        } finally {
-            Thread.currentThread().setContextClassLoader(cl);
-        }
+        m_cache.clear();
     }
 
     @Override
