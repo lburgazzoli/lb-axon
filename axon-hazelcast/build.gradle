@@ -5,6 +5,7 @@ project.ext {
 
 dependencies {
     compile "com.hazelcast:hazelcast-all:$hazelcastVersion"
+    testCompile "junit:junit:$junitVersion"
 }
 
 jar {

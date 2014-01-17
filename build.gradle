@@ -47,13 +47,6 @@ subprojects {
         compile "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
         compile "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
         compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-
-        testCompile "org.apache.felix:org.apache.felix.framework:$felixVersion"
-        testCompile "org.ops4j.pax.exam:pax-exam-container-native:$paxExamVersion"
-        testCompile "org.ops4j.pax.exam:pax-exam-junit4:$paxExamVersion"
-        testCompile "org.ops4j.pax.exam:pax-exam-link-mvn:$paxExamVersion"
-        testCompile "org.ops4j.pax.url:pax-url-aether:$paxUrlVersion"
-        testCompile "org.ops4j.pax.url:pax-url-reference:$paxUrlVersion"
     }
 
     jar {

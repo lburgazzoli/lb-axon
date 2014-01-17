@@ -1,0 +1,23 @@
+project.ext {
+    bundleInportPackages = [ '*' ]
+    bundleExportPackages = [ '*' ]
+}
+
+dependencies {
+    compile("org.osgi:org.osgi.core:$osgiVersion")
+    compile("org.osgi:org.osgi.compendium:$osgiVersion")
+
+    testCompile "org.apache.felix:org.apache.felix.framework:$felixVersion"
+    testCompile "org.ops4j.pax.exam:pax-exam-container-native:$paxExamVersion"
+    testCompile "org.ops4j.pax.exam:pax-exam-junit4:$paxExamVersion"
+    testCompile "org.ops4j.pax.exam:pax-exam-link-mvn:$paxExamVersion"
+    testCompile "org.ops4j.pax.url:pax-url-aether:$paxUrlVersion"
+    testCompile "org.ops4j.pax.url:pax-url-reference:$paxUrlVersion"
+}
+
+jar {
+    manifest {
+        instruction 'Import-Package' , bundleInportPackages.join(',')
+        instruction 'Export-Package' , bundleExportPackages.join(',')
+    }
+}

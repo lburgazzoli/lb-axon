@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013. Axon Framework
+ * Copyright (c) 2010-2014. Axon Framework
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.test.osgi;
+package org.axonframework.osgi.test;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,7 +24,6 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,9 +58,9 @@ public class OSGiBundleTest {
             mavenBundle("com.hazelcast","hazelcast-all",System.getProperty("hazelcastVersion")),
             mavenBundle("org.axonframework","axon-core",System.getProperty("axonVersion")),
             mavenBundle("org.axonframework","axon-distributed-commandbus",System.getProperty("axonVersion")),
-            new File("axon-hazelcast/target/classes").exists()
-                ? bundle("reference:file:axon-hazelcast/target/classes")
-                : bundle("reference:file:../axon-hazelcast/target/classes"),
+            //new File("axon-hazelcast/target/classes").exists()
+            //    ? bundle("reference:file:axon-hazelcast/target/classes")
+            //    : bundle("reference:file:../axon-hazelcast/target/classes"),
             junitBundles(),
             systemPackage("com.sun.tools.attach"),
             cleanCaches()
