@@ -12,7 +12,6 @@ subprojects {
     version  = '1.0.0.SNAPSHOT'
     group    = 'com.github.lburgazzoli'
 
-    project.ext.projectPrefix             = 'lb'
     project.ext.slf4jVersion              = '1.7.5'
     project.ext.log4jVersion              = '1.2.17'
     project.ext.jacksonVersion            = '2.3.1'
@@ -51,13 +50,13 @@ subprojects {
     }
 
     jar {
-        baseName = "${projectPrefix}-${project.name}"
+        baseName = "${project.name}"
 
-        manifest.attributes['Bundle-Description'     ] = "${projectPrefix} :: ${project.name}"
-        manifest.attributes['Bundle-Name'            ] = "${projectPrefix} :: ${project.name}"
-        manifest.attributes['Bundle-SymbolicName'    ] = "${projectPrefix}-${project.name}"
+        manifest.attributes['Bundle-Description'     ] = "lb :: ${project.name}"
+        manifest.attributes['Bundle-Name'            ] = "lb :: ${project.name}"
+        manifest.attributes['Bundle-SymbolicName'    ] = "${project.group}.${project.name}"
         manifest.attributes['Bundle-Version'         ] = project.version
-        manifest.attributes['Implementation-Title'   ] = "${projectPrefix}-${project.name}-${project.version}"
+        manifest.attributes['Implementation-Title'   ] = "${project.group}-${project.name}-${project.version}"
         manifest.attributes['Implementation-Version' ] = project.version
         manifest.attributes['Implementation-Vendor'  ] = 'lb'
 

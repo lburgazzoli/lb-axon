@@ -47,7 +47,9 @@ import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
  */
 @RunWith(PaxExam.class)
 public class OSGiBundleTest {
-    private static final List<String> BUNDLE_NAMES = Arrays.asList("lb-axon-hazelcast");
+    private static final List<String> BUNDLE_NAMES = Arrays.asList(
+        "com.github.lburgazzoli.axon-hazelcast"
+    );
 
     @Inject
     BundleContext context;
@@ -59,7 +61,7 @@ public class OSGiBundleTest {
             .append("/")
             .append("libs")
             .append("/")
-            .append("lb-axon-hazelcast-")
+            .append("axon-hazelcast-")
             .append(System.getProperty("projectVersion"))
             .append(".jar")
             .toString();
@@ -97,10 +99,8 @@ public class OSGiBundleTest {
         Map<String,Bundle> axonBundles = new HashMap<String,Bundle>();
 
         for(Bundle bundle : context.getBundles()) {
-            if(bundle != null) {
-                if(BUNDLE_NAMES.contains(bundle.getSymbolicName())) {
-                    axonBundles.put(bundle.getSymbolicName(),bundle);
-                }
+            if(BUNDLE_NAMES.contains(bundle.getSymbolicName())) {
+                axonBundles.put(bundle.getSymbolicName(),bundle);
             }
         }
 
