@@ -4,8 +4,10 @@ project.ext {
 }
 
 dependencies {
-    compile 'net.openhft:lang:$openhftLangVersion'
-    compile 'net.openhft:chronicle:$openhftChronicleVersion'
+    compile project(':axon-common')
+
+    compile "net.openhft:lang:$openhftLangVersion"
+    compile "net.openhft:chronicle:$openhftChronicleVersion"
 
     testCompile "junit:junit:$junitVersion"
 }

@@ -29,20 +29,9 @@ import java.util.TreeSet;
  */
 public class HzDomainEventStream implements DomainEventStream {
 
-    public static final HzDomainEventStream EMPTY = new HzDomainEventStream();
-
     private int m_nextIndex;
     private final Long[] m_keys;
     private final Map<Long,HzDomainEventMessage> m_data;
-
-    /**
-     *
-     */
-    private HzDomainEventStream() {
-        m_data      = null;
-        m_keys      = ArrayUtils.EMPTY_LONG_OBJECT_ARRAY;
-        m_nextIndex = 0;
-    }
 
     /**
      * c-tor

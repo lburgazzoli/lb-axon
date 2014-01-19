@@ -4,9 +4,6 @@ project.ext {
 }
 
 dependencies {
-    compile project(':axon-common')
-
-    compile "com.hazelcast:hazelcast:$hazelcastVersion"
     testCompile "junit:junit:$junitVersion"
 }
 

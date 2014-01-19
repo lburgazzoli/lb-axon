@@ -19,6 +19,7 @@ import com.google.common.collect.Maps;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.eventstore.EventStore;
+import org.axonframework.ext.eventstore.NullDomainEventStream;
 import org.axonframework.hazelcast.IHzProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +94,6 @@ public class HzEventStore implements EventStore {
             return hdes.getEventStream();
         }
 
-        return HzDomainEventStream.EMPTY;
+        return  NullDomainEventStream.INSTANCE;
     }
 }

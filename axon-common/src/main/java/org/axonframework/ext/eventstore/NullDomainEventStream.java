@@ -13,29 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.eventstore.chronicle;
+package org.axonframework.ext.eventstore;
 
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 
-import java.util.NoSuchElementException;
-
 /**
  *
  */
-public class ChronicleDomainEventStream implements DomainEventStream {
-
-    public static final ChronicleDomainEventStream EMPTY = new ChronicleDomainEventStream();
-
-    /**
-     * c-tor
-     */
-    public ChronicleDomainEventStream() {
-    }
-
-    // *************************************************************************
-    //
-    // *************************************************************************
+public class NullDomainEventStream implements DomainEventStream {
+    public static final DomainEventStream INSTANCE = new NullDomainEventStream();
 
     @Override
     public boolean hasNext() {
@@ -44,19 +31,11 @@ public class ChronicleDomainEventStream implements DomainEventStream {
 
     @Override
     public DomainEventMessage next() {
-        if (!hasNext()) {
-            throw new NoSuchElementException("Trying to peek beyond the limits of this stream.");
-        }
-
         return null;
     }
 
     @Override
     public DomainEventMessage peek() {
-        if (!hasNext()) {
-            throw new NoSuchElementException("Trying to peek beyond the limits of this stream.");
-        }
-
         return null;
     }
 }

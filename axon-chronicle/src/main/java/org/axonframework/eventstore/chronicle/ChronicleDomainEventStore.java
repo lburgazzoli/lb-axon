@@ -16,8 +16,10 @@
 package org.axonframework.eventstore.chronicle;
 
 
+import net.openhft.chronicle.IndexedChronicle;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
+import org.axonframework.serializer.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,21 +29,43 @@ import org.slf4j.LoggerFactory;
 public class ChronicleDomainEventStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleDomainEventStore.class);
 
+    private final String m_basePath;
+    private final boolean m_deleteOnExit;
     private final String m_storageId;
     private final String m_aggregateType;
     private final String m_aggregateId;
+    private final Serializer m_serializer;
+
+    private IndexedChronicle m_chronicle;
+    private ChronicleDomainEventWriter m_writer;
 
     /**
      * c-tor
      *
+     * @param basePath
+     * @param deleteOnExit
      * @param storageId
      * @param aggregateType
      * @param aggregateId
      */
-    public ChronicleDomainEventStore(String storageId, String aggregateType, String aggregateId) {
+    public ChronicleDomainEventStore(Serializer serializer,String basePath,boolean deleteOnExit,String storageId, String aggregateType, String aggregateId) {
+        m_serializer = serializer;
+        m_basePath = basePath;
+        m_deleteOnExit = deleteOnExit;
         m_storageId = storageId;
         m_aggregateType = aggregateType;
         m_aggregateId = aggregateId;
+
+        try {
+            m_chronicle = new IndexedChronicle(basePath);
+            if(m_chronicle != null) {
+                m_writer = new ChronicleDomainEventWriter(m_chronicle,m_serializer);
+            }
+        } catch(Exception e) {
+            //TODO: check what to do
+            m_chronicle = null;
+            LOGGER.warn("Exception",e);
+        }
     }
 
     /**
@@ -78,17 +102,18 @@ public class ChronicleDomainEventStore {
      *
      * @return the number of items stored
      */
-    public int getStorageSize() {
-        return 0;
+    public long getStorageSize() {
+        return m_chronicle != null ? m_chronicle.size() : 0;
     }
 
     /**
      *
      * @param message
      */
-    @SuppressWarnings("unchecked")
     public void add(DomainEventMessage message) {
-        //m_storage.put(message.getSequenceNumber(),new HzDomainEventMessage(message));
+        if(m_writer != null) {
+            m_writer.write(message);
+        }
     }
 
     /**
@@ -96,6 +121,8 @@ public class ChronicleDomainEventStore {
      * @return the event stream
      */
     public DomainEventStream getEventStream() {
-        return new ChronicleDomainEventStream();
+        return m_chronicle != null
+             ? new ChronicleDomainEventReader(m_chronicle,m_serializer)
+             : null;
     }
 }

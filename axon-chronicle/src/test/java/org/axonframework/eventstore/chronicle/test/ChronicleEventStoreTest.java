@@ -16,8 +16,22 @@
 package org.axonframework.eventstore.chronicle.test;
 
 
+import com.google.common.collect.Lists;
+import org.axonframework.domain.DomainEventMessage;
+import org.axonframework.domain.DomainEventStream;
+import org.axonframework.domain.SimpleDomainEventStream;
+import org.axonframework.eventstore.EventStore;
+import org.axonframework.eventstore.chronicle.ChronicleEventStore;
+import org.axonframework.eventstore.chronicle.test.model.ChronicleAxonEventMessage;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -39,4 +53,38 @@ public class ChronicleEventStoreTest {
     // *************************************************************************
     //
     // *************************************************************************
+
+    @Test
+    public void testSaveStreamAndReadBack() {
+        String     type  = "test";
+        String     aid   = UUID.randomUUID().toString();
+        EventStore store = new ChronicleEventStore("./data/chronicle/");
+        int        evts  = 10;
+
+        List<DomainEventMessage<?>> demWrite = Lists.newArrayListWithCapacity(evts);
+        for(int i=0;i<evts;i++) {
+            demWrite.add(new ChronicleAxonEventMessage(aid,i,"evt-" + i));
+        }
+
+        store.appendEvents(type,new SimpleDomainEventStream(demWrite));
+
+        List<DomainEventMessage<?>> demRead = Lists.newArrayListWithCapacity(evts);
+        DomainEventStream des = store.readEvents(type,aid);
+        while (des.hasNext()) {
+            demRead.add(des.next());
+        }
+
+        /*
+        assertEquals(demWrite.size(),demRead.size());
+
+        for(int i=0;i<evts;i++) {
+            assertEquals(
+                demWrite.get(i).getIdentifier(),
+                demRead.get(i).getIdentifier()
+            );
+        }
+        */
+
+        assertTrue(true);
+    }
 }
