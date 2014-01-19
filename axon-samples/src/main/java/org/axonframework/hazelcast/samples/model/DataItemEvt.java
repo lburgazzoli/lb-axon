@@ -90,7 +90,7 @@ public class DataItemEvt {
         public String toString() {
             return Objects.toStringHelper(this)
                 .add("id"  , getId())
-                .add("text", getText())
+                .add("test", getText())
                 .toString();
         }
     }

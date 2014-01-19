@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013. Axon Framework
+ * Copyright (c) 2010-2014. Axon Framework
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.store;
+package org.axonframework.eventstore.chronicle;
+
 
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
-import org.axonframework.hazelcast.IHzProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  *
  */
-public class HzDomainEventStore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HzDomainEventStore.class);
+public class ChronicleDomainEventStore {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleDomainEventStore.class);
 
+    private final String m_storageId;
     private final String m_aggregateType;
     private final String m_aggregateId;
-    private final String m_storageId;
-    private final IHzProxy m_hazelcastManager;
-    private final Map<Long,HzDomainEventMessage> m_storage;
 
     /**
      * c-tor
@@ -41,21 +37,17 @@ public class HzDomainEventStore {
      * @param storageId
      * @param aggregateType
      * @param aggregateId
-     * @param hazelcastManager
      */
-    public HzDomainEventStore(String storageId, String aggregateType, String aggregateId, IHzProxy hazelcastManager) {
+    public ChronicleDomainEventStore(String storageId, String aggregateType, String aggregateId) {
+        m_storageId = storageId;
         m_aggregateType = aggregateType;
         m_aggregateId = aggregateId;
-        m_storageId = storageId;
-        m_hazelcastManager = hazelcastManager;
-        m_storage = m_hazelcastManager.getMap(m_storageId);
     }
 
     /**
      * clean the stored events
      */
     public void clear() {
-        m_storage.clear();
     }
 
     /**
@@ -87,7 +79,7 @@ public class HzDomainEventStore {
      * @return the number of items stored
      */
     public int getStorageSize() {
-        return m_storage.size();
+        return 0;
     }
 
     /**
@@ -96,7 +88,7 @@ public class HzDomainEventStore {
      */
     @SuppressWarnings("unchecked")
     public void add(DomainEventMessage message) {
-        m_storage.put(message.getSequenceNumber(),new HzDomainEventMessage(message));
+        //m_storage.put(message.getSequenceNumber(),new HzDomainEventMessage(message));
     }
 
     /**
@@ -104,6 +96,6 @@ public class HzDomainEventStore {
      * @return the event stream
      */
     public DomainEventStream getEventStream() {
-        return new HzDomainEventStream(m_storage);
+        return new ChronicleDomainEventStream();
     }
 }

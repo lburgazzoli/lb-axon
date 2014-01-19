@@ -24,7 +24,7 @@ import java.net.URLEncoder;
 /**
  *
  */
-public class HzEventStoreUtils {
+public class HzEventStoreUtil {
 
     /**
      *

@@ -1,0 +1,18 @@
+project.ext {
+    bundleInportPackages = [ '*' ]
+    bundleExportPackages = [ '*' ]
+}
+
+dependencies {
+    compile 'net.openhft:lang:$openhftLangVersion'
+    compile 'net.openhft:chronicle:$openhftChronicleVersion'
+
+    testCompile "junit:junit:$junitVersion"
+}
+
+jar {
+    manifest {
+        instruction 'Import-Package' , bundleInportPackages.join(',')
+        instruction 'Export-Package' , bundleExportPackages.join(',')
+    }
+}

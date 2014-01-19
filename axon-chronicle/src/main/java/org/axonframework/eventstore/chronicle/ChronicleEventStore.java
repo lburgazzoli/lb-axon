@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013. Axon Framework
+ * Copyright (c) 2010-2014. Axon Framework
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.hazelcast.store;
+package org.axonframework.eventstore.chronicle;
+
 
 import com.google.common.collect.Maps;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.eventstore.EventStore;
-import org.axonframework.hazelcast.IHzProxy;
+import org.axonframework.serializer.Serializer;
+import org.axonframework.serializer.xml.XStreamSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,24 +30,36 @@ import java.util.Map;
 /**
  *
  */
-public class HzEventStore implements EventStore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HzEventStore.class);
+public class ChronicleEventStore implements EventStore  {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleEventStore.class);
 
-    private final IHzProxy m_hazelcastManager;
-    private final Map<String,HzDomainEventStore> m_domainEventStore;
+    private final Serializer m_serializer;
+    private final String m_basePath;
+    private final Map<String,ChronicleDomainEventStore> m_domainEventStore;
 
     /**
      * c-tor
      *
-     * @param hazelcastManager
+     * @param basePath
      */
-    public HzEventStore(IHzProxy hazelcastManager) {
-        m_hazelcastManager = hazelcastManager;
-        m_domainEventStore = Maps.newHashMap();
+    public ChronicleEventStore(String basePath) {
+        this(basePath,new XStreamSerializer());
+    }
+
+    /**
+     * c-tor
+     *
+     * @param basePath
+     * @param serializer
+     */
+    public ChronicleEventStore(String basePath,Serializer serializer) {
+        m_basePath = basePath;
+        m_serializer = serializer;
+        m_domainEventStore = Maps.newConcurrentMap();
     }
 
     // *************************************************************************
-    // EventStore
+    //
     // *************************************************************************
 
     @Override
@@ -53,19 +67,18 @@ public class HzEventStore implements EventStore {
         int size = 0;
 
         String mapId = null;
-        HzDomainEventStore hdes = null;
+        ChronicleDomainEventStore hdes = null;
 
         while(events.hasNext()) {
             DomainEventMessage dem = events.next();
             if(size == 0) {
-                mapId = HzEventStoreUtil.getStorageIdentifier(type, dem);
+                mapId = ChronicleEventStoreUtil.getStorageIdentifier(type, dem);
                 hdes  = m_domainEventStore.get(mapId);
 
                 if(hdes == null) {
-                    hdes = new HzDomainEventStore(
-                        mapId,type,dem.getAggregateIdentifier().toString(),m_hazelcastManager);
+                    hdes = new ChronicleDomainEventStore(mapId,type,dem.getAggregateIdentifier().toString());
 
-                    m_domainEventStore.put(hdes.getStorageId(),hdes);
+                    m_domainEventStore.put(mapId,hdes);
                 }
 
                 if(dem.getSequenceNumber() == 0) {
@@ -86,13 +99,13 @@ public class HzEventStore implements EventStore {
 
     @Override
     public DomainEventStream readEvents(String type, Object identifier) {
-        String mapId = HzEventStoreUtil.getStorageIdentifier(type, identifier.toString());
-        HzDomainEventStore hdes = m_domainEventStore.get(mapId);
+        String mapId = ChronicleEventStoreUtil.getStorageIdentifier(type, identifier.toString());
+        ChronicleDomainEventStore hdes = m_domainEventStore.get(mapId);
 
         if(hdes != null) {
             return hdes.getEventStream();
         }
 
-        return HzDomainEventStream.EMPTY;
+        return ChronicleDomainEventStream.EMPTY;
     }
 }
