@@ -63,7 +63,7 @@ public class SimpleApp {
         HzEventBusTerminal evtBusTer = new HzEventBusTerminal(proxy);
         evtBusTer.setPublisher(new PackageNamePublisher());
         evtBusTer.setSubscriber(new DynamicSubscriber(
-            proxy.getDistributedObjectName("org.axonframework.ext.hazelcast.samples.model.*"))
+            proxy.getDistributedObjectName("org.axonframework.ext.hazelcast.samples.org.axonframework.ext.eventstore.chronicle.test.model.*"))
         );
 
         CommandBus cmdBus = null;

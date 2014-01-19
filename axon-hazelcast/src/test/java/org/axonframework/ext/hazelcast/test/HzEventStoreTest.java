@@ -59,7 +59,7 @@ public class HzEventStoreTest extends HzTestBase {
 
     @Test
     public void testSaveStreamAndReadBack() {
-        String     type  = "test";
+        String     type  = "org.axonframework.ext.eventstore.chronicle.test";
         String     aid   = UUID.randomUUID().toString();
         EventStore store = new HzEventStore(m_proxy);
         int        evts  = 10;

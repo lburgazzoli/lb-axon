@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class HzTestBase {
-    protected static final Logger LOGGER = LoggerFactory.getLogger("hz-axon-test");
+    protected static final Logger LOGGER = LoggerFactory.getLogger("hz-axon-org.axonframework.ext.eventstore.chronicle.test");
 
     /**
      *
