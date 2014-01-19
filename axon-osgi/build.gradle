@@ -11,7 +11,7 @@ dependencies {
 
     testCompile "javax.inject:javax.inject:1"
     testCompile "org.ops4j.pax.exam:pax-exam-junit4:$paxExamVersion"
-    testRuntime "org.ops4j.pax.exam:pax-exam-container-native:$paxExamVersion"
+    testRuntime "org.ops4j.pax.exam:pax-exam-container-forked:$paxExamVersion"
     testRuntime "org.ops4j.pax.exam:pax-exam-link-mvn:$paxExamVersion"
     testRuntime "org.ops4j.pax.url:pax-url-aether:$paxUrlVersion"
     testRuntime "org.ops4j.pax.url:pax-url-reference:$paxUrlVersion"
@@ -21,7 +21,8 @@ dependencies {
 
 jar {
     manifest {
-        instruction 'Import-Package' , bundleInportPackages.join(',')
-        instruction 'Export-Package' , bundleExportPackages.join(',')
+        instruction 'Bundle-Activator', 'org.axonframework.ext.osgi.AxonActivator'
+        instruction 'Import-Package'  , bundleInportPackages.join(',')
+        instruction 'Export-Package'  , bundleExportPackages.join(',')
     }
 }
