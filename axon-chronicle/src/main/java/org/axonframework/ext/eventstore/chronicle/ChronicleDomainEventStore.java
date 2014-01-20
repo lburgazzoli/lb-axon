@@ -17,11 +17,14 @@ package org.axonframework.ext.eventstore.chronicle;
 
 
 import net.openhft.chronicle.IndexedChronicle;
+import net.openhft.chronicle.tools.ChronicleTools;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.serializer.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 /**
  *
@@ -30,7 +33,6 @@ public class ChronicleDomainEventStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleDomainEventStore.class);
 
     private final String m_basePath;
-    private final boolean m_deleteOnExit;
     private final String m_storageId;
     private final String m_aggregateType;
     private final String m_aggregateId;
@@ -43,21 +45,22 @@ public class ChronicleDomainEventStore {
      * c-tor
      *
      * @param basePath
-     * @param deleteOnExit
      * @param storageId
      * @param aggregateType
      * @param aggregateId
      */
-    public ChronicleDomainEventStore(Serializer serializer,String basePath,boolean deleteOnExit,String storageId, String aggregateType, String aggregateId) {
+    public ChronicleDomainEventStore(Serializer serializer,String basePath,String storageId, String aggregateType, String aggregateId) {
         m_serializer = serializer;
         m_basePath = basePath;
-        m_deleteOnExit = deleteOnExit;
         m_storageId = storageId;
         m_aggregateType = aggregateType;
         m_aggregateId = aggregateId;
 
         try {
-            m_chronicle = new IndexedChronicle(basePath);
+            String dataPath = new File(m_basePath,storageId).getAbsolutePath();
+            LOGGER.debug("IndexedChronicle => BasePath: {}, DataPath: {}",basePath,dataPath);
+
+            m_chronicle = new IndexedChronicle(dataPath);
             if(m_chronicle != null) {
                 m_writer = new ChronicleDomainEventWriter(m_chronicle,m_serializer);
             }

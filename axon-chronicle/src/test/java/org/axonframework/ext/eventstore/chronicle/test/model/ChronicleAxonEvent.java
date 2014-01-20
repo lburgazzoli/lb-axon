@@ -57,4 +57,26 @@ public class ChronicleAxonEvent implements Serializable {
             .add("data" , m_data)
             .toString();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null) {
+            return false;
+        }
+
+        if(obj == this) {
+            return true;
+        }
+
+        if(obj.getClass() != getClass()) {
+            return false;
+        }
+
+        return Objects.equal(m_data,((ChronicleAxonEvent)obj).m_data);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(m_data);
+    }
 }

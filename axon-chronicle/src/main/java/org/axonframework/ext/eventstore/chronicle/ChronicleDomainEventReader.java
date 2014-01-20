@@ -90,8 +90,6 @@ public class ChronicleDomainEventReader implements DomainEventStream {
     private DomainEventMessage eventAt(long index) {
         DomainEventMessage dem = null;
 
-        LOGGER.debug("eventAt {}",index);
-
         if(m_excerpt.index(index)) {
             int len = m_excerpt.readInt();
 

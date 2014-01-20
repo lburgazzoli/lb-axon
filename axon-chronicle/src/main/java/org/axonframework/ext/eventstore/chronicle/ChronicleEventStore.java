@@ -38,7 +38,6 @@ public class ChronicleEventStore implements EventStore  {
 
     private final Serializer m_serializer;
     private final String m_basePath;
-    private final boolean m_deleteOnExit;
     private final Map<String,ChronicleDomainEventStore> m_domainEventStore;
 
     // *************************************************************************
@@ -51,17 +50,7 @@ public class ChronicleEventStore implements EventStore  {
      * @param basePath
      */
     public ChronicleEventStore(String basePath) {
-        this(basePath,new XStreamSerializer(),false);
-    }
-
-    /**
-     * c-tor
-     *
-     * @param basePath
-     * @param deleteOnExit
-     */
-    public ChronicleEventStore(String basePath,boolean deleteOnExit) {
-        this(basePath,new XStreamSerializer(),deleteOnExit);
+        this(basePath,new XStreamSerializer());
     }
 
     /**
@@ -71,21 +60,9 @@ public class ChronicleEventStore implements EventStore  {
      * @param serializer
      */
     public ChronicleEventStore(String basePath,Serializer serializer) {
-        this(basePath,serializer,false);
-    }
-
-    /**
-     * c-tor
-     *
-     * @param basePath
-     * @param serializer
-     * @param deleteOnExit
-     */
-    public ChronicleEventStore(String basePath,Serializer serializer,boolean deleteOnExit) {
         m_basePath = basePath;
         m_serializer = serializer;
         m_domainEventStore = Maps.newConcurrentMap();
-        m_deleteOnExit = deleteOnExit;
 
         ChronicleTools.warmup();
     }
@@ -111,8 +88,7 @@ public class ChronicleEventStore implements EventStore  {
                     // create a new DomainEventStore
                     hdes = new ChronicleDomainEventStore(
                         m_serializer,
-                        new File(m_basePath,mapId).getAbsolutePath(),
-                        m_deleteOnExit,
+                        m_basePath,
                         mapId,
                         type,
                         dem.getAggregateIdentifier().toString()
@@ -127,7 +103,6 @@ public class ChronicleEventStore implements EventStore  {
             }
 
             if(hdes != null) {
-                LOGGER.debug("Add : <{}>",dem.getPayload().toString());
                 hdes.add(dem);
                 size++;
             }

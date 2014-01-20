@@ -1,3 +1,4 @@
+rootProject.name = "lb-axon"
 
 include "axon-common"
 include "axon-hazelcast"

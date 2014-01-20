@@ -18,6 +18,7 @@ package org.axonframework.ext.eventstore.chronicle;
 import org.apache.commons.lang3.CharEncoding;
 import org.axonframework.domain.DomainEventMessage;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -59,5 +60,13 @@ public class ChronicleEventStoreUtil {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("System doesnt support UTF-8?", e);
         }
+    }
+
+    /**
+     * @param path
+     */
+    public static void deleteOnExit(String path) {
+        new File(path + ".data" ).deleteOnExit();
+        new File(path + ".index").deleteOnExit();
     }
 }
