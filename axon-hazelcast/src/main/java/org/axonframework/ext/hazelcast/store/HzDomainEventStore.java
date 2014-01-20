@@ -17,21 +17,20 @@ package org.axonframework.ext.hazelcast.store;
 
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
+import org.axonframework.ext.eventstore.AbstractDomainEventStore;
 import org.axonframework.ext.hazelcast.IHzProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
  *
  */
-public class HzDomainEventStore {
+public class HzDomainEventStore extends AbstractDomainEventStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(HzDomainEventStore.class);
 
-    private final String m_aggregateType;
-    private final String m_aggregateId;
-    private final String m_storageId;
     private final IHzProxy m_hazelcastManager;
     private final Map<Long,HzDomainEventMessage> m_storage;
 
@@ -44,65 +43,34 @@ public class HzDomainEventStore {
      * @param hazelcastManager
      */
     public HzDomainEventStore(String storageId, String aggregateType, String aggregateId, IHzProxy hazelcastManager) {
-        m_aggregateType = aggregateType;
-        m_aggregateId = aggregateId;
-        m_storageId = storageId;
+        super(storageId,aggregateType,aggregateId);
         m_hazelcastManager = hazelcastManager;
-        m_storage = m_hazelcastManager.getMap(m_storageId);
+        m_storage = m_hazelcastManager.getMap(storageId);
     }
 
-    /**
-     * clean the stored events
-     */
+
+    @Override
+    public void close() throws IOException {
+    }
+
+    @Override
     public void clear() {
         m_storage.clear();
     }
 
-    /**
-     *
-     * @return the aggregate type
-     */
-    public String getAggregateType() {
-        return m_aggregateType;
-    }
-
-    /**
-     *
-     * @return the aggregate id
-     */
-    public String getAggregateId() {
-        return m_aggregateId;
-    }
-
-    /**
-     *
-     * @return the storage id
-     */
-    public String getStorageId() {
-        return m_storageId;
-    }
-
-    /**
-     *
-     * @return the number of items stored
-     */
-    public int getStorageSize() {
+    @Override
+    public long getStorageSize() {
         return m_storage.size();
     }
 
-    /**
-     *
-     * @param message
-     */
+
+    @Override
     @SuppressWarnings("unchecked")
     public void add(DomainEventMessage message) {
         m_storage.put(message.getSequenceNumber(),new HzDomainEventMessage(message));
     }
 
-    /**
-     *
-     * @return the event stream
-     */
+    @Override
     public DomainEventStream getEventStream() {
         return new HzDomainEventStream(m_storage);
     }

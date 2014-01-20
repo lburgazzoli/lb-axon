@@ -9,8 +9,10 @@ subprojects {
     apply plugin: 'osgi'
     apply plugin: 'maven'
 
-    version  = '1.0.0.SNAPSHOT'
-    group    = 'com.github.lburgazzoli'
+    version             = '1.0.0.SNAPSHOT'
+    group               = 'com.github.lburgazzoli'
+    sourceCompatibility = '1.7'
+    targetCompatibility = '1.7'
 
     project.ext.slf4jVersion              = '1.7.5'
     project.ext.log4jVersion              = '1.2.17'

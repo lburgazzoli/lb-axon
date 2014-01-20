@@ -18,22 +18,24 @@ package org.axonframework.ext.hazelcast.store;
 import com.google.common.collect.Maps;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
-import org.axonframework.eventstore.EventStore;
+import org.axonframework.ext.eventstore.AbstractEventStore;
+import org.axonframework.ext.eventstore.CloseableDomainEventStore;
 import org.axonframework.ext.eventstore.NullDomainEventStream;
 import org.axonframework.ext.hazelcast.IHzProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
  *
  */
-public class HzEventStore implements EventStore {
+public class HzEventStore extends AbstractEventStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(HzEventStore.class);
 
     private final IHzProxy m_hazelcastManager;
-    private final Map<String,HzDomainEventStore> m_domainEventStore;
+    private final Map<String,CloseableDomainEventStore> m_domainEventStore;
 
     /**
      * c-tor
@@ -45,6 +47,15 @@ public class HzEventStore implements EventStore {
         m_domainEventStore = Maps.newHashMap();
     }
 
+
+    // *************************************************************************
+    // Closeable
+    // *************************************************************************
+
+    @Override
+    public void close() throws IOException {
+    }
+
     // *************************************************************************
     // EventStore
     // *************************************************************************
@@ -53,47 +64,46 @@ public class HzEventStore implements EventStore {
     public void appendEvents(String type, DomainEventStream events) {
         int size = 0;
 
-        String mapId = null;
-        HzDomainEventStore hdes = null;
+        String storageId = null;
+        CloseableDomainEventStore des = null;
 
         while(events.hasNext()) {
             DomainEventMessage dem = events.next();
             if(size == 0) {
-                mapId = HzEventStoreUtil.getStorageIdentifier(type, dem);
-                hdes  = m_domainEventStore.get(mapId);
+                storageId = HzEventStoreUtil.getStorageIdentifier(type, dem);
+                des = m_domainEventStore.get(storageId);
 
-                if(hdes == null) {
-                    hdes = new HzDomainEventStore(
-                        mapId,type,dem.getAggregateIdentifier().toString(),m_hazelcastManager);
+                if(des == null) {
+                    des = new HzDomainEventStore(
+                        storageId,type,dem.getAggregateIdentifier().toString(),m_hazelcastManager);
 
-                    m_domainEventStore.put(hdes.getStorageId(),hdes);
+                    m_domainEventStore.put(des.getStorageId(),des);
                 }
 
                 if(dem.getSequenceNumber() == 0) {
-                    hdes.clear();
+                    des.clear();
                 }
             }
 
-            if(hdes != null) {
-                LOGGER.debug("Add : <{}>",dem.getPayload().toString());
-                hdes.add(dem);
+            if(des != null) {
+                des.add(dem);
                 size++;
             }
         }
 
         LOGGER.debug("appendEvents: type={}, nbStoredEvents={}, eventStoreSize={}",
-            type,size,(hdes != null) ? hdes.getStorageSize() : 0);
+            type,size,(des != null) ? des.getStorageSize() : 0);
     }
 
     @Override
     public DomainEventStream readEvents(String type, Object identifier) {
         String mapId = HzEventStoreUtil.getStorageIdentifier(type, identifier.toString());
-        HzDomainEventStore hdes = m_domainEventStore.get(mapId);
+        CloseableDomainEventStore hdes = m_domainEventStore.get(mapId);
 
         if(hdes != null) {
             return hdes.getEventStream();
         }
 
-        return  NullDomainEventStream.INSTANCE;
+        return NullDomainEventStream.INSTANCE;
     }
 }

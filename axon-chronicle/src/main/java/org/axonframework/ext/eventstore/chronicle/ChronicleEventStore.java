@@ -20,25 +20,26 @@ import com.google.common.collect.Maps;
 import net.openhft.chronicle.tools.ChronicleTools;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
-import org.axonframework.eventstore.EventStore;
+import org.axonframework.ext.eventstore.AbstractEventStore;
+import org.axonframework.ext.eventstore.CloseableDomainEventStore;
 import org.axonframework.ext.eventstore.NullDomainEventStream;
 import org.axonframework.serializer.Serializer;
 import org.axonframework.serializer.xml.XStreamSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
 /**
  *
  */
-public class ChronicleEventStore implements EventStore  {
+public class ChronicleEventStore extends AbstractEventStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleEventStore.class);
 
     private final Serializer m_serializer;
     private final String m_basePath;
-    private final Map<String,ChronicleDomainEventStore> m_domainEventStore;
+    private final Map<String,CloseableDomainEventStore> m_domainEventStore;
 
     // *************************************************************************
     //
@@ -72,50 +73,61 @@ public class ChronicleEventStore implements EventStore  {
     // *************************************************************************
 
     @Override
+    public void close() throws IOException {
+        for(CloseableDomainEventStore des : m_domainEventStore.values()) {
+            des.close();
+        }
+    }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    @Override
     public void appendEvents(String type, DomainEventStream events) {
         int size = 0;
 
-        String mapId = null;
-        ChronicleDomainEventStore hdes = null;
+        String storageId = null;
+        CloseableDomainEventStore des = null;
 
         while(events.hasNext()) {
             DomainEventMessage dem = events.next();
             if(size == 0) {
-                mapId = ChronicleEventStoreUtil.getStorageIdentifier(type, dem);
-                hdes  = m_domainEventStore.get(mapId);
+                storageId = ChronicleEventStoreUtil.getStorageIdentifier(type, dem);
+                des  = m_domainEventStore.get(storageId);
 
-                if(hdes == null) {
+                if(des == null) {
                     // create a new DomainEventStore
-                    hdes = new ChronicleDomainEventStore(
+                    des = new ChronicleDomainEventStore(
                         m_serializer,
                         m_basePath,
-                        mapId,
+                            storageId,
                         type,
                         dem.getAggregateIdentifier().toString()
                     );
 
-                    m_domainEventStore.put(mapId,hdes);
+                    m_domainEventStore.put(storageId,des);
                 }
 
                 if(dem.getSequenceNumber() == 0) {
-                    hdes.clear();
+                    des.clear();
                 }
             }
 
-            if(hdes != null) {
-                hdes.add(dem);
+            if(des != null) {
+                des.add(dem);
                 size++;
             }
         }
 
         LOGGER.debug("appendEvents: type={}, nbStoredEvents={}, eventStoreSize={}",
-            type,size,(hdes != null) ? hdes.getStorageSize() : 0);
+            type,size,(des != null) ? des.getStorageSize() : 0);
     }
 
     @Override
     public DomainEventStream readEvents(String type, Object identifier) {
         String mapId = ChronicleEventStoreUtil.getStorageIdentifier(type, identifier.toString());
-        ChronicleDomainEventStore hdes = m_domainEventStore.get(mapId);
+        CloseableDomainEventStore hdes = m_domainEventStore.get(mapId);
 
         if(hdes != null) {
             return hdes.getEventStream();

@@ -17,25 +17,25 @@ package org.axonframework.ext.eventstore.chronicle;
 
 
 import net.openhft.chronicle.IndexedChronicle;
-import net.openhft.chronicle.tools.ChronicleTools;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
+import org.axonframework.ext.eventstore.AbstractDomainEventStore;
+import org.axonframework.ext.eventstore.CloseableDomainEventStore;
 import org.axonframework.serializer.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 
 /**
  *
  */
-public class ChronicleDomainEventStore {
+public class ChronicleDomainEventStore extends AbstractDomainEventStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleDomainEventStore.class);
 
     private final String m_basePath;
-    private final String m_storageId;
-    private final String m_aggregateType;
-    private final String m_aggregateId;
     private final Serializer m_serializer;
 
     private IndexedChronicle m_chronicle;
@@ -50,11 +50,9 @@ public class ChronicleDomainEventStore {
      * @param aggregateId
      */
     public ChronicleDomainEventStore(Serializer serializer,String basePath,String storageId, String aggregateType, String aggregateId) {
+        super(storageId,aggregateType,aggregateId);
         m_serializer = serializer;
         m_basePath = basePath;
-        m_storageId = storageId;
-        m_aggregateType = aggregateType;
-        m_aggregateId = aggregateId;
 
         try {
             String dataPath = new File(m_basePath,storageId).getAbsolutePath();
@@ -71,58 +69,31 @@ public class ChronicleDomainEventStore {
         }
     }
 
-    /**
-     * clean the stored events
-     */
+    @Override
     public void clear() {
+        //TODO: implements
     }
 
-    /**
-     *
-     * @return the aggregate type
-     */
-    public String getAggregateType() {
-        return m_aggregateType;
+    @Override
+    public void close() throws IOException {
+        if(m_chronicle != null) {
+            m_chronicle.close();
+        }
     }
 
-    /**
-     *
-     * @return the aggregate id
-     */
-    public String getAggregateId() {
-        return m_aggregateId;
-    }
-
-    /**
-     *
-     * @return the storage id
-     */
-    public String getStorageId() {
-        return m_storageId;
-    }
-
-    /**
-     *
-     * @return the number of items stored
-     */
+    @Override
     public long getStorageSize() {
         return m_chronicle != null ? m_chronicle.size() : 0;
     }
 
-    /**
-     *
-     * @param message
-     */
+    @Override
     public void add(DomainEventMessage message) {
         if(m_writer != null) {
             m_writer.write(message);
         }
     }
 
-    /**
-     *
-     * @return the event stream
-     */
+    @Override
     public DomainEventStream getEventStream() {
         return m_chronicle != null
              ? new ChronicleDomainEventReader(m_chronicle,m_serializer)
