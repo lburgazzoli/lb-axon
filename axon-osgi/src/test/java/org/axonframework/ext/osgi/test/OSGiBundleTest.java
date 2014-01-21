@@ -15,39 +15,19 @@
  */
 package org.axonframework.ext.osgi.test;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.Configuration;
-import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.PaxExam;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-
-import javax.inject.Inject;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.systemPackage;
-import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
 /**
  * @author lburgazzoli
  */
-@RunWith(PaxExam.class)
+//@RunWith(PaxExam.class)
 public class OSGiBundleTest extends OSGiTestCommon {
     private static final List<String> BUNDLE_NAMES = Arrays.asList(
         "com.github.lburgazzoli.axon-hazelcast"
     );
 
+    /*
     @Inject
     BundleContext context;
 
@@ -57,17 +37,17 @@ public class OSGiBundleTest extends OSGiTestCommon {
         return options(
             systemProperty("org.osgi.framework.storage.clean").value("true"),
             systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("WARN"),
-            mavenBundle("org.slf4j", "slf4j-api", System.getProperty("slf4jVersion")),
-            mavenBundle("org.slf4j", "slf4j-simple", System.getProperty("slf4jVersion")).noStart(),
+            mavenBundle("org.slf4j", "slf4j-api", System.getProperty("version.slf4j")),
+            mavenBundle("org.slf4j", "slf4j-simple", System.getProperty("version.slf4j")).noStart(),
             mavenBundle("org.apache.geronimo.specs","geronimo-servlet_3.0_spec","1.0"),
             wrappedBundle(mavenBundle("net.sf.jsr107cache", "jsr107cache", "1.1")),
             mavenBundle("joda-time", "joda-time", "2.1"),
             mavenBundle("org.apache.commons","commons-lang3","3.1"),
             mavenBundle("commons-collections","commons-collections","3.2.1"),
-            mavenBundle("com.hazelcast","hazelcast",System.getProperty("hazelcastVersion")),
-            mavenBundle("org.axonframework","axon-core",System.getProperty("axonVersion")),
-            mavenBundle("org.axonframework","axon-distributed-commandbus",System.getProperty("axonVersion")),
-            mavenBundle("com.google.guava","guava",System.getProperty("guavaVersion")),
+            mavenBundle("com.hazelcast","hazelcast",System.getProperty("version.hazelcast")),
+            mavenBundle("org.axonframework","axon-core",System.getProperty("version.axon")),
+            mavenBundle("org.axonframework","axon-distributed-commandbus",System.getProperty("version.axon")),
+            mavenBundle("com.google.guava","guava",System.getProperty("version.guava")),
             axonBundle("axon-common"),
             axonBundle("axon-hazelcast"),
             junitBundles(),
@@ -96,4 +76,5 @@ public class OSGiBundleTest extends OSGiTestCommon {
             assertTrue(axonBundles.get(bundleName).getState() == Bundle.ACTIVE);
         }
     }
+    */
 }

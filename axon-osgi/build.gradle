@@ -9,6 +9,7 @@ dependencies {
     compile("org.osgi:org.osgi.core:$osgiVersion")
     compile("org.osgi:org.osgi.compendium:$osgiVersion")
 
+    /*
     testCompile "javax.inject:javax.inject:1"
     testCompile "org.ops4j.pax.exam:pax-exam-junit4:$paxExamVersion"
     testRuntime "org.ops4j.pax.exam:pax-exam-container-forked:$paxExamVersion"
@@ -17,6 +18,7 @@ dependencies {
     testRuntime "org.ops4j.pax.url:pax-url-reference:$paxUrlVersion"
     testRuntime "org.ops4j.pax.url:pax-url-wrap:$paxUrlVersion"
     testRuntime "org.apache.felix:org.apache.felix.framework:$felixVersion"
+    */
 }
 
 jar {
