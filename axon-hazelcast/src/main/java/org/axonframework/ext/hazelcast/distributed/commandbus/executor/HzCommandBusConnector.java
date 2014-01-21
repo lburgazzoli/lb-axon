@@ -83,6 +83,17 @@ public class HzCommandBusConnector implements CommandBusConnector {
 
     @Override
     public <R> void send(String routingKey, CommandMessage<?> command, CommandCallback<R> callback) throws Exception {
+        /*
+        Callable<Long> task = ...;
+        es.submit(task, new ExecutionCallback<Long> () {
+            public void onResponse(Long response) {
+                System.out.println("Fibonacci calculation result = " + response);
+            }
+            public void onFailure(Throwable t) {
+                t.printStackTrace();
+            }
+        });
+        */
         //m_agent.getExecutorService().executeOnKeyOwner(null,routingKey);
     }
 
