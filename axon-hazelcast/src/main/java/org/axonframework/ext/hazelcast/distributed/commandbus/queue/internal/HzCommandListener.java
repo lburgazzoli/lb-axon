@@ -13,13 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.cmd;
+package org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal;
 
 import com.hazelcast.core.IQueue;
 import org.axonframework.commandhandling.CommandBus;
-import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzCommand;
-import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzCommandReply;
-import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +32,7 @@ public class HzCommandListener extends Thread {
     private final CommandBus m_segment;
     private final IQueue<HzMessage> m_queue;
     private final AtomicBoolean m_running;
-    private final IHZCommandHandler m_handler;
+    private final IHzCommandHandler m_handler;
 
     /**
      * c-tor
@@ -44,7 +41,7 @@ public class HzCommandListener extends Thread {
      * @param segment
      * @param queue
      */
-    public HzCommandListener(IHZCommandHandler handler, CommandBus segment, IQueue<HzMessage> queue) {
+    public HzCommandListener(IHzCommandHandler handler, CommandBus segment, IQueue<HzMessage> queue) {
         m_segment = segment;
         m_queue   = queue;
         m_running = new AtomicBoolean(true);

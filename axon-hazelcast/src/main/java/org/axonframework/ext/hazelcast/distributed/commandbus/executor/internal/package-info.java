@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013. Axon Framework
+ * Copyright (c) 2010-2014. Axon Framework
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.cmd.internal;
-
-import java.io.Serializable;
-
-/**
- *
- */
-public class HzMessage implements Serializable {
-}
+package org.axonframework.ext.hazelcast.distributed.commandbus.executor.internal;

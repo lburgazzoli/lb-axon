@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.cmd.internal;
+package org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal;
 
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.ext.hazelcast.IHzProxy;
-import org.axonframework.ext.hazelcast.distributed.cmd.HzCommandBusAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

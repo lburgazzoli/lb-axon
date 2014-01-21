@@ -1,6 +1,12 @@
 project.ext {
-    bundleInportPackages = [ '*' ]
-    bundleExportPackages = [ '*' ]
+    bundleInportPackages = [
+        '*'
+    ]
+    bundleExportPackages = [
+        '!org.axonframework.ext.hazelcast.distributed.commandbus.executor.internal',
+        '!org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal',
+        '*'
+    ]
 }
 
 dependencies {

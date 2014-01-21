@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.cmd;
+package org.axonframework.ext.hazelcast.distributed.commandbus.queue;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -26,9 +26,7 @@ import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.CommandMessage;
 import org.axonframework.commandhandling.distributed.CommandBusConnector;
 import org.axonframework.ext.hazelcast.IHzProxy;
-import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzCommand;
-import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzCommandReply;
-import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzCommandReplyCallback;
+import org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +38,7 @@ import java.util.Set;
 /**
  *
  */
-public class HzCommandBusConnector implements CommandBusConnector, IHZCommandHandler {
+public class HzCommandBusConnector implements CommandBusConnector, IHzCommandHandler {
     private final IHzProxy m_proxy;
     private final CommandBus m_localSegment;
     private final Set<String> m_supportedCmds;
