@@ -101,7 +101,7 @@ public class ChronicleEventStore extends AbstractEventStore {
                     des = new ChronicleDomainEventStore(
                         m_serializer,
                         m_basePath,
-                            storageId,
+                        storageId,
                         type,
                         dem.getAggregateIdentifier().toString()
                     );

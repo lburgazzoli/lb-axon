@@ -15,8 +15,8 @@
  */
 package org.axonframework.ext.hazelcast.distributed.cmd;
 
-import org.axonframework.ext.hazelcast.distributed.cmd.msg.HzCommand;
-import org.axonframework.ext.hazelcast.distributed.cmd.msg.HzCommandReply;
+import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzCommand;
+import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzCommandReply;
 
 /**
  *

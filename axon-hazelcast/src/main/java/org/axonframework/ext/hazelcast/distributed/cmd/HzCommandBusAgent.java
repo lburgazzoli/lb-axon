@@ -22,7 +22,7 @@ import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import org.axonframework.commandhandling.CommandMessage;
 import org.axonframework.ext.hazelcast.IHzProxy;
-import org.axonframework.ext.hazelcast.distributed.cmd.msg.HzMessage;
+import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

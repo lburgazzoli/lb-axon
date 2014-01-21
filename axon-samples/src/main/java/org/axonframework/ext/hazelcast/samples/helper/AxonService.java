@@ -26,12 +26,9 @@ import org.axonframework.domain.AggregateRoot;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.EventListener;
 import org.axonframework.eventhandling.annotation.AnnotationEventListenerAdapter;
-import org.axonframework.eventsourcing.CachingEventSourcingRepository;
 import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
 import org.axonframework.eventsourcing.EventSourcingRepository;
-import org.axonframework.eventsourcing.GenericAggregateFactory;
 import org.axonframework.eventstore.EventStore;
-import org.axonframework.ext.hazelcast.cache.IHzCacheProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +46,6 @@ public class AxonService {
     private CommandGateway m_commandGateway;
     private EventStore m_eventStore;
     private EventBus m_eventBus;
-    private IHzCacheProvider m_cacheProvider;
 
     private final Set<EventListener> m_eventListeners;
     private final Map<Object,Subscribable> m_eventHandlers;
@@ -63,7 +59,6 @@ public class AxonService {
         m_commandGateway = null;
         m_eventStore = null;
         m_eventBus = null;
-        m_cacheProvider = null;
         m_eventListeners = Sets.newHashSet();
         m_eventHandlers = Maps.newConcurrentMap();
         m_aggregates = Maps.newConcurrentMap();
@@ -81,7 +76,6 @@ public class AxonService {
         LOGGER.debug("CommandGateway : {}",m_commandGateway);
         LOGGER.debug("EventStore     : {}",m_eventStore);
         LOGGER.debug("EventBus       : {}",m_eventBus);
-        LOGGER.debug("CacheProvider  : {}",m_cacheProvider);
     }
 
     /**
@@ -144,14 +138,6 @@ public class AxonService {
 
     public void setEventBus(EventBus eventBus) {
         m_eventBus = eventBus;
-    }
-
-    public IHzCacheProvider getCacheProvider() {
-        return m_cacheProvider;
-    }
-
-    public void setCacheProvider(IHzCacheProvider cacheProvider) {
-        m_cacheProvider = cacheProvider;
     }
 
     // *************************************************************************
@@ -230,27 +216,14 @@ public class AxonService {
     public void addAggregateType(Class<? extends EventSourcedAggregateRoot> aggregateType) {
         removeAggregateType(aggregateType);
 
-        EventSourcingRepository eventRepository = null;
-        if(m_cacheProvider == null) {
-            EventSourcingRepository repo = new EventSourcingRepository(aggregateType,m_eventStore);
-            repo.setEventBus(m_eventBus);
-
-            eventRepository = repo;
-        } else {
-            CachingEventSourcingRepository repo =
-                new CachingEventSourcingRepository(new GenericAggregateFactory(aggregateType),m_eventStore);
-
-            repo.setEventBus(m_eventBus);
-            repo.setCache(m_cacheProvider.getCache(aggregateType));
-
-            eventRepository = repo;
-        }
+        EventSourcingRepository repo = new EventSourcingRepository(aggregateType,m_eventStore);
+        repo.setEventBus(m_eventBus);
 
         m_aggregates.put(aggregateType,new AggregateSubscription(
-            eventRepository,
+           repo,
             AggregateAnnotationCommandHandler.subscribe(
                 aggregateType,
-                eventRepository,
+                repo,
                 m_commandBus)));
     }
 

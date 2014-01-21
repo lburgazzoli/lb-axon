@@ -15,21 +15,8 @@
  */
 package org.axonframework.ext.eventstore;
 
-import org.axonframework.domain.DomainEventStream;
-
 /**
  * @author lburgazzoli
  */
 public abstract class AbstractEventStore implements CloseableEventStore {
-
-    @Override
-    public DomainEventStream readEvents(String type, Object identifier) {
-        CloseableDomainEventStore hdes = getDomainEventStore(type,identifier);
-
-        if(hdes != null) {
-            return hdes.getEventStream();
-        }
-
-        return NullDomainEventStream.INSTANCE;
-    }
 }

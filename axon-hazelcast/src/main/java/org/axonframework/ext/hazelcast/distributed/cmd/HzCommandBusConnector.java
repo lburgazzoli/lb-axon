@@ -26,9 +26,9 @@ import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.CommandMessage;
 import org.axonframework.commandhandling.distributed.CommandBusConnector;
 import org.axonframework.ext.hazelcast.IHzProxy;
-import org.axonframework.ext.hazelcast.distributed.cmd.msg.HzCommand;
-import org.axonframework.ext.hazelcast.distributed.cmd.msg.HzCommandReply;
-import org.axonframework.ext.hazelcast.distributed.cmd.msg.HzCommandReplyCallback;
+import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzCommand;
+import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzCommandReply;
+import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzCommandReplyCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

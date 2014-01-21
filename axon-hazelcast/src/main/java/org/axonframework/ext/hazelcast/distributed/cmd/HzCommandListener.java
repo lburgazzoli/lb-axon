@@ -17,9 +17,9 @@ package org.axonframework.ext.hazelcast.distributed.cmd;
 
 import com.hazelcast.core.IQueue;
 import org.axonframework.commandhandling.CommandBus;
-import org.axonframework.ext.hazelcast.distributed.cmd.msg.HzCommand;
-import org.axonframework.ext.hazelcast.distributed.cmd.msg.HzCommandReply;
-import org.axonframework.ext.hazelcast.distributed.cmd.msg.HzMessage;
+import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzCommand;
+import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzCommandReply;
+import org.axonframework.ext.hazelcast.distributed.cmd.internal.HzMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
