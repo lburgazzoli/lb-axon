@@ -17,15 +17,7 @@ package org.axonframework.ext.hazelcast;
 
 import com.google.common.collect.Lists;
 import com.hazelcast.config.Config;
-import com.hazelcast.core.DistributedObject;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IList;
-import com.hazelcast.core.ILock;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.IQueue;
-import com.hazelcast.core.ITopic;
-import com.hazelcast.core.MultiMap;
+import com.hazelcast.core.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,6 +145,10 @@ public class HzProxy implements IHzProxy {
     @Override
     public <T> ITopic<T> getTopic(String name) {
         return m_instance.getTopic(getDistributedObjectName(name));
+    }
+
+    public IExecutorService getExecutorService(String name) {
+        return m_instance.getExecutorService(getDistributedObjectName(name));
     }
 
     @Override

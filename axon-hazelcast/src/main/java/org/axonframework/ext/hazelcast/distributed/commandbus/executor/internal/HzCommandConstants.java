@@ -13,4 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal;
+package org.axonframework.ext.hazelcast.distributed.commandbus.executor.internal;
+
+/**
+ *
+ */
+public class HzCommandConstants {
+    public static final String EXECUTOR_NAME  = "reg.executor.name";
+    public static final String REG_CMD_NODES  = "reg.executor.cmd.nodes";
+}

@@ -19,7 +19,7 @@ package org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal;
  *
  */
 public class HzCommandConstants {
-    public static final String REG_CMD_NODES         = "reg.cmd.nodes";
-    public static final String REG_CMD_DESTINATIONS  = "reg.cmd.destinations";
-    public static final String REG_CMD_HANDLERS      = "reg.cmd.handlers";
+    public static final String REG_CMD_NODES         = "reg.queue.cmd.nodes";
+    public static final String REG_CMD_DESTINATIONS  = "reg.queue.cmd.destinations";
+    public static final String REG_CMD_HANDLERS      = "reg.queue.cmd.handlers";
 }

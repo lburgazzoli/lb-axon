@@ -15,14 +15,7 @@
  */
 package org.axonframework.ext.hazelcast;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IList;
-import com.hazelcast.core.ILock;
-import com.hazelcast.core.IMap;
-import com.hazelcast.core.IQueue;
-import com.hazelcast.core.ITopic;
-import com.hazelcast.core.DistributedObject;
-import com.hazelcast.core.MultiMap;
+import com.hazelcast.core.*;
 
 import java.util.Collection;
 
@@ -45,52 +38,59 @@ public interface IHzProxy {
 
     /**
      *
-     * @param mapName
+     * @param name
      * @param <K>
      * @param <V>
      * @return
      */
-    public <K,V> IMap<K,V> getMap(String mapName);
+    public <K,V> IMap<K,V> getMap(String name);
 
     /**
      *
-     * @param mapName
+     * @param name
      * @param <K>
      * @param <V>
      * @return
      */
-    public <K,V> MultiMap<K,V> getMultiMap(String mapName);
+    public <K,V> MultiMap<K,V> getMultiMap(String name);
 
     /**
      *
-     * @param listName
+     * @param name
      * @param <T>
      * @return
      */
-    public <T> IList<T> getList(String listName);
+    public <T> IList<T> getList(String name);
 
     /**
      *
-     * @param queueName
+     * @param name
      * @param <T>
      * @return
      */
-    public <T> IQueue<T> getQueue(String queueName);
+    public <T> IQueue<T> getQueue(String name);
 
     /**
      *
-     * @param lockName
+     * @param name
      * @return
      */
-    public ILock getLock(String lockName);
+    public ILock getLock(String name);
 
     /**
      *
-     * @param topicName
+     * @param name
      * @param <E>
      * @return
      */
-    public <E> ITopic<E> getTopic(String topicName);
+    public <E> ITopic<E> getTopic(String name);
+
+    /**
+     *
+     * @param name
+     * @return
+     */
+    public IExecutorService getExecutorService(String name);
 
     /**
      *
