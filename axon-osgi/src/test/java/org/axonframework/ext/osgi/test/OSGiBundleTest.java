@@ -15,19 +15,39 @@
  */
 package org.axonframework.ext.osgi.test;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Configuration;
+import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+
+import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
+import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.systemPackage;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
 /**
  * @author lburgazzoli
  */
-//@RunWith(PaxExam.class)
+@RunWith(PaxExam.class)
 public class OSGiBundleTest extends OSGiTestCommon {
     private static final List<String> BUNDLE_NAMES = Arrays.asList(
         "com.github.lburgazzoli.axon-hazelcast"
     );
 
-    /*
     @Inject
     BundleContext context;
 
@@ -76,5 +96,4 @@ public class OSGiBundleTest extends OSGiTestCommon {
             assertTrue(axonBundles.get(bundleName).getState() == Bundle.ACTIVE);
         }
     }
-    */
 }

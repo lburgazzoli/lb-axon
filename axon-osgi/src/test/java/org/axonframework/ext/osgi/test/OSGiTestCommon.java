@@ -15,6 +15,12 @@
  */
 package org.axonframework.ext.osgi.test;
 
+import org.ops4j.pax.exam.options.UrlProvisionOption;
+
+import java.io.File;
+
+import static org.ops4j.pax.exam.CoreOptions.bundle;
+
 /**
  *
  */
@@ -23,7 +29,6 @@ public class OSGiTestCommon {
      * @param axonBundleName
      * @return
      */
-    /*
     protected UrlProvisionOption axonBundle(final String axonBundleName) {
         String jarName = new StringBuilder()
             .append("build")
@@ -40,5 +45,4 @@ public class OSGiTestCommon {
             ? bundle("reference:file:" + axonBundleName + File.separator + jarName)
             : bundle("reference:file:.." + File.separator + axonBundleName + File.separator + jarName);
     }
-    */
 }

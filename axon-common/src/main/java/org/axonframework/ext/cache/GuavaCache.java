@@ -76,6 +76,7 @@ public class GuavaCache implements net.sf.jsr107cache.Cache, RemovalListener<Obj
         return m_cache.asMap().keySet();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void putAll(Map t) {
         m_cache.putAll(t);

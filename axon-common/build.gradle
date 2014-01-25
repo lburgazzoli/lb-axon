@@ -4,6 +4,8 @@ project.ext {
 }
 
 dependencies {
+    compile "com.google.guava:guava:$guavaVersion"
+
     testCompile "junit:junit:$junitVersion"
 }
 
