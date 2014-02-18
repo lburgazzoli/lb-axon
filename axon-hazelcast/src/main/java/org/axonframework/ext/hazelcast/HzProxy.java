@@ -31,15 +31,33 @@ public class HzProxy implements IHzProxy {
     private static final Logger LOGGER =
         LoggerFactory.getLogger(HzProxy.class);
 
+    private final Config m_config;
+    private final boolean m_shutdownInstance;
+    private final boolean m_sharedInstance;
     private HazelcastInstance m_instance;
-    private Config m_config;
     private String m_distributedObjectNamePrefix;
 
     /**
      * c-tor
+     *
+     * @param instance
      */
-    public HzProxy() {
-        this(null);
+    public HzProxy(HazelcastInstance instance) {
+       this(instance,false);
+    }
+
+    /**
+     * c-tor
+     *
+     * @param instance
+     * @param shutdownInstance
+     */
+    public HzProxy(HazelcastInstance instance,boolean shutdownInstance) {
+        m_instance = instance;
+        m_shutdownInstance = shutdownInstance;
+        m_sharedInstance = true;
+        m_config = m_instance.getConfig();
+        m_distributedObjectNamePrefix = null;
     }
 
     /**
@@ -48,6 +66,9 @@ public class HzProxy implements IHzProxy {
      * @param config
      */
     public HzProxy(Config config) {
+        m_instance = null;
+        m_shutdownInstance = true;
+        m_sharedInstance = false;
         m_config = config;
         m_distributedObjectNamePrefix = null;
     }
@@ -96,11 +117,14 @@ public class HzProxy implements IHzProxy {
      *
      */
     public void destroy() {
-        if(m_instance != null) {
+        if(m_instance != null && m_shutdownInstance == true) {
             LOGGER.debug("Destroying instance {}", m_instance);
 
             m_instance.getLifecycleService().shutdown();
-            m_instance = null;
+
+            if(!m_sharedInstance) {
+                m_instance = null;
+            }
         }
     }
 
