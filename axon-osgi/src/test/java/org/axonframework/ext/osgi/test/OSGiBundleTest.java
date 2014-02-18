@@ -61,7 +61,7 @@ public class OSGiBundleTest extends OSGiTestCommon {
             mavenBundle("org.slf4j", "slf4j-simple", System.getProperty("version.slf4j")).noStart(),
             mavenBundle("org.apache.geronimo.specs","geronimo-servlet_3.0_spec","1.0"),
             wrappedBundle(mavenBundle("net.sf.jsr107cache", "jsr107cache", "1.1")),
-            mavenBundle("joda-time", "joda-time", "2.1"),
+            mavenBundle("joda-time", "joda-time", "2.3"),
             mavenBundle("org.apache.commons","commons-lang3","3.1"),
             mavenBundle("commons-collections","commons-collections","3.2.1"),
             mavenBundle("com.hazelcast","hazelcast",System.getProperty("version.hazelcast")),

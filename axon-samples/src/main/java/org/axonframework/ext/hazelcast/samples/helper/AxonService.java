@@ -21,7 +21,6 @@ import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.annotation.AggregateAnnotationCommandHandler;
 import org.axonframework.commandhandling.gateway.CommandGateway;
-import org.axonframework.common.Subscribable;
 import org.axonframework.domain.AggregateRoot;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.EventListener;
@@ -48,7 +47,7 @@ public class AxonService {
     private EventBus m_eventBus;
 
     private final Set<EventListener> m_eventListeners;
-    private final Map<Object,Subscribable> m_eventHandlers;
+    private final Map<Object,EventListener> m_eventHandlers;
     private final Map<Class<? extends AggregateRoot>,AggregateSubscription> m_aggregates;
 
     /**
@@ -90,15 +89,17 @@ public class AxonService {
         m_eventListeners.clear();
 
         LOGGER.debug("Cleanup - EventHandlers ({})",m_eventHandlers.size());
-        for(Subscribable subscription : m_eventHandlers.values()) {
-            subscription.unsubscribe();
+        for(EventListener listener : m_eventHandlers.values()) {
+            m_eventBus.unsubscribe(listener);
         }
 
         m_eventHandlers.clear();
 
         LOGGER.debug("Cleanup - AggregateSubscription ({})",m_aggregates.size());
         for(AggregateSubscription subscription : m_aggregates.values()) {
-            subscription.handler.unsubscribe();
+            for (String supportedCommand : subscription.handler.supportedCommands()) {
+                m_commandBus.subscribe(supportedCommand, subscription.handler);
+            }
         }
 
         m_aggregates.clear();
@@ -170,11 +171,11 @@ public class AxonService {
      */
     public void addEventHandler(Object eventHandler) {
         if(!m_eventHandlers.containsKey(eventHandler)) {
-            m_eventHandlers.put(
-                eventHandler,
-                AnnotationEventListenerAdapter.subscribe(eventHandler, m_eventBus));
-        }
+            EventListener eventListener = new AnnotationEventListenerAdapter(eventHandler);
+            m_eventBus.subscribe(eventListener);
 
+            m_eventHandlers.put(eventHandler,eventListener);
+        }
     }
 
     /**
@@ -183,7 +184,7 @@ public class AxonService {
      */
     public void removeEventHandler(Object eventHandler) {
         if(m_eventHandlers.containsKey(eventHandler)) {
-            m_eventHandlers.get(eventHandler).unsubscribe();
+            m_eventBus.unsubscribe(m_eventHandlers.get(eventHandler));
             m_eventHandlers.remove(eventHandler);
         }
     }
@@ -221,7 +222,7 @@ public class AxonService {
 
         m_aggregates.put(aggregateType,new AggregateSubscription(
            repo,
-            AggregateAnnotationCommandHandler.subscribe(
+           AggregateAnnotationCommandHandler.subscribe(
                 aggregateType,
                 repo,
                 m_commandBus)));
@@ -233,7 +234,11 @@ public class AxonService {
      */
     public void removeAggregateType(Class<? extends EventSourcedAggregateRoot> aggregateType) {
         if(m_aggregates.containsKey(aggregateType)) {
-            m_aggregates.get(aggregateType).handler.unsubscribe();
+            AggregateSubscription subscription = m_aggregates.get(aggregateType);
+            for (String supportedCommand : subscription.handler.supportedCommands()) {
+                m_commandBus.subscribe(supportedCommand, subscription.handler);
+            }
+
             m_aggregates.remove(aggregateType);
         }
     }
@@ -245,7 +250,7 @@ public class AxonService {
     private final class AggregateSubscription {
 
         public final EventSourcingRepository repository;
-        public final Subscribable handler;
+        public final AggregateAnnotationCommandHandler<?> handler;
 
         /**
          * c-tor
@@ -253,7 +258,7 @@ public class AxonService {
          * @param repository
          * @param handler
          */
-        public AggregateSubscription(EventSourcingRepository repository,Subscribable handler) {
+        public AggregateSubscription(EventSourcingRepository repository,AggregateAnnotationCommandHandler<?> handler) {
             this.repository = repository;
             this.handler    = handler;
         }
