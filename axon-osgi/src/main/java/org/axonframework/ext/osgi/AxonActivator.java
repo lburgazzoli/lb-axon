@@ -25,11 +25,16 @@ import org.osgi.framework.BundleContext;
  * TODO: register an AxonServiceLoader
  */
 public class AxonActivator implements BundleActivator {
+
     /**
      * c-tor
      */
     public AxonActivator() {
     }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
 
     @Override
     public void start(BundleContext context) throws Exception {

@@ -15,8 +15,66 @@
  */
 package org.axonframework.ext;
 
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import java.util.*;
+
 /**
  * @author lburgazzoli
  */
-public interface AxonServiceLoader {
+public class AxonServiceLoader {
+
+    private static final Map<Class<?>,Set<Object>> SERVICES = Maps.newHashMap();
+
+    /**
+     *
+     * @param type
+     * @param <T>
+     * @return
+     */
+    public static <T> Iterator<T> iterator(final Class<T> type) {
+        final Iterator<Object> localServiceIt = SERVICES.containsKey(type) ? SERVICES.get(type).iterator() : null;
+        final Iterator<T> serviceIt = ServiceLoader.load(type).iterator();
+
+        return new Iterator<T>() {
+            @Override
+            public boolean hasNext() {
+                if(localServiceIt != null && localServiceIt.hasNext()) {
+                    return true;
+                }
+
+                return serviceIt.hasNext();
+            }
+
+            @Override
+            public T next() {
+                if(localServiceIt != null && localServiceIt.hasNext()) {
+                    return (T)localServiceIt.next();
+                }
+
+                return serviceIt.next();
+            }
+
+            @Override
+            public void remove() {
+            }
+        };
+    }
+
+    /**
+     *
+     * @param type
+     * @param object
+     * @param <T>
+     */
+    public static <T> void add(Class<T> type,T object) {
+        Set<Object> services = SERVICES.get(type);
+        if(services == null) {
+            services = Sets.newHashSet();
+            SERVICES.put(type,services);
+        }
+
+        services.add(object);
+    }
 }
