@@ -177,7 +177,7 @@ public class HzProxy implements IHzProxy {
 
     @Override
     public Collection<DistributedObject> getDistributedObjects() {
-        return  getDistributedObjects();
+        return  m_instance.getDistributedObjects();
     }
 
     @Override

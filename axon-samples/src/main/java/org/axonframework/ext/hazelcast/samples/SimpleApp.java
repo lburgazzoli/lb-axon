@@ -15,12 +15,10 @@
  */
 package org.axonframework.ext.hazelcast.samples;
 
-import com.google.common.collect.Lists;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.commandhandling.distributed.DistributedCommandBus;
-import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.commandhandling.gateway.DefaultCommandGateway;
 import org.axonframework.eventhandling.ClusteringEventBus;
 import org.axonframework.eventhandling.EventBus;
@@ -41,7 +39,9 @@ import org.axonframework.ext.hazelcast.samples.model.DataItemEvt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -63,10 +63,12 @@ public class SimpleApp {
         HzEventBusTerminal evtBusTer = new HzEventBusTerminal(proxy);
         evtBusTer.setPublisher(new PackageNamePublisher());
         evtBusTer.setSubscriber(new DynamicSubscriber(
-            proxy.getDistributedObjectName("org.axonframework.ext.hazelcast.samples.org.axonframework.ext.eventstore.chronicle.test.model.*"))
+            proxy.getDistributedObjectName("org.axonframework.ext.hazelcast.samples.model.*"))
         );
 
         CommandBus cmdBus = null;
+        EventStore evtStore    = new MemoryEventStore();
+        EventBus   evtBus      = new ClusteringEventBus(evtBusTer);
 
         if(remote) {
             HzCommandBusConnector cmdBusCnx =
@@ -79,13 +81,9 @@ public class SimpleApp {
             cmdBus = new SimpleCommandBus();
         }
 
-        CommandGateway      cmdGw       = new DefaultCommandGateway(cmdBus);
-        EventStore          evtStore    = new MemoryEventStore();
-        EventBus            evtBus      = new ClusteringEventBus(evtBusTer);
-
         AxonService svc = new AxonService();
         svc.setCommandBus(cmdBus);
-        svc.setCommandGateway(cmdGw);
+        svc.setCommandGateway(new DefaultCommandGateway(cmdBus));
         svc.setEventStore(evtStore);
         svc.setEventBus(evtBus);
 
@@ -213,17 +211,16 @@ public class SimpleApp {
         } catch(Exception e) {
         }
 
-        List<Thread> sts = Lists.newArrayList();
+        ExecutorService pool = Executors.newFixedThreadPool(15);
 
-        for(int i=0;i<10;i++) {
+        for(int i=0;i<1;i++) {
             AxonRemoteServiceThread st =
                 new AxonRemoteServiceThread(
                     "axon-svc-r-" + i,
                     "axon-svc-r-" + i + "-th",
                     hxPx);
 
-            sts.add(st);
-            st.start();
+            pool.execute(st);
         }
 
         for(int i=0;i<5;i++) {
@@ -232,8 +229,7 @@ public class SimpleApp {
                     "axon-svc-r-" + i + "-th",
                     hxPx);
 
-            sts.add(st);
-            st.start();
+            pool.execute(st);
         }
 
         try {
@@ -243,18 +239,15 @@ public class SimpleApp {
 
         for(int i=0;i<10;i++) {
             svc.send(new DataItemCmd.Create(
-                    String.format("d_%02d",i),
-                    String.format("t_%02d",i)),
+                String.format("d_%02d",i),
+                String.format("t_%02d",i)),
                 CMDCBK
             );
         }
 
-
         try {
-            for(Thread st : sts) {
-               st.join();
-            }
-        } catch (InterruptedException e) {
+            pool.awaitTermination(5, TimeUnit.MINUTES);
+        } catch(Exception e) {
         }
 
         svc.destroy();
