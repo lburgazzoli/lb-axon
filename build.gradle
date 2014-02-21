@@ -27,6 +27,7 @@ subprojects {
     project.ext.felixVersion              = '4.2.1'
     project.ext.paxExamVersion            = '3.4.0'
     project.ext.paxUrlVersion             = '1.6.0'
+    project.ext.jgroupsVersion            = '3.4.2.Final'
 
     repositories {
         mavenCentral()
@@ -46,9 +47,7 @@ subprojects {
         compile "net.sf.jsr107cache:jsr107cache:1.1"
         compile "org.axonframework:axon-core:$axonVersion"
         compile "org.axonframework:axon-distributed-commandbus:$axonVersion"
-        //compile "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
-        //compile "com.fasterxml.jackson.core:jackson-annotations:$jacksonAnnotationsVersion"
-        //compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+        compile "org.jgroups:jgroups:$jgroupsVersion"
     }
 
     jar {

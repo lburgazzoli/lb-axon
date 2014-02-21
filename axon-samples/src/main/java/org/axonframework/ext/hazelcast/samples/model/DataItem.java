@@ -60,6 +60,7 @@ public class DataItem extends AbstractAnnotatedAggregateRoot implements Serializ
 
     @CommandHandler
     public void handleDataItemUpdateCommand(DataItemCmd.Update command) {
+        LOGGER.debug("handleDataItemUpdateCommand {}",command);
         apply(new DataItemEvt.Update(command.getId(), command.getText()));
     }
 
@@ -69,12 +70,14 @@ public class DataItem extends AbstractAnnotatedAggregateRoot implements Serializ
 
     @EventHandler
     protected void handleDataItemCreatedEvent(DataItemEvt.Create event) {
+        LOGGER.debug("handleDataItemCreatedEvent {}",event);
         m_id   = event.getId();
         m_text = event.getText();
     }
 
     @EventHandler
     protected void handleDataItemUpdateEvent(DataItemEvt.Update event) {
+        LOGGER.debug("handleDataItemUpdateEvent {}",event);
         m_text = event.getText();
     }
 }

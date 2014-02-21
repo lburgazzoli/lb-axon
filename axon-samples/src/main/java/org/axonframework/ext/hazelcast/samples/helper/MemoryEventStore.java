@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  *
  */
-public class MemoryEventStore implements EventStore{
+public class MemoryEventStore implements EventStore {
 
     private Map<String,Map<Object,List<DomainEventMessage>>> m_storage;
 

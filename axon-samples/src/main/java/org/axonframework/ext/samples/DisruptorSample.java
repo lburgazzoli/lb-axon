@@ -18,15 +18,17 @@ package org.axonframework.ext.samples;
 import org.axonframework.commandhandling.GenericCommandMessage;
 import org.axonframework.commandhandling.annotation.AggregateAnnotationCommandHandler;
 import org.axonframework.commandhandling.disruptor.DisruptorCommandBus;
-import org.axonframework.commandhandling.distributed.jgroups.JGroupsConnector;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.SimpleEventBus;
+import org.axonframework.eventhandling.annotation.AnnotationEventListenerAdapter;
+import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventsourcing.AggregateFactory;
 import org.axonframework.eventsourcing.GenericAggregateFactory;
 import org.axonframework.eventstore.EventStore;
 import org.axonframework.ext.hazelcast.samples.helper.MemoryEventStore;
 import org.axonframework.ext.hazelcast.samples.model.DataItem;
 import org.axonframework.ext.hazelcast.samples.model.DataItemCmd;
+import org.axonframework.ext.hazelcast.samples.model.DataItemEvt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +39,24 @@ public class DisruptorSample {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DisruptorSample.class);
 
+
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    private final static class DisruptorEventHandler {
+        @EventHandler
+        public void handle(DataItemEvt.Create data) {
+            LOGGER.debug("DataItemEvt <{}>",data);
+        }
+
+        @EventHandler
+        public void handle(DataItemEvt.Update data) {
+            LOGGER.debug("DataItemEvt <{}>", data);
+        }
+    }
+
     // *************************************************************************
     //
     // *************************************************************************
@@ -46,9 +66,10 @@ public class DisruptorSample {
             EventStore                 evtStore = new MemoryEventStore();
             EventBus                   evtBus   = new SimpleEventBus();
             DisruptorCommandBus        cmdBus   = new DisruptorCommandBus(evtStore,evtBus);
-            AggregateFactory<DataItem> agf      = new GenericAggregateFactory<DataItem>(DataItem.class);
+            AggregateFactory<DataItem> agf      = new GenericAggregateFactory<>(DataItem.class);
 
-            JGroupsConnector j;
+            evtBus.subscribe(
+                new AnnotationEventListenerAdapter(new DisruptorEventHandler()));
 
             AggregateAnnotationCommandHandler.subscribe(
                 DataItem.class,
@@ -56,7 +77,7 @@ public class DisruptorSample {
                 cmdBus);
 
             LOGGER.info("dispatch");
-            cmdBus.dispatch(new GenericCommandMessage<DataItemCmd.Create>(
+            cmdBus.dispatch(new GenericCommandMessage<>(
                 new DataItemCmd.Create("id1","description_1"))
             );
 
