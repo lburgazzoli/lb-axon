@@ -25,6 +25,9 @@ import org.axonframework.eventhandling.ClusteringEventBus;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
+import org.axonframework.ext.repository.DisruptorRepositoryFactory;
+import org.axonframework.ext.repository.EventSourcingRepositoryFactory;
+import org.axonframework.ext.repository.IRepositoryFactory;
 import org.axonframework.ext.hazelcast.HzProxy;
 import org.axonframework.ext.hazelcast.distributed.commandbus.queue.HzCommandBusConnector;
 import org.axonframework.ext.hazelcast.eventhandling.HzEventBusTerminal;
@@ -67,22 +70,26 @@ public class SimpleApp {
             proxy.getDistributedObjectName("org.axonframework.ext.hazelcast.samples.model.*"))
         );
 
-        CommandBus cmdBus    = null;
-        EventStore evtStore  = new MemoryEventStore();
-        EventBus   evtBus    = new ClusteringEventBus(evtBusTer);
+        CommandBus         cmdBus      = null;
+        EventStore         evtStore    = new MemoryEventStore();
+        EventBus           evtBus      = new ClusteringEventBus(evtBusTer);
+        IRepositoryFactory repoFactory = null;
 
         if(remote) {
-            HzCommandBusConnector cmdBusCnx =
-                new HzCommandBusConnector(proxy,new SimpleCommandBus(),"axon",nodeName);
+            DisruptorCommandBus cmdBusLoc = new DisruptorCommandBus(evtStore,evtBus);
+            HzCommandBusConnector cmdBusCnx = new HzCommandBusConnector(proxy,cmdBusLoc,"axon",nodeName);
 
             cmdBusCnx.connect();
 
             cmdBus = new DistributedCommandBus(cmdBusCnx);
+            repoFactory = new DisruptorRepositoryFactory(cmdBusLoc);
         } else {
             cmdBus = new SimpleCommandBus();
+            repoFactory = new EventSourcingRepositoryFactory(evtBus,evtStore);
         }
 
         AxonService svc = new AxonService();
+        svc.setRepositoryFactory(repoFactory);
         svc.setCommandBus(cmdBus);
         svc.setCommandGateway(new DefaultCommandGateway(cmdBus));
         svc.setEventStore(evtStore);

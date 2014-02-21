@@ -21,11 +21,10 @@ import org.axonframework.commandhandling.annotation.AggregateAnnotationCommandHa
 import org.axonframework.commandhandling.callbacks.VoidCallback;
 import org.axonframework.commandhandling.disruptor.DisruptorCommandBus;
 import org.axonframework.commandhandling.distributed.DistributedCommandBus;
-import org.axonframework.commandhandling.distributed.RoutingStrategy;
 import org.axonframework.commandhandling.distributed.jgroups.JGroupsConnector;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.SimpleEventBus;
-import org.axonframework.eventsourcing.EventSourcingRepository;
+import org.axonframework.eventsourcing.GenericAggregateFactory;
 import org.axonframework.eventstore.EventStore;
 import org.axonframework.ext.hazelcast.samples.helper.MemoryEventStore;
 import org.axonframework.ext.hazelcast.samples.model.DataItem;
@@ -45,7 +44,7 @@ import java.util.UUID;
 public class CommandBusSample {
     private static final Logger LOGGER = LoggerFactory.getLogger(CommandBusSample.class);
 
-    private static DistributedCommandBus dcb;
+    private static DistributedCommandBus distributedcb;
     private static final int MESSAGE_COUNT = 2;
     private static JGroupsConnector connector;
 
@@ -56,26 +55,27 @@ public class CommandBusSample {
     public static void main(String[] args) throws Exception {
         System.setProperty("java.net.preferIPv4Stack", "true");
 
-        JChannel   channel  = new JChannel("jgroups.xml");
-        EventBus   evtBus   = new SimpleEventBus();
-        EventStore evtStore = new MemoryEventStore();
+        JChannel            channel  = new JChannel("jgroups.xml");
+        EventBus            evtBus   = new SimpleEventBus();
+        EventStore          evtStore = new MemoryEventStore();
+        DisruptorCommandBus cmdBus   = new DisruptorCommandBus(evtStore,evtBus);
 
         connector = new JGroupsConnector(
             channel,
             "testing",
-            new DisruptorCommandBus(evtStore,evtBus),
+            cmdBus,
             new XStreamSerializer());
 
+        distributedcb = new DistributedCommandBus(connector);
 
-        dcb = new DistributedCommandBus(connector);
-
-        EventSourcingRepository<DataItem> repo = new EventSourcingRepository<>(DataItem.class,evtStore);
-        repo.setEventBus(evtBus);
+        //EventSourcingRepository<DataItem> repo =
+        //    new EventSourcingRepository<>(DataItem.class,evtStore);
+        //repo.setEventBus(evtBus);
 
         AggregateAnnotationCommandHandler.subscribe(
             DataItem.class,
-            repo,
-            dcb);
+            cmdBus.createRepository(new GenericAggregateFactory<>(DataItem.class)),
+            distributedcb);
 
         LOGGER.debug("Subscribed to group. Ready to join.");
         Scanner scanner = new Scanner(System.in);
@@ -103,8 +103,6 @@ public class CommandBusSample {
             } else if (line.matches("join [0-9]+")) {
                 int factor = Integer.parseInt(line.split(" ")[1]);
                 connector.connect(factor);
-            } else if (!"quit".equals(line)) {
-                dcb.dispatch(new GenericCommandMessage<String>(line));
             }
         }
 
@@ -123,7 +121,7 @@ public class CommandBusSample {
                     new DataItemCmd.Create(messageBase + " #" + t,"" + t)
             );
 
-            dcb.dispatch(cmd,new VoidCallback() {
+            distributedcb.dispatch(cmd,new VoidCallback() {
                 @Override
                 protected void onSuccess() {
                     LOGGER.debug("Successfully receive response");
