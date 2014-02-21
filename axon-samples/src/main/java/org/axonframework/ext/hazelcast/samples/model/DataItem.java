@@ -60,7 +60,7 @@ public class DataItem extends AbstractAnnotatedAggregateRoot implements Serializ
 
     @CommandHandler
     public void handleDataItemUpdateCommand(DataItemCmd.Update command) {
-        apply(new DataItemEvt.Update(command.getId(),command.getText()));
+        apply(new DataItemEvt.Update(command.getId(), command.getText()));
     }
 
     // *************************************************************************

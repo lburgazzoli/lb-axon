@@ -20,6 +20,8 @@ import com.google.common.collect.Sets;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.annotation.AggregateAnnotationCommandHandler;
+import org.axonframework.commandhandling.disruptor.DisruptorCommandBus;
+import org.axonframework.commandhandling.distributed.DistributedCommandBus;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.domain.AggregateRoot;
 import org.axonframework.eventhandling.EventBus;
@@ -27,7 +29,10 @@ import org.axonframework.eventhandling.EventListener;
 import org.axonframework.eventhandling.annotation.AnnotationEventListenerAdapter;
 import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
 import org.axonframework.eventsourcing.EventSourcingRepository;
+import org.axonframework.eventsourcing.GenericAggregateFactory;
 import org.axonframework.eventstore.EventStore;
+import org.axonframework.ext.hazelcast.samples.model.DataItem;
+import org.axonframework.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,15 +219,14 @@ public class AxonService {
      * @param aggregateType
      */
     @SuppressWarnings("unchecked")
-    public void addAggregateType(Class<? extends EventSourcedAggregateRoot> aggregateType) {
+    public <T extends EventSourcedAggregateRoot> void addAggregateType(Class<T> aggregateType) {
         removeAggregateType(aggregateType);
 
-        EventSourcingRepository repo = new EventSourcingRepository(aggregateType,m_eventStore);
-        repo.setEventBus(m_eventBus);
+        Repository<T> repo = newRepository(aggregateType);
 
         m_aggregates.put(aggregateType,new AggregateSubscription(
-           repo,
-           AggregateAnnotationCommandHandler.subscribe(
+            repo,
+            AggregateAnnotationCommandHandler.subscribe(
                 aggregateType,
                 repo,
                 m_commandBus)));
@@ -247,9 +251,42 @@ public class AxonService {
     //
     // *************************************************************************
 
+    /**
+     *
+     * @param aggregateType
+     * @param <T>
+     * @return
+     */
+    private <T extends EventSourcedAggregateRoot> Repository<T> newRepository(Class<T> aggregateType) {
+        if(m_commandBus instanceof DisruptorCommandBus) {
+            return ((DisruptorCommandBus)m_commandBus).createRepository(
+                new GenericAggregateFactory<>(aggregateType)
+            );
+        }
+
+        return newEventSourcingRepository(aggregateType);
+    }
+
+    /**
+     *
+     * @param aggregateType
+     * @param <T>
+     * @return
+     */
+    private <T extends EventSourcedAggregateRoot> Repository<T> newEventSourcingRepository(Class<T> aggregateType) {
+        EventSourcingRepository<T> repo = new EventSourcingRepository<>(aggregateType,m_eventStore);
+        repo.setEventBus(m_eventBus);
+
+        return repo;
+    }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
     private final class AggregateSubscription {
 
-        public final EventSourcingRepository repository;
+        public final Repository<?> repository;
         public final AggregateAnnotationCommandHandler<?> handler;
 
         /**
@@ -258,7 +295,7 @@ public class AxonService {
          * @param repository
          * @param handler
          */
-        public AggregateSubscription(EventSourcingRepository repository,AggregateAnnotationCommandHandler<?> handler) {
+        public AggregateSubscription(final Repository<?> repository,final AggregateAnnotationCommandHandler<?> handler) {
             this.repository = repository;
             this.handler    = handler;
         }

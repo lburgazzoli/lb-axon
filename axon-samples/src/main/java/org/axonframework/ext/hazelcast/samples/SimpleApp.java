@@ -18,6 +18,7 @@ package org.axonframework.ext.hazelcast.samples;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.SimpleCommandBus;
+import org.axonframework.commandhandling.disruptor.DisruptorCommandBus;
 import org.axonframework.commandhandling.distributed.DistributedCommandBus;
 import org.axonframework.commandhandling.gateway.DefaultCommandGateway;
 import org.axonframework.eventhandling.ClusteringEventBus;
@@ -66,9 +67,9 @@ public class SimpleApp {
             proxy.getDistributedObjectName("org.axonframework.ext.hazelcast.samples.model.*"))
         );
 
-        CommandBus cmdBus = null;
-        EventStore evtStore    = new MemoryEventStore();
-        EventBus   evtBus      = new ClusteringEventBus(evtBusTer);
+        CommandBus cmdBus    = null;
+        EventStore evtStore  = new MemoryEventStore();
+        EventBus   evtBus    = new ClusteringEventBus(evtBusTer);
 
         if(remote) {
             HzCommandBusConnector cmdBusCnx =
@@ -213,7 +214,7 @@ public class SimpleApp {
 
         ExecutorService pool = Executors.newFixedThreadPool(15);
 
-        for(int i=0;i<1;i++) {
+        for(int i=0;i<10;i++) {
             AxonRemoteServiceThread st =
                 new AxonRemoteServiceThread(
                     "axon-svc-r-" + i,
