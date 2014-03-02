@@ -20,12 +20,10 @@ import net.openhft.chronicle.IndexedChronicle;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.ext.eventstore.AbstractDomainEventStore;
-import org.axonframework.ext.eventstore.CloseableDomainEventStore;
 import org.axonframework.serializer.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 

@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -57,7 +58,7 @@ public class HzCommandBusAgent {
         m_queue       = m_proxy.getQueue(m_nodeName);
         m_scheduler   = Executors.newScheduledThreadPool(1);
         m_registry    = m_proxy.getMap(HzCommandConstants.REG_CMD_NODES);
-        m_callbacks     = Maps.newHashMap();
+        m_callbacks   = Maps.newConcurrentMap();
 
         m_registry.addEntryListener(new NodeListener(),true);
     }
@@ -129,7 +130,11 @@ public class HzCommandBusAgent {
      * @param <T>
      */
     public <T> void registerCallback(String commandId,HzCommandCallback<T> callback) {
-        m_callbacks.put(commandId, callback);
+        if(!m_callbacks.containsKey(commandId)) {
+            m_callbacks.put(commandId, callback);
+        } else {
+            LOGGER.warn("Callback for commandID <{}> already registered",commandId);
+        }
     }
 
     /**
