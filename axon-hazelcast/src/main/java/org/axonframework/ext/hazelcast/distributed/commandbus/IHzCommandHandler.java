@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal;
+package org.axonframework.ext.hazelcast.distributed.commandbus;
 
 /**
  *
  */
-public class HzCommandConstants {
-    public static final String REG_CMD_NODES         = "reg.queue.cmd.nodes";
-    public static final String REG_CMD_DESTINATIONS  = "reg.queue.cmd.destinations";
-    public static final String REG_CMD_HANDLERS      = "reg.queue.cmd.handlers";
+public interface IHzCommandHandler {
+    /**
+     *
+     * @param msg
+     */
+    public void onHzCommand(HzCommand msg);
+
+    /**
+     *
+     * @param msg
+     */
+    public void onHzCommandReply(HzCommandReply msg);
 }

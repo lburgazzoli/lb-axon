@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal;
+package org.axonframework.ext.hazelcast.distributed.commandbus.queue;
 
 import com.hazelcast.core.IQueue;
 import org.axonframework.commandhandling.CommandBus;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzMessage;
+import org.axonframework.ext.hazelcast.distributed.commandbus.IHzCommandHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

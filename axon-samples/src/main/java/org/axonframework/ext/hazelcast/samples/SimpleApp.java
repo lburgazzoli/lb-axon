@@ -80,7 +80,7 @@ public class SimpleApp {
             DisruptorCommandBus cmdBusLoc = new DisruptorCommandBus(evtStore,evtBus);
             HzCommandBusConnector cmdBusCnx = new HzCommandBusConnector(proxy,cmdBusLoc,"axon",nodeName);
 
-            cmdBusCnx.connect();
+            cmdBusCnx.open();
 
             cmdBus = new DistributedCommandBus(cmdBusCnx);
             repoFactory = new DisruptorRepositoryFactory(cmdBusLoc);
@@ -246,7 +246,7 @@ public class SimpleApp {
         } catch(Exception e) {
         }
 
-        for(int i=0;i<100000;i++) {
+        for(int i=0;i<10;i++) {
             svc.send(new DataItemCmd.Create(
                 String.format("d_%09d",i),
                 String.format("t_%09d",i)),

@@ -15,26 +15,36 @@
  */
 package org.axonframework.ext.hazelcast.distributed.commandbus.executor;
 
+import com.google.common.collect.Sets;
+import com.hazelcast.core.IExecutorService;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.CommandMessage;
-import org.axonframework.commandhandling.distributed.CommandBusConnector;
 import org.axonframework.ext.hazelcast.IHzProxy;
-import org.axonframework.ext.hazelcast.distributed.commandbus.executor.internal.HzCommandBusAgent;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
+import org.axonframework.ext.hazelcast.distributed.commandbus.IHzCommandBusConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
+import java.util.concurrent.Future;
+
 
 /**
- * @author lburgazzoli
+ *
  */
-public class HzCommandBusConnector implements CommandBusConnector {
+public class HzCommandBusConnector implements IHzCommandBusConnector {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(HzCommandBusConnector.class);
+
 
     private final IHzProxy m_proxy;
     private final CommandBus m_localSegment;
     private final Logger m_logger;
-    private final HzCommandBusAgent m_agent;
+    private final Set<String> m_supportedCmds;
+    private final IExecutorService m_executor;
 
     /**
      * c-tor
@@ -47,29 +57,21 @@ public class HzCommandBusConnector implements CommandBusConnector {
     public HzCommandBusConnector(IHzProxy proxy, CommandBus localSegment, String clusterName, String nodeName) {
         m_proxy         = proxy;
         m_localSegment  = localSegment;
-        m_agent         = new HzCommandBusAgent(proxy,clusterName,nodeName);
-        m_logger        = LoggerFactory.getLogger(m_agent.getNodeName());
+        m_logger        = LoggerFactory.getLogger("");
+        m_supportedCmds = Sets.newHashSet();
+        m_executor      = m_proxy.getExecutorService(HzCommandConstants.EXECUTOR_NAME);
     }
 
     // *************************************************************************
     //
     // *************************************************************************
 
-    /**
-     *
-     */
-    public void connect() {
-        if(m_agent.joinCluster()) {
-        } else {
-            m_logger.warn("Service {} already registered",m_agent.getNodeName());
-        }
+    @Override
+    public void open() {
     }
 
-    /**
-     *
-     */
-    public void disconenct() {
-        m_agent.leaveCluster();
+    @Override
+    public void close() {
     }
 
     // *************************************************************************
@@ -83,26 +85,46 @@ public class HzCommandBusConnector implements CommandBusConnector {
 
     @Override
     public <R> void send(String routingKey, CommandMessage<?> command, CommandCallback<R> callback) throws Exception {
-        /*
-        Callable<Long> task = ...;
-        es.submit(task, new ExecutionCallback<Long> () {
-            public void onResponse(Long response) {
-                System.out.println("Fibonacci calculation result = " + response);
+        try {
+            Future<HzCommandReply> fr = m_executor.submitToKeyOwner(
+                new HzCommandTask(new HzCommand(command,true)),
+                routingKey);
+
+            HzCommandReply reply = fr.get();
+
+            if(callback != null) {
+                if(reply.isSuccess()) {
+                    callback.onSuccess((R)reply.getReturnValue());
+                } else {
+                    callback.onFailure(reply.getError());
+                }
             }
-            public void onFailure(Throwable t) {
-                t.printStackTrace();
-            }
-        });
-        */
-        //m_agent.getExecutorService().executeOnKeyOwner(null,routingKey);
+        } catch(Exception e) {
+            m_logger.warn("Exception,e");
+            throw e;
+        }
     }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
 
     @Override
     public <C> void subscribe(String commandName, CommandHandler<? super C> handler) {
+        if(m_supportedCmds.add(commandName)) {
+            m_localSegment.subscribe(commandName, handler);
+        }
     }
 
     @Override
     public <C> boolean unsubscribe(String commandName, CommandHandler<? super C> handler) {
+        if (m_localSegment.unsubscribe(commandName, handler)) {
+            if(m_supportedCmds.remove(commandName)) {
+            }
+
+            return true;
+        }
+
         return false;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2014. Axon Framework
+ * Copyright (c) 2010-2013. Axon Framework
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.commandbus.executor.internal;
+package org.axonframework.ext.hazelcast.distributed.commandbus.queue;
 
-import com.hazelcast.core.*;
+import com.google.common.collect.Maps;
+import com.hazelcast.core.EntryAdapter;
+import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.IQueue;
+import org.axonframework.commandhandling.CommandMessage;
 import org.axonframework.ext.hazelcast.IHzProxy;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandCallback;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,9 +41,10 @@ public class HzCommandBusAgent {
     private final IHzProxy m_proxy;
     private final String m_clusterName;
     private final String m_nodeName;
-    private final IExecutorService m_executorService;
+    private final IQueue<HzMessage> m_queue;
     private final ScheduledExecutorService m_scheduler;
     private final IMap<String,HzCommandBusNode> m_registry;
+    private final Map<String,HzCommandCallback> m_callbacks;
 
     /**
      *
@@ -44,12 +53,13 @@ public class HzCommandBusAgent {
      * @param nodeName
      */
     public HzCommandBusAgent(IHzProxy proxy, String clusterName, String nodeName) {
-        m_proxy           = proxy;
-        m_clusterName     = clusterName;
-        m_nodeName        = nodeName + "@" + m_clusterName;
-        m_executorService = proxy.getExecutorService(HzCommandConstants.EXECUTOR_NAME);
-        m_scheduler       = Executors.newScheduledThreadPool(1);
-        m_registry        = m_proxy.getMap(HzCommandConstants.REG_CMD_NODES);
+        m_proxy       = proxy;
+        m_clusterName = clusterName;
+        m_nodeName    = nodeName + "@" + m_clusterName;
+        m_queue       = m_proxy.getQueue(m_nodeName);
+        m_scheduler   = Executors.newScheduledThreadPool(1);
+        m_registry    = m_proxy.getMap(HzCommandConstants.REG_CMD_NODES);
+        m_callbacks   = Maps.newConcurrentMap();
 
         m_registry.addEntryListener(new NodeListener(),true);
     }
@@ -84,6 +94,14 @@ public class HzCommandBusAgent {
 
     /**
      *
+     * @return
+     */
+    public IQueue<HzMessage> getQueue() {
+       return m_queue;
+    }
+
+    /**
+     *
      * @param nodeName
      * @return
      */
@@ -91,12 +109,63 @@ public class HzCommandBusAgent {
         return m_registry.containsKey(nodeName);
     }
 
+    // *************************************************************************
+    // callback
+    // *************************************************************************
+
+
     /**
      *
+     * @param command
+     * @param callback
+     * @param <T>
+     */
+    public <T> void registerCallback(CommandMessage<?> command,HzCommandCallback<T> callback) {
+        registerCallback(command.getIdentifier(), callback);
+    }
+
+    /**
+     *
+     * @param commandId
+     * @param callback
+     * @param <T>
+     */
+    public <T> void registerCallback(String commandId,HzCommandCallback<T> callback) {
+        if(!m_callbacks.containsKey(commandId)) {
+            m_callbacks.put(commandId, callback);
+        } else {
+            LOGGER.warn("Callback for commandID <{}> already registered",commandId);
+        }
+    }
+
+    /**
+     *
+     * @param commandId
      * @return
      */
-    public IExecutorService getExecutorService() {
-        return m_executorService;
+    @SuppressWarnings("unchecked")
+    public <T> HzCommandCallback<T> getCallback(String commandId) {
+        return m_callbacks.get(commandId);
+    }
+
+    /**
+     *
+     * @param command
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <T> HzCommandCallback<T> removeCallback(CommandMessage<?> command) {
+        return removeCallback(command.getIdentifier());
+    }
+
+    /**
+     *
+     * @param commandId
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <T> HzCommandCallback<T> removeCallback(String commandId) {
+        return m_callbacks.remove(commandId);
     }
 
     // *************************************************************************
@@ -110,7 +179,7 @@ public class HzCommandBusAgent {
         if(!m_registry.containsKey(m_nodeName)) {
             m_registry.put(
                 m_nodeName,
-                new HzCommandBusNode(m_nodeName),
+                new HzCommandBusNode(m_nodeName,m_queue.getName()),
                 15,
                 TimeUnit.SECONDS);
 
@@ -142,8 +211,8 @@ public class HzCommandBusAgent {
     private class NodeHeartBeatTask implements Runnable {
         @Override
         public void run() {
-            if(m_registry != null) {
-                HzCommandBusNode hb = new HzCommandBusNode(m_nodeName);
+            if(m_registry != null && m_queue != null) {
+                HzCommandBusNode hb = new HzCommandBusNode(m_nodeName,m_queue.getName());
                 LOGGER.debug("NodeHeartBeat : {}",hb);
                 m_registry.put(m_nodeName,hb);
             }

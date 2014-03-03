@@ -18,6 +18,7 @@ package org.axonframework.ext.hazelcast.store;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.ext.eventstore.AbstractDomainEventStore;
+import org.axonframework.ext.hazelcast.HzConstants;
 import org.axonframework.ext.hazelcast.IHzProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,9 @@ public class HzDomainEventStore extends AbstractDomainEventStore {
         super(storageId,aggregateType,aggregateId);
         m_hazelcastManager = hazelcastManager;
         m_storage = m_hazelcastManager.getMap(storageId);
+
+        // put a key as placeholder
+        m_hazelcastManager.getMap(HzConstants.REG_AGGREGATES).put(aggregateId,aggregateType);
     }
 
 

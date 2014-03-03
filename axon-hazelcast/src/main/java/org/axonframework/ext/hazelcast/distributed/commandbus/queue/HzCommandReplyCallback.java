@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal;
+package org.axonframework.ext.hazelcast.distributed.commandbus.queue;
 
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.ext.hazelcast.IHzProxy;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,10 +49,10 @@ public class HzCommandReplyCallback<T> implements CommandCallback<T> {
     @Override
     public void onSuccess(Object result) {
         try {
-            m_proxy.getQueue(m_command.getSourceNodeId()).put(new HzCommandReply(
-                m_agent.getNodeName(),
-                m_command.getMessage().getIdentifier(),
-                result)
+            m_proxy.getQueue(getSourceNodeId()).put(
+                newReply(
+                    m_command.getMessage().getIdentifier(),
+                    result)
             );
         } catch(Exception e) {
             LOGGER.warn("Exception",e);
@@ -59,13 +61,38 @@ public class HzCommandReplyCallback<T> implements CommandCallback<T> {
     @Override
     public void onFailure(Throwable cause) {
         try {
-            m_proxy.getQueue(m_command.getSourceNodeId()).put(new HzCommandReply(
-                m_agent.getNodeName(),
-                m_command.getMessage().getIdentifier(),
-                cause)
+            m_proxy.getQueue(getSourceNodeId()).put(
+                newReply(
+                    m_command.getMessage().getIdentifier(),
+                    cause)
             );
         } catch(Exception e) {
             LOGGER.warn("Exception",e);
         }
+    }
+
+    // *************************************************************************
+    // Helpers
+    // *************************************************************************
+
+    /**
+     *
+     * @return
+     */
+    private String getSourceNodeId() {
+        return m_command.getAttributes().get(HzCommandConstants.ATTR_SRC_NODE_ID);
+    }
+
+    /**
+     *
+     * @param id
+     * @param data
+     * @return
+     */
+    private HzCommandReply newReply(String id, Object data) {
+        HzCommandReply reply = new HzCommandReply(id,data);
+        reply.getAttributes().put(HzCommandConstants.ATTR_SRC_NODE_ID,m_agent.getNodeName());
+
+        return reply;
     }
 }

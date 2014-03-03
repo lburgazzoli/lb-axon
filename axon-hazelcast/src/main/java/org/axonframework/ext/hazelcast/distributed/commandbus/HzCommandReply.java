@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal;
+package org.axonframework.ext.hazelcast.distributed.commandbus;
 
 /**
  *
  */
-public class HzCommandReply extends HzMessage {
+public class HzCommandReply extends HzCommandCommon {
 
-    private String m_sourceNodeId;
     private String m_commandId;
     private Object m_returnValue;
     private boolean m_success;
@@ -29,25 +28,17 @@ public class HzCommandReply extends HzMessage {
      * c-tor
      */
     public HzCommandReply() {
-        this(null,null,null,false);
-    }
-
-    /**
-     * c-tor
-     */
-    public HzCommandReply(String nodeId) {
-        this(nodeId,null,null,false);
+        this(null,null,false);
     }
 
     /**
      * c-tor
      *
-     * @param nodeId
      * @param commandId
      * @param returnValue
      */
-    public HzCommandReply(String nodeId,String commandId, Object returnValue) {
-        this(nodeId,commandId,returnValue,
+    public HzCommandReply(String commandId, Object returnValue) {
+        this(commandId,returnValue,
             returnValue != null
                 ? !(returnValue instanceof Throwable)
                 : true);
@@ -56,13 +47,13 @@ public class HzCommandReply extends HzMessage {
     /**
      * c-tor
      *
-     * @param nodeId
      * @param commandId
      * @param returnValue
      * @param success
      */
-    public HzCommandReply(String nodeId,String commandId, Object returnValue, boolean success) {
-        m_sourceNodeId = nodeId;
+    public HzCommandReply(String commandId, Object returnValue, boolean success) {
+        super();
+
         m_commandId = commandId;
         m_returnValue = returnValue;
         m_success = success;
@@ -72,13 +63,6 @@ public class HzCommandReply extends HzMessage {
     //
     // *************************************************************************
 
-    /**
-     *
-     * @return
-     */
-    public String getSourceNodeId() {
-        return m_sourceNodeId;
-    }
 
     /**
      *

@@ -13,21 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal;
+package org.axonframework.ext.hazelcast.distributed.commandbus;
+
+import java.io.Serializable;
 
 /**
  *
  */
-public interface IHzCommandHandler {
-    /**
-     *
-     * @param msg
-     */
-    public void onHzCommand(HzCommand msg);
-
-    /**
-     *
-     * @param msg
-     */
-    public void onHzCommandReply(HzCommandReply msg);
+public class HzMessage implements Serializable {
 }

@@ -24,9 +24,8 @@ import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.CommandMessage;
-import org.axonframework.commandhandling.distributed.CommandBusConnector;
 import org.axonframework.ext.hazelcast.IHzProxy;
-import org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal.*;
+import org.axonframework.ext.hazelcast.distributed.commandbus.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +37,7 @@ import java.util.Set;
 /**
  *
  */
-public class HzCommandBusConnector implements CommandBusConnector, IHzCommandHandler {
+public class HzCommandBusConnector implements IHzCommandBusConnector, IHzCommandHandler {
     private final IHzProxy m_proxy;
     private final CommandBus m_localSegment;
     private final Set<String> m_supportedCmds;
@@ -72,10 +71,8 @@ public class HzCommandBusConnector implements CommandBusConnector, IHzCommandHan
     //
     // *************************************************************************
 
-    /**
-     *
-     */
-    public void connect() {
+    @Override
+    public void open() {
         if(m_agent.joinCluster()) {
             if(m_queueListener == null) {
                 m_queueListener = new HzCommandListener(this,m_localSegment,m_agent.getQueue());
@@ -86,10 +83,8 @@ public class HzCommandBusConnector implements CommandBusConnector, IHzCommandHan
         }
     }
 
-    /**
-     *
-     */
-    public void disconenct() {
+    @Override
+    public void close() {
         m_queueListener.shutdown();
         m_queueListener = null;
 
@@ -114,13 +109,15 @@ public class HzCommandBusConnector implements CommandBusConnector, IHzCommandHan
 
         if(StringUtils.isNotBlank(destination)) {
             try {
-                m_proxy.getQueue(destination).put(new HzCommand(m_agent.getNodeName(),command,true));
+                HzCommand cmd = new HzCommand(command,true);
+                cmd.getAttributes().put(HzCommandConstants.ATTR_SRC_NODE_ID,m_agent.getNodeName());
+
+                m_proxy.getQueue(destination).put(cmd);
                 if(callback != null) {
-                    m_agent.registerCallback(command,new HzCommandCallback(destination,callback));
+                    m_agent.registerCallback(command,new HzCommandCallback(callback));
                 } else {
                     m_agent.registerCallback(command,new HzCommandCallback(
                         true,
-                        destination,
                         new CommandCallback<Object>() {
                             @Override
                             public void onSuccess(Object result) {
@@ -169,7 +166,8 @@ public class HzCommandBusConnector implements CommandBusConnector, IHzCommandHan
 
     @Override
     public void onHzCommand(final HzCommand command) {
-        m_logger.debug("Got HzCommand from <{}>",command.getSourceNodeId());
+        m_logger.debug("Got HzCommand from <{}>",
+            command.getAttributes().get(HzCommandConstants.ATTR_SRC_NODE_ID));
 
         if(m_localSegment != null) {
             m_localSegment.dispatch(
@@ -182,7 +180,8 @@ public class HzCommandBusConnector implements CommandBusConnector, IHzCommandHan
     @Override
     @SuppressWarnings("unchecked")
     public void onHzCommandReply(final HzCommandReply reply) {
-        m_logger.debug("Got HzCommandReply from <{}>",reply.getSourceNodeId());
+        m_logger.debug("Got HzCommandReply from <{}>",
+            reply.getAttributes().get(HzCommandConstants.ATTR_SRC_NODE_ID));
 
         CommandCallback cbk = m_agent.getCallback(reply.getCommandId());
 

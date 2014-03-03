@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal;
+package org.axonframework.ext.hazelcast.distributed.commandbus;
 
 import org.axonframework.commandhandling.CommandMessage;
 
 /**
  *
  */
-public class HzCommand extends HzMessage {
-    private String m_sourceNodeId;
+public class HzCommand extends HzCommandCommon {
     private boolean m_callback;
     private CommandMessage<?> m_message;
 
@@ -29,7 +28,7 @@ public class HzCommand extends HzMessage {
      * c-tor
      */
     public HzCommand() {
-        this(null,null,false);
+        this(null,false);
     }
 
     /**
@@ -38,21 +37,21 @@ public class HzCommand extends HzMessage {
      * @param nodeId
      * @param message
      */
-    public HzCommand(String nodeId,CommandMessage<?> message) {
-        this(nodeId,message,false);
+    public HzCommand(String nodeId, CommandMessage<?> message) {
+        this(message,false);
     }
 
     /**
      * c-tor
      *
-     * @param sourceNodeId
      * @param message
      * @param callback
      */
-    public HzCommand(String sourceNodeId,CommandMessage<?> message, boolean callback) {
-        m_sourceNodeId = sourceNodeId;
-        m_callback = callback;
-        m_message  = message;
+    public HzCommand(CommandMessage<?> message, boolean callback) {
+        super();
+
+        m_callback   = callback;
+        m_message    = message;
     }
 
     /**
@@ -69,13 +68,5 @@ public class HzCommand extends HzMessage {
      */
     public boolean isCallbackRequired() {
         return m_callback;
-    }
-
-    /**
-     *
-     * @return
-     */
-    public String getSourceNodeId() {
-        return m_sourceNodeId;
     }
 }

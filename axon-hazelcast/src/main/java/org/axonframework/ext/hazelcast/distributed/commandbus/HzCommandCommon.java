@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2013. Axon Framework
+ * Copyright (c) 2010-2014. Axon Framework
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.commandbus.queue.internal;
+package org.axonframework.ext.hazelcast.distributed.commandbus;
 
-import java.io.Serializable;
+import com.google.common.collect.Maps;
+
+import java.util.Map;
 
 /**
  *
  */
-public class HzMessage implements Serializable {
+public class HzCommandCommon extends HzMessage {
+    private final Map<String,String> m_attributes;
+
+    /**
+     * c-tor
+     */
+    public HzCommandCommon() {
+        m_attributes = Maps.newHashMap();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public Map<String,String> getAttributes() {
+        return m_attributes;
+    }
 }
