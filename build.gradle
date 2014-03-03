@@ -19,10 +19,10 @@ subprojects {
     project.ext.jacksonAnnotationsVersion = '2.3.1'
     project.ext.openhftLangVersion        = '6.1.4'
     project.ext.openhftChronicleVersion   = '2.0.3'
-    project.ext.hazelcastVersion          = '3.1.5'
+    project.ext.hazelcastVersion          = '3.1.6'
     project.ext.osgiVersion               = '5.0.0'
     project.ext.guavaVersion              = '15.0'
-    project.ext.axonVersion               = '2.1'
+    project.ext.axonVersion               = '2.1.1'
     project.ext.junitVersion              = '4.11'
     project.ext.felixVersion              = '4.2.1'
     project.ext.paxExamVersion            = '3.4.0'
@@ -35,7 +35,7 @@ subprojects {
     }
 
     dependencies {
-        compile "org.apache.commons:commons-lang3:3.1"
+        compile "org.apache.commons:commons-lang3:3.2.1"
         compile "commons-beanutils:commons-beanutils:1.8.3"
         compile "org.slf4j:slf4j-api:$slf4jVersion"
         compile "org.slf4j:slf4j-ext:$slf4jVersion"
