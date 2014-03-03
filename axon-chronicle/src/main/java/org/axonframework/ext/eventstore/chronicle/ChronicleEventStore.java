@@ -65,6 +65,8 @@ public class ChronicleEventStore extends AbstractEventStore {
         m_serializer = serializer;
         m_domainEventStore = Maps.newConcurrentMap();
 
+        LOGGER.debug("BasePath for ChronicleEventStore is {}",m_basePath);
+
         ChronicleTools.warmup();
     }
 

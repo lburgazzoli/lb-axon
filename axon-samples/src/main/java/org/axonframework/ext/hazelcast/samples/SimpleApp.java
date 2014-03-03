@@ -25,6 +25,9 @@ import org.axonframework.eventhandling.ClusteringEventBus;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
+import org.axonframework.ext.eventstore.chronicle.ChronicleEventStore;
+import org.axonframework.ext.hazelcast.samples.helper.*;
+import org.axonframework.ext.hazelcast.store.HzEventStore;
 import org.axonframework.ext.repository.DisruptorRepositoryFactory;
 import org.axonframework.ext.repository.EventSourcingRepositoryFactory;
 import org.axonframework.ext.repository.IRepositoryFactory;
@@ -33,10 +36,6 @@ import org.axonframework.ext.hazelcast.distributed.commandbus.queue.HzCommandBus
 import org.axonframework.ext.hazelcast.eventhandling.HzEventBusTerminal;
 import org.axonframework.ext.hazelcast.eventhandling.pub.PackageNamePublisher;
 import org.axonframework.ext.hazelcast.eventhandling.sub.DynamicSubscriber;
-import org.axonframework.ext.hazelcast.samples.helper.AxonService;
-import org.axonframework.ext.hazelcast.samples.helper.CommandCallbackTracer;
-import org.axonframework.ext.hazelcast.samples.helper.LocalHazelcastConfig;
-import org.axonframework.ext.hazelcast.samples.helper.MemoryEventStore;
 import org.axonframework.ext.hazelcast.samples.model.DataItem;
 import org.axonframework.ext.hazelcast.samples.model.DataItemCmd;
 import org.axonframework.ext.hazelcast.samples.model.DataItemEvt;
@@ -70,10 +69,12 @@ public class SimpleApp {
             proxy.getDistributedObjectName("org.axonframework.ext.hazelcast.samples.model.*"))
         );
 
-        CommandBus         cmdBus      = null;
-        EventStore         evtStore    = new MemoryEventStore();
-        EventBus           evtBus      = new ClusteringEventBus(evtBusTer);
-        IRepositoryFactory repoFactory = null;
+        CommandBus         cmdBus       = null;
+        //EventStore         evtStore     =  ChronicleEventStoreHelper.defaultEventStore()
+        //EventStore         evtStore     = new HzEventStore(proxy);
+        EventStore         evtStore     = new MemoryEventStore();
+        EventBus           evtBus       = new ClusteringEventBus(evtBusTer);
+        IRepositoryFactory repoFactory  = null;
 
         if(remote) {
             DisruptorCommandBus cmdBusLoc = new DisruptorCommandBus(evtStore,evtBus);
@@ -245,10 +246,10 @@ public class SimpleApp {
         } catch(Exception e) {
         }
 
-        for(int i=0;i<10;i++) {
+        for(int i=0;i<100000;i++) {
             svc.send(new DataItemCmd.Create(
-                String.format("d_%02d",i),
-                String.format("t_%02d",i)),
+                String.format("d_%09d",i),
+                String.format("t_%09d",i)),
                 CMDCBK
             );
         }

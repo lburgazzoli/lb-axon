@@ -44,7 +44,7 @@ public class HzEventStore extends AbstractEventStore {
      */
     public HzEventStore(IHzProxy hazelcastManager) {
         m_hazelcastManager = hazelcastManager;
-        m_domainEventStore = Maps.newHashMap();
+        m_domainEventStore = Maps.newConcurrentMap();
     }
 
 

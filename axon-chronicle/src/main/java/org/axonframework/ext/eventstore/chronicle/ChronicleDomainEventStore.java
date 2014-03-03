@@ -17,6 +17,7 @@ package org.axonframework.ext.eventstore.chronicle;
 
 
 import net.openhft.chronicle.IndexedChronicle;
+import org.apache.commons.io.FilenameUtils;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.ext.eventstore.AbstractDomainEventStore;
@@ -53,7 +54,7 @@ public class ChronicleDomainEventStore extends AbstractDomainEventStore {
         m_basePath = basePath;
 
         try {
-            String dataPath = new File(m_basePath,storageId).getAbsolutePath();
+            String dataPath = FilenameUtils.concat(m_basePath,storageId);
             LOGGER.debug("IndexedChronicle => BasePath: {}, DataPath: {}",basePath,dataPath);
 
             m_chronicle = new IndexedChronicle(dataPath);

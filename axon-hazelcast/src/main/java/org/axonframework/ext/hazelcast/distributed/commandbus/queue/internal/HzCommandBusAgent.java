@@ -25,8 +25,7 @@ import org.axonframework.ext.hazelcast.IHzProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -43,7 +42,7 @@ public class HzCommandBusAgent {
     private final IQueue<HzMessage> m_queue;
     private final ScheduledExecutorService m_scheduler;
     private final IMap<String,HzCommandBusNode> m_registry;
-    private final Map<String,HzCommandCallback> m_callbacks;
+    private final ConcurrentMap<String,HzCommandCallback> m_callbacks;
 
     /**
      *

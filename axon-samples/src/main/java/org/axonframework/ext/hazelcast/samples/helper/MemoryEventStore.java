@@ -37,7 +37,7 @@ public class MemoryEventStore implements EventStore {
      *
      */
     public MemoryEventStore() {
-        m_storage = Maps.newHashMap();
+        m_storage = Maps.newConcurrentMap();
     }
 
     @Override
