@@ -30,11 +30,12 @@ public class EventSourcingRepositoryFactory implements IRepositoryFactory {
     private final EventStore m_evtStore;
 
     /**
+     * c-tor
      *
-     * @param evtBus
      * @param evtStore
+     * @param evtBus
      */
-    public EventSourcingRepositoryFactory(final EventBus evtBus,final EventStore evtStore) {
+    public EventSourcingRepositoryFactory(final EventStore evtStore, final EventBus evtBus) {
         m_evtBus = evtBus;
         m_evtStore = evtStore;
     }

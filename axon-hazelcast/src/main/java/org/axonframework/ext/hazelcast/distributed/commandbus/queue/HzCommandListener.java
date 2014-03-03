@@ -17,10 +17,7 @@ package org.axonframework.ext.hazelcast.distributed.commandbus.queue;
 
 import com.hazelcast.core.IQueue;
 import org.axonframework.commandhandling.CommandBus;
-import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
-import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
-import org.axonframework.ext.hazelcast.distributed.commandbus.HzMessage;
-import org.axonframework.ext.hazelcast.distributed.commandbus.IHzCommandHandler;
+import org.axonframework.ext.hazelcast.distributed.commandbus.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,20 +33,23 @@ public class HzCommandListener extends Thread {
     private final CommandBus m_segment;
     private final IQueue<HzMessage> m_queue;
     private final AtomicBoolean m_running;
-    private final IHzCommandHandler m_handler;
+    private final IHzCommandHandler m_cmdHandler;
+    private final IHzCommandReplyHandler m_replyHandler;
 
     /**
      * c-tor
      *
-     * @param handler
+     * @param cmdHandler
+     * @param replyHandler
      * @param segment
      * @param queue
      */
-    public HzCommandListener(IHzCommandHandler handler, CommandBus segment, IQueue<HzMessage> queue) {
+    public HzCommandListener(IHzCommandHandler cmdHandler, IHzCommandReplyHandler replyHandler,CommandBus segment, IQueue<HzMessage> queue) {
         m_segment = segment;
         m_queue   = queue;
         m_running = new AtomicBoolean(true);
-        m_handler = handler;
+        m_cmdHandler = cmdHandler;
+        m_replyHandler = replyHandler;
     }
 
     /**
@@ -73,9 +73,9 @@ public class HzCommandListener extends Thread {
                 if(msg != null) {
                     LOGGER.debug("Got a message of type {}",msg.getClass().getName());
                     if(msg instanceof HzCommand) {
-                        m_handler.onHzCommand((HzCommand) msg);
+                        m_cmdHandler.onHzCommand((HzCommand) msg);
                     } else if(msg instanceof HzCommandReply) {
-                        m_handler.onHzCommandReply((HzCommandReply) msg);
+                        m_replyHandler.onHzCommandReply((HzCommandReply) msg);
                     }
                 }
 

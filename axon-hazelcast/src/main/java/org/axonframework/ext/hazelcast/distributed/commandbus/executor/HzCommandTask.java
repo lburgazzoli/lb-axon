@@ -17,10 +17,14 @@ package org.axonframework.ext.hazelcast.distributed.commandbus.executor;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceAware;
+import org.axonframework.commandhandling.CommandCallback;
+import org.axonframework.ext.hazelcast.distributed.IHzAxonEngine;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
 
+import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  *
@@ -60,10 +64,15 @@ public class HzCommandTask extends HzCommand implements HazelcastInstanceAware, 
 
     @Override
     public HzCommandReply call() throws Exception {
-        // Config config = new Config();
-        //config.getUserContext().put("echoService",echoService);
-        // retrieve the instance of the Axon Service
-        m_instance.getUserContext().get(HzCommandConstants.USER_CONTEXT_NAME);
-        return null;
+        Map<String, Object> ctx = m_instance.getUserContext();
+        IHzAxonEngine engine = (IHzAxonEngine)ctx.get(HzCommandConstants.USER_CONTEXT_NAME);
+
+        if(m_command.isCallbackRequired()) {
+        } else {
+        }
+
+        return new HzCommandReply(
+            m_command.getMessage().getIdentifier(),
+            "<empty>");
     }
 }

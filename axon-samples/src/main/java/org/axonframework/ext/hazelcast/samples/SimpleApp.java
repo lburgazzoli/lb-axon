@@ -86,7 +86,7 @@ public class SimpleApp {
             repoFactory = new DisruptorRepositoryFactory(cmdBusLoc);
         } else {
             cmdBus = new SimpleCommandBus();
-            repoFactory = new EventSourcingRepositoryFactory(evtBus,evtStore);
+            repoFactory = new EventSourcingRepositoryFactory(evtStore,evtBus);
         }
 
         AxonService svc = new AxonService();

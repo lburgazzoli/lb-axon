@@ -25,6 +25,7 @@ import org.axonframework.ext.hazelcast.IHzProxy;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
 import org.axonframework.ext.hazelcast.distributed.commandbus.IHzCommandBusConnector;
+import org.axonframework.ext.hazelcast.distributed.commandbus.IHzCommandHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,13 +52,11 @@ public class HzCommandBusConnector implements IHzCommandBusConnector {
      *
      * @param proxy the hazelcast proxy
      * @param localSegment CommandBus that dispatches Commands destined for the local JVM
-     * @param clusterName the name of the Cluster this segment registers to
-     * @param nodeName
      */
-    public HzCommandBusConnector(IHzProxy proxy, CommandBus localSegment, String clusterName, String nodeName) {
+    public HzCommandBusConnector(IHzProxy proxy, CommandBus localSegment) {
         m_proxy         = proxy;
         m_localSegment  = localSegment;
-        m_logger        = LoggerFactory.getLogger("");
+        m_logger        = LoggerFactory.getLogger(HzCommandBusConnector.class);
         m_supportedCmds = Sets.newHashSet();
         m_executor      = m_proxy.getExecutorService(HzCommandConstants.EXECUTOR_NAME);
     }

@@ -19,5 +19,6 @@ package org.axonframework.ext.hazelcast;
  *
  */
 public class HzConstants {
-    public static final String REG_AGGREGATES = "reg.aggregates";
+    public static final String USER_CONTEXT_NAME = "axon-service";
+    public static final String REG_AGGREGATES    = "reg.aggregates";
 }

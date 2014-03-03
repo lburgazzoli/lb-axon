@@ -24,10 +24,4 @@ public interface IHzCommandHandler {
      * @param msg
      */
     public void onHzCommand(HzCommand msg);
-
-    /**
-     *
-     * @param msg
-     */
-    public void onHzCommandReply(HzCommandReply msg);
 }

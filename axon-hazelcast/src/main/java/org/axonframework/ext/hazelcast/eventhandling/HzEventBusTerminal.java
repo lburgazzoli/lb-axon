@@ -60,6 +60,14 @@ public class HzEventBusTerminal implements EventBusTerminal,MessageListener<Even
     // *************************************************************************
 
     /**
+     *
+     * @return
+     */
+    public boolean hasPublisher() {
+        return m_publisher != null;
+    }
+
+    /**
      * @param publisher the TopicPublisher
      */
     public void setPublisher(IHzTopicPublisher publisher) {
@@ -77,14 +85,24 @@ public class HzEventBusTerminal implements EventBusTerminal,MessageListener<Even
         m_subscriber = subscriber;
     }
 
+    /**
+     *
+     * @return
+     */
+    public boolean hasSubscriber() {
+        return m_subscriber != null;
+    }
+
     // *************************************************************************
     //
     // *************************************************************************
 
     @Override
     public void publish(EventMessage... events) {
-        for(EventMessage event : events) {
-            m_publisher.publish(m_proxy,event);
+        if(m_publisher != null) {
+            for(EventMessage event : events) {
+                m_publisher.publish(m_proxy,event);
+            }
         }
     }
 

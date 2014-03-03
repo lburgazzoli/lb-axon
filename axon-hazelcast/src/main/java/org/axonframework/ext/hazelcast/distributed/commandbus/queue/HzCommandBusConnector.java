@@ -37,7 +37,7 @@ import java.util.Set;
 /**
  *
  */
-public class HzCommandBusConnector implements IHzCommandBusConnector, IHzCommandHandler {
+public class HzCommandBusConnector implements IHzCommandBusConnector, IHzCommandHandler, IHzCommandReplyHandler {
     private final IHzProxy m_proxy;
     private final CommandBus m_localSegment;
     private final Set<String> m_supportedCmds;
@@ -75,7 +75,7 @@ public class HzCommandBusConnector implements IHzCommandBusConnector, IHzCommand
     public void open() {
         if(m_agent.joinCluster()) {
             if(m_queueListener == null) {
-                m_queueListener = new HzCommandListener(this,m_localSegment,m_agent.getQueue());
+                m_queueListener = new HzCommandListener(this,this,m_localSegment,m_agent.getQueue());
                 m_queueListener.start();
             }
         } else {
