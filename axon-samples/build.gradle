@@ -14,3 +14,15 @@ jar {
         instruction 'Export-Package' , bundleExportPackages.join(',')
     }
 }
+
+// *****************************************************************************
+//
+// *****************************************************************************
+
+task axonHzSimpleApp(dependsOn: classes) << {
+    javaexec {
+        main = 'org.axonframework.ext.hazelcast.samples.SimpleApp'
+        classpath = project.runtimeClasspath
+    }
+}
+
