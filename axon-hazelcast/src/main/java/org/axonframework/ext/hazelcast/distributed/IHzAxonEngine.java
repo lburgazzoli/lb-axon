@@ -1,7 +1,10 @@
 package org.axonframework.ext.hazelcast.distributed;
 
 import org.axonframework.commandhandling.CommandCallback;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
 
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -39,4 +42,11 @@ public interface IHzAxonEngine {
      * @return
      */
     public <R> R sendAndWait(Object command, long timeout, TimeUnit unit);
+
+    /**
+     *
+     * @param command
+     * @return
+     */
+    public Future<HzCommandReply> dispatch(final HzCommand command);
 }

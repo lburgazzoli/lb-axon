@@ -28,6 +28,9 @@ subprojects {
     project.ext.paxExamVersion            = '3.4.0'
     project.ext.paxUrlVersion             = '1.6.0'
     project.ext.jgroupsVersion            = '3.4.2.Final'
+    project.ext.commonsLanVersion         = '3.2.1'
+    project.ext.commonsBeanutilsVersion   = '1.8.3'
+    project.ext.commonsCollectionsVersion = '3.2.1'
 
     repositories {
         mavenCentral()
@@ -35,8 +38,8 @@ subprojects {
     }
 
     dependencies {
-        compile "org.apache.commons:commons-lang3:3.2.1"
-        compile "commons-beanutils:commons-beanutils:1.8.3"
+        compile "org.apache.commons:commons-lang3:$commonsLanVersion"
+        compile "commons-beanutils:commons-beanutils:$commonsBeanutilsVersion"
         compile "org.slf4j:slf4j-api:$slf4jVersion"
         compile "org.slf4j:slf4j-ext:$slf4jVersion"
         compile "org.slf4j:jul-to-slf4j:$slf4jVersion"
@@ -72,20 +75,22 @@ subprojects {
         }
 
         systemProperties = [
-            'version.project'    : version,
-            'version.slf4j'      : slf4jVersion,
-            'version.log4j'      : log4jVersion,
-            'version.jackson'    : jacksonVersion,
-            'version.hazelcast'  : hazelcastVersion,
-            'version.osgi'       : osgiVersion,
-            'version.guava'      : guavaVersion,
-            'version.axon'       : axonVersion,
-            'version.junit'      : junitVersion,
-            'version.felix'      : felixVersion,
-            'version.paxExam'    : paxExamVersion,
-            'version.paxUrl'     : paxUrlVersion,
-            'pax.exam.framework' : 'felix',
-            'pax.exam.logging'   : 'none'
+            'version.project'            : version,
+            'version.slf4j'              : slf4jVersion,
+            'version.log4j'              : log4jVersion,
+            'version.jackson'            : jacksonVersion,
+            'version.hazelcast'          : hazelcastVersion,
+            'version.osgi'               : osgiVersion,
+            'version.guava'              : guavaVersion,
+            'version.axon'               : axonVersion,
+            'version.junit'              : junitVersion,
+            'version.felix'              : felixVersion,
+            'version.paxExam'            : paxExamVersion,
+            'version.paxUrl'             : paxUrlVersion,
+            'version.commonsLang'        : commonsLanVersion,
+            'version.commonsCollections' : commonsCollectionsVersion,
+            'pax.exam.framework'         : 'felix',
+            'pax.exam.logging'           : 'none'
         ]
     }
 

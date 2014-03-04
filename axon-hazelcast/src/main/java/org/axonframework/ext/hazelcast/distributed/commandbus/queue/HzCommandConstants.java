@@ -21,8 +21,6 @@ import org.axonframework.ext.hazelcast.HzConstants;
  *
  */
 public class HzCommandConstants extends HzConstants {
-
-    public static final String ATTR_SRC_NODE_ID      = "attr.node.id.source";
     public static final String REG_CMD_NODES         = "reg.queue.cmd.nodes";
     public static final String REG_CMD_DESTINATIONS  = "reg.queue.cmd.destinations";
     public static final String REG_CMD_HANDLERS      = "reg.queue.cmd.handlers";

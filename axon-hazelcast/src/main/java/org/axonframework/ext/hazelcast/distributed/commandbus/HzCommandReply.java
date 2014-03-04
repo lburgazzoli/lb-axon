@@ -26,19 +26,25 @@ public class HzCommandReply extends HzCommandCommon {
 
     /**
      * c-tor
+     *
+     * @oaram nodeName
      */
-    public HzCommandReply() {
-        this(null,null,false);
+    public HzCommandReply(String nodeName) {
+        this(nodeName,null,null,false);
     }
 
     /**
      * c-tor
      *
+     * @oaram nodeName
      * @param commandId
      * @param returnValue
      */
-    public HzCommandReply(String commandId, Object returnValue) {
-        this(commandId,returnValue,
+    public HzCommandReply(String nodeName, String commandId, Object returnValue) {
+        this(
+            nodeName,
+            commandId,
+            returnValue,
             returnValue != null
                 ? !(returnValue instanceof Throwable)
                 : true);
@@ -47,12 +53,13 @@ public class HzCommandReply extends HzCommandCommon {
     /**
      * c-tor
      *
+     * @param nodeName
      * @param commandId
      * @param returnValue
      * @param success
      */
-    public HzCommandReply(String commandId, Object returnValue, boolean success) {
-        super();
+    public HzCommandReply(String nodeName, String commandId, Object returnValue, boolean success) {
+        super(nodeName);
 
         m_commandId = commandId;
         m_returnValue = returnValue;

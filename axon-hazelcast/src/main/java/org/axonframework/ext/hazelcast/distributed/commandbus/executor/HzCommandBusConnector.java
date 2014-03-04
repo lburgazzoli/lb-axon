@@ -25,7 +25,6 @@ import org.axonframework.ext.hazelcast.IHzProxy;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
 import org.axonframework.ext.hazelcast.distributed.commandbus.IHzCommandBusConnector;
-import org.axonframework.ext.hazelcast.distributed.commandbus.IHzCommandHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +45,8 @@ public class HzCommandBusConnector implements IHzCommandBusConnector {
     private final Logger m_logger;
     private final Set<String> m_supportedCmds;
     private final IExecutorService m_executor;
+    private final String m_clusterName;
+    private final String m_nodeName;
 
     /**
      * c-tor
@@ -53,12 +54,14 @@ public class HzCommandBusConnector implements IHzCommandBusConnector {
      * @param proxy the hazelcast proxy
      * @param localSegment CommandBus that dispatches Commands destined for the local JVM
      */
-    public HzCommandBusConnector(IHzProxy proxy, CommandBus localSegment) {
+    public HzCommandBusConnector(IHzProxy proxy, CommandBus localSegment, String clusterName, String nodeName) {
         m_proxy         = proxy;
         m_localSegment  = localSegment;
         m_logger        = LoggerFactory.getLogger(HzCommandBusConnector.class);
         m_supportedCmds = Sets.newHashSet();
         m_executor      = m_proxy.getExecutorService(HzCommandConstants.EXECUTOR_NAME);
+        m_clusterName   = clusterName;
+        m_nodeName      = nodeName + "@" + m_clusterName;
     }
 
     // *************************************************************************
@@ -86,7 +89,7 @@ public class HzCommandBusConnector implements IHzCommandBusConnector {
     public <R> void send(String routingKey, CommandMessage<?> command, CommandCallback<R> callback) throws Exception {
         try {
             Future<HzCommandReply> fr = m_executor.submitToKeyOwner(
-                new HzCommandTask(new HzCommand(command,true)),
+                new HzCommandTask(new HzCommand(m_nodeName,command,true)),
                 routingKey);
 
             HzCommandReply reply = fr.get();
@@ -102,6 +105,24 @@ public class HzCommandBusConnector implements IHzCommandBusConnector {
             m_logger.warn("Exception,e");
             throw e;
         }
+    }
+
+    /**
+     *
+     * @param command
+     * @return
+     */
+    public Future<HzCommandReply> dispatch(final HzCommand command) {
+        HzCommandReplyCallback<Object> cbk = new HzCommandReplyCallback(m_nodeName,command);
+
+        if(m_localSegment != null) {
+            m_localSegment.dispatch(
+                command.getMessage(),
+                cbk
+            );
+        }
+
+        return cbk;
     }
 
     // *************************************************************************

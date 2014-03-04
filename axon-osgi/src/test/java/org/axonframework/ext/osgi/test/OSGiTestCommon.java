@@ -15,11 +15,13 @@
  */
 package org.axonframework.ext.osgi.test;
 
+import org.ops4j.pax.exam.options.MavenArtifactProvisionOption;
 import org.ops4j.pax.exam.options.UrlProvisionOption;
 
 import java.io.File;
 
 import static org.ops4j.pax.exam.CoreOptions.bundle;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 
 /**
  *
@@ -44,5 +46,16 @@ public class OSGiTestCommon {
         return new File(axonBundleName + File.separator + jarName).exists()
             ? bundle("reference:file:" + axonBundleName + File.separator + jarName)
             : bundle("reference:file:.." + File.separator + axonBundleName + File.separator + jarName);
+    }
+
+    /**
+     *
+     * @param groupId
+     * @param artifactId
+     * @param systemProperyKey
+     * @return
+     */
+    protected MavenArtifactProvisionOption mavenBundleEnv(final String groupId,final String artifactId,final String systemProperyKey) {
+        return mavenBundle(groupId, artifactId,System.getProperty(systemProperyKey));
     }
 }

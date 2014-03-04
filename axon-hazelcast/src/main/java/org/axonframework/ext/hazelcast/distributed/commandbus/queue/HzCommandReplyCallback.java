@@ -80,7 +80,7 @@ public class HzCommandReplyCallback<T> implements CommandCallback<T> {
      * @return
      */
     private String getSourceNodeId() {
-        return m_command.getAttributes().get(HzCommandConstants.ATTR_SRC_NODE_ID);
+        return m_command.getNodeName();
     }
 
     /**
@@ -90,9 +90,6 @@ public class HzCommandReplyCallback<T> implements CommandCallback<T> {
      * @return
      */
     private HzCommandReply newReply(String id, Object data) {
-        HzCommandReply reply = new HzCommandReply(id,data);
-        reply.getAttributes().put(HzCommandConstants.ATTR_SRC_NODE_ID,m_agent.getNodeName());
-
-        return reply;
+        return new HzCommandReply(m_agent.getNodeName(),id,data);
     }
 }

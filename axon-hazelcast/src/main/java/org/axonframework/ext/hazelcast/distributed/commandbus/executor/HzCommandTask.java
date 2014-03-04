@@ -15,22 +15,14 @@
  */
 package org.axonframework.ext.hazelcast.distributed.commandbus.executor;
 
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.HazelcastInstanceAware;
-import org.axonframework.commandhandling.CommandCallback;
-import org.axonframework.ext.hazelcast.distributed.IHzAxonEngine;
+import org.axonframework.ext.hazelcast.distributed.HzEngineTask;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
-
-import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  *
  */
-public class HzCommandTask extends HzCommand implements HazelcastInstanceAware, Callable<HzCommandReply> {
-    private HazelcastInstance m_instance;
+public class HzCommandTask extends HzEngineTask<HzCommandReply> {
     private HzCommand m_command;
 
     /**
@@ -41,21 +33,12 @@ public class HzCommandTask extends HzCommand implements HazelcastInstanceAware, 
     }
 
     /**
+     * c-tor
      *
      * @param command
      */
     public HzCommandTask(HzCommand command) {
-        m_instance = null;
         m_command = command;
-    }
-
-    // *************************************************************************
-    // HazelcastInstanceAware
-    // *************************************************************************
-
-    @Override
-    public void setHazelcastInstance(HazelcastInstance instance) {
-        m_instance = instance;
     }
 
     // *************************************************************************
@@ -64,15 +47,6 @@ public class HzCommandTask extends HzCommand implements HazelcastInstanceAware, 
 
     @Override
     public HzCommandReply call() throws Exception {
-        Map<String, Object> ctx = m_instance.getUserContext();
-        IHzAxonEngine engine = (IHzAxonEngine)ctx.get(HzCommandConstants.USER_CONTEXT_NAME);
-
-        if(m_command.isCallbackRequired()) {
-        } else {
-        }
-
-        return new HzCommandReply(
-            m_command.getMessage().getIdentifier(),
-            "<empty>");
+        return engine().dispatch(m_command).get();
     }
 }

@@ -15,28 +15,25 @@
  */
 package org.axonframework.ext.hazelcast.distributed.commandbus;
 
-import com.google.common.collect.Maps;
-
-import java.util.Map;
-
 /**
  *
  */
 public class HzCommandCommon extends HzMessage {
-    private final Map<String,String> m_attributes;
+    private final String m_nodeName;
 
     /**
-     * c-tor
+     *
+     * @param nodeName
      */
-    public HzCommandCommon() {
-        m_attributes = Maps.newHashMap();
+    public HzCommandCommon(String nodeName) {
+        m_nodeName = nodeName;
     }
 
     /**
      *
      * @return
      */
-    public Map<String,String> getAttributes() {
-        return m_attributes;
+    public String getNodeName() {
+        return m_nodeName;
     }
 }

@@ -109,10 +109,9 @@ public class HzCommandBusConnector implements IHzCommandBusConnector, IHzCommand
 
         if(StringUtils.isNotBlank(destination)) {
             try {
-                HzCommand cmd = new HzCommand(command,true);
-                cmd.getAttributes().put(HzCommandConstants.ATTR_SRC_NODE_ID,m_agent.getNodeName());
+                m_proxy.getQueue(destination)
+                       .put(new HzCommand(m_agent.getNodeName(), command, true));
 
-                m_proxy.getQueue(destination).put(cmd);
                 if(callback != null) {
                     m_agent.registerCallback(command,new HzCommandCallback(callback));
                 } else {
@@ -166,8 +165,7 @@ public class HzCommandBusConnector implements IHzCommandBusConnector, IHzCommand
 
     @Override
     public void onHzCommand(final HzCommand command) {
-        m_logger.debug("Got HzCommand from <{}>",
-            command.getAttributes().get(HzCommandConstants.ATTR_SRC_NODE_ID));
+        m_logger.debug("Got HzCommand from <{}>",command.getNodeName());
 
         if(m_localSegment != null) {
             m_localSegment.dispatch(
@@ -180,8 +178,7 @@ public class HzCommandBusConnector implements IHzCommandBusConnector, IHzCommand
     @Override
     @SuppressWarnings("unchecked")
     public void onHzCommandReply(final HzCommandReply reply) {
-        m_logger.debug("Got HzCommandReply from <{}>",
-            reply.getAttributes().get(HzCommandConstants.ATTR_SRC_NODE_ID));
+        m_logger.debug("Got HzCommandReply from <{}>",reply.getNodeName());
 
         CommandCallback cbk = m_agent.getCallback(reply.getCommandId());
 

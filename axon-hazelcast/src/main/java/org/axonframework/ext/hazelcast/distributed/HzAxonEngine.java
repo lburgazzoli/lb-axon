@@ -24,26 +24,26 @@ import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.commandhandling.annotation.AggregateAnnotationCommandHandler;
-import org.axonframework.commandhandling.disruptor.DisruptorCommandBus;
-import org.axonframework.commandhandling.disruptor.DisruptorConfiguration;
 import org.axonframework.commandhandling.distributed.DistributedCommandBus;
 import org.axonframework.commandhandling.gateway.CommandGateway;
 import org.axonframework.commandhandling.gateway.DefaultCommandGateway;
 import org.axonframework.domain.AggregateRoot;
-import org.axonframework.eventhandling.*;
+import org.axonframework.eventhandling.ClusteringEventBus;
+import org.axonframework.eventhandling.EventBus;
+import org.axonframework.eventhandling.EventListener;
+import org.axonframework.eventhandling.SimpleEventBus;
 import org.axonframework.eventhandling.annotation.AnnotationEventListenerAdapter;
 import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
-import org.axonframework.eventstore.EventStore;
 import org.axonframework.ext.hazelcast.HzConstants;
 import org.axonframework.ext.hazelcast.HzProxy;
 import org.axonframework.ext.hazelcast.IHzProxy;
-import org.axonframework.ext.hazelcast.distributed.commandbus.IHzCommandBusConnector;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
 import org.axonframework.ext.hazelcast.distributed.commandbus.executor.HzCommandBusConnector;
 import org.axonframework.ext.hazelcast.eventhandling.HzEventBusTerminal;
 import org.axonframework.ext.hazelcast.eventhandling.IHzTopicPublisher;
 import org.axonframework.ext.hazelcast.eventhandling.IHzTopicSubscriber;
 import org.axonframework.ext.hazelcast.store.HzEventStore;
-import org.axonframework.ext.repository.DisruptorRepositoryFactory;
 import org.axonframework.ext.repository.EventSourcingRepositoryFactory;
 import org.axonframework.ext.repository.IRepositoryFactory;
 import org.axonframework.repository.Repository;
@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -65,7 +66,6 @@ public class HzAxonEngine implements IHzAxonEngine {
     private final String m_nodeName;
     private final IHzProxy m_hz;
     private HzEventBusTerminal m_evtBusTer;
-    private DisruptorConfiguration m_disruptorCfg;
     private HzCommandBusConnector m_connector;
     private IRepositoryFactory m_repositoryFactory;
     private HzEventStore m_evtStore;
@@ -97,7 +97,6 @@ public class HzAxonEngine implements IHzAxonEngine {
         m_hz           = new HzProxy(hz);
         m_nodeName     = nodeName;
         m_evtBusTer    = null;
-        m_disruptorCfg = null;
         m_connector    = null;
         m_cmdBus       = null;
         m_cmdGw        = null;
@@ -192,6 +191,11 @@ public class HzAxonEngine implements IHzAxonEngine {
         return m_cmdGw.sendAndWait(command,timeout,unit);
     }
 
+    @Override
+    public Future<HzCommandReply> dispatch(final HzCommand command) {
+        return m_connector.dispatch(command);
+    }
+
     // *************************************************************************
     //
     // *************************************************************************
@@ -280,14 +284,6 @@ public class HzAxonEngine implements IHzAxonEngine {
 
     /**
      *
-     * @param disruptorCfg
-     */
-    public void setDisruptorConfiguration(DisruptorConfiguration disruptorCfg) {
-        m_disruptorCfg = disruptorCfg;
-    }
-
-    /**
-     *
      * @param publisher
      */
     public void setPublisher(IHzTopicPublisher publisher) {
@@ -323,21 +319,12 @@ public class HzAxonEngine implements IHzAxonEngine {
      */
     private CommandBus createCommandBus() {
         if(m_cmdBus == null && m_evtStore != null && m_evtBus != null) {
-            if(m_disruptorCfg != null) {
-                DisruptorCommandBus dcb = new DisruptorCommandBus(m_evtStore,m_evtBus);
+            SimpleCommandBus scb = new SimpleCommandBus();
 
-                m_repositoryFactory = new DisruptorRepositoryFactory(dcb);
+            m_repositoryFactory = new EventSourcingRepositoryFactory(m_evtStore,m_evtBus);
 
-                m_connector = new HzCommandBusConnector(m_hz,dcb);
-                m_connector.open();
-            } else {
-                SimpleCommandBus scb = new SimpleCommandBus();
-
-                m_repositoryFactory = new EventSourcingRepositoryFactory(m_evtStore,m_evtBus);
-
-                m_connector = new HzCommandBusConnector(m_hz,scb);
-                m_connector.open();
-            }
+            m_connector = new HzCommandBusConnector(m_hz,scb,"","");
+            m_connector.open();
 
             m_cmdBus = new DistributedCommandBus(m_connector);
         }

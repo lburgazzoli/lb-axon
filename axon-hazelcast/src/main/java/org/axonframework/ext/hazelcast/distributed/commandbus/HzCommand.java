@@ -22,33 +22,36 @@ import org.axonframework.commandhandling.CommandMessage;
  */
 public class HzCommand extends HzCommandCommon {
     private boolean m_callback;
-    private CommandMessage<?> m_message;
+    private final CommandMessage<?> m_message;
 
     /**
      * c-tor
+     *
+     * @param nodeName
      */
-    public HzCommand() {
-        this(null,false);
+    public HzCommand(String nodeName) {
+        this(nodeName,null,false);
     }
 
     /**
      * c-tor
      *
-     * @param nodeId
+     * @param nodeName
      * @param message
      */
-    public HzCommand(String nodeId, CommandMessage<?> message) {
-        this(message,false);
+    public HzCommand(String nodeName, CommandMessage<?> message) {
+        this(nodeName,message,false);
     }
 
     /**
      * c-tor
      *
+     * @param nodeName
      * @param message
      * @param callback
      */
-    public HzCommand(CommandMessage<?> message, boolean callback) {
-        super();
+    public HzCommand(String nodeName, CommandMessage<?> message, boolean callback) {
+        super(nodeName);
 
         m_callback   = callback;
         m_message    = message;
