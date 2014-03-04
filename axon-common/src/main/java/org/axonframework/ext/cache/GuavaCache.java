@@ -22,24 +22,13 @@ import com.google.common.cache.RemovalNotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.cache.CacheConfiguration;
-import javax.cache.CacheManager;
-import javax.cache.CacheStatistics;
-import javax.cache.Status;
-import javax.cache.event.CacheEntryListener;
-import javax.cache.mbeans.CacheMXBean;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Future;
-
 /**
  * @author lburgazzoli
  *
  * TODO: add eviction policy
- * TODO: switch to javax.cache.Cache<K,V>
+ * TODO: issues in OSGi
  */
-public class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<K,V> {
+public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<K,V> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GuavaCache.class);
 
     private final Cache<K,V> m_cache;
@@ -53,126 +42,7 @@ public class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<
             .build();
     }
 
-    // *************************************************************************
-    //
-    // *************************************************************************
-
-    // *************************************************************************
-    //
-    // *************************************************************************
-
     /*
-    @Override
-    public boolean containsKey(Object key) {
-        return m_cache.asMap().containsKey(key);
-    }
-
-    @Override
-    public boolean containsValue(Object value) {
-        return m_cache.asMap().containsValue(value);
-    }
-
-    @Override
-    public Set entrySet() {
-        return m_cache.asMap().entrySet();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return m_cache.size() == 0;
-    }
-
-    @Override
-    public Set keySet() {
-        return m_cache.asMap().keySet();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void putAll(Map t) {
-        m_cache.putAll(t);
-    }
-
-    @Override
-    public int size() {
-        return (int)m_cache.size();
-    }
-
-    @Override
-    public Collection values() {
-        return m_cache.asMap().values();
-    }
-
-    @Override
-    public Object get(Object key) {
-        return m_cache.getIfPresent(key);
-    }
-
-    @Override
-    public Map getAll(Collection keys) throws CacheException {
-        return m_cache.getAllPresent(keys);
-    }
-
-    @Override
-    public void load(Object key) throws CacheException {
-    }
-
-    @Override
-    public void loadAll(Collection keys) throws CacheException {
-    }
-
-    @Override
-    public Object peek(Object key) {
-        return m_cache.getIfPresent(key);
-    }
-
-    @Override
-    public Object put(Object key, Object value) {
-        Object old = get(key);
-        m_cache.put(key,value);
-
-        return old;
-    }
-
-    @Override
-    public CacheEntry getCacheEntry(Object key) {
-        throw new UnsupportedOperationException("getCacheEntry");
-    }
-
-    @Override
-    public CacheStatistics getCacheStatistics() {
-        throw new UnsupportedOperationException("getCacheStatistics");
-    }
-
-    @Override
-    public Object remove(Object key) {
-        Object old = get(key);
-        m_cache.invalidate(key);
-
-        return old;
-    }
-
-    @Override
-    public void clear() {
-        m_cache.invalidateAll();
-    }
-
-    @Override
-    public void evict() {
-        throw new UnsupportedOperationException("evict");
-    }
-
-    @Override
-    public void addListener(CacheListener listener) {
-        throw new UnsupportedOperationException("addListener");
-    }
-
-    @Override
-    public void removeListener(CacheListener listener) {
-        throw new UnsupportedOperationException("removeListener");
-    }
-    */
-
     @Override
     public V get(K key) {
         return m_cache.getIfPresent(key);
@@ -334,6 +204,7 @@ public class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<
     public Status getStatus() {
         return null;
     }
+    */
 
     // *************************************************************************
     //

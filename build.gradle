@@ -31,6 +31,7 @@ subprojects {
     project.ext.commonsLanVersion         = '3.2.1'
     project.ext.commonsBeanutilsVersion   = '1.8.3'
     project.ext.commonsCollectionsVersion = '3.2.1'
+    project.ext.javaxCacheVersion         = '0.5'
 
     repositories {
         mavenCentral()
@@ -89,6 +90,7 @@ subprojects {
             'version.paxUrl'             : paxUrlVersion,
             'version.commonsLang'        : commonsLanVersion,
             'version.commonsCollections' : commonsCollectionsVersion,
+            'version.javaxCache'         : javaxCacheVersion,
             'pax.exam.framework'         : 'felix',
             'pax.exam.logging'           : 'none'
         ]

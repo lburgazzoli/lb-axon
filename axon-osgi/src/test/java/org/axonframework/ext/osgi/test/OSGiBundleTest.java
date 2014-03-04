@@ -65,6 +65,7 @@ public class OSGiBundleTest extends OSGiTestCommon {
             mavenBundleEnv("org.axonframework","axon-core","version.axon"),
             mavenBundleEnv("org.axonframework","axon-distributed-commandbus","version.axon"),
             mavenBundleEnv("com.google.guava","guava","version.guava"),
+            mavenBundleEnv("javax.cache","cache-api","version.javaxCache"),
             mavenBundle("org.apache.geronimo.specs", "geronimo-servlet_3.0_spec", "1.0"),
             mavenBundle("joda-time", "joda-time", "2.3"),
             wrappedBundle(mavenBundle("net.sf.jsr107cache", "jsr107cache", "1.1")),
