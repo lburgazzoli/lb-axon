@@ -31,7 +31,7 @@ subprojects {
     project.ext.commonsLanVersion         = '3.2.1'
     project.ext.commonsBeanutilsVersion   = '1.8.3'
     project.ext.commonsCollectionsVersion = '3.2.1'
-    project.ext.javaxCacheVersion         = '0.5'
+    project.ext.javaxCacheVersion         = '1.0.0-RC1'
 
     repositories {
         mavenCentral()
@@ -48,7 +48,7 @@ subprojects {
         compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
         compile "log4j:log4j:$log4jVersion"
         compile "org.apache.geronimo.specs:geronimo-jpa_2.0_spec:1.1"
-        compile "net.sf.jsr107cache:jsr107cache:1.1"
+        //compile "net.sf.jsr107cache:jsr107cache:1.1"
         compile "org.axonframework:axon-core:$axonVersion"
         compile "org.axonframework:axon-distributed-commandbus:$axonVersion"
         compile "org.jgroups:jgroups:$jgroupsVersion"

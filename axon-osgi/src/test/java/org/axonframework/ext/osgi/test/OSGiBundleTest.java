@@ -20,7 +20,6 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
-import org.ops4j.pax.exam.options.WrappedUrlProvisionOption;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -30,15 +29,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertNotNull;
-import static org.ops4j.pax.exam.CoreOptions.cleanCaches;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.systemPackage;
-import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
+import static org.junit.Assert.assertTrue;
+import static org.ops4j.pax.exam.CoreOptions.*;
 
 /**
  * @author lburgazzoli
@@ -66,8 +59,7 @@ public class OSGiBundleTest extends OSGiTestCommon {
             mavenBundleEnv("org.axonframework","axon-core","version.axon"),
             mavenBundleEnv("org.axonframework","axon-distributed-commandbus","version.axon"),
             mavenBundleEnv("com.google.guava","guava","version.guava"),
-            mavenBundleWrap("javax.cache","cache-api","version.javaxCache"),
-            //mavenBundleWrap("net.sf.jsr107cache", "jsr107cache", "1.1"),
+            mavenBundleEnv("javax.cache", "cache-api", "version.javaxCache"),
             mavenBundle("org.apache.geronimo.specs", "geronimo-servlet_3.0_spec", "1.0"),
             mavenBundle("joda-time", "joda-time", "2.3"),
             axonBundle("axon-common"),
