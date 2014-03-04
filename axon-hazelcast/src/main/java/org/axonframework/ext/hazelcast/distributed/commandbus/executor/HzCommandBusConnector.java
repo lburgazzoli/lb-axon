@@ -85,6 +85,7 @@ public class HzCommandBusConnector implements IHzCommandBusConnector {
         send(routingKey,command,null);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <R> void send(String routingKey, CommandMessage<?> command, CommandCallback<R> callback) throws Exception {
         try {
@@ -113,7 +114,7 @@ public class HzCommandBusConnector implements IHzCommandBusConnector {
      * @return
      */
     public Future<HzCommandReply> dispatch(final HzCommand command) {
-        HzCommandReplyCallback<Object> cbk = new HzCommandReplyCallback(m_nodeName,command);
+        HzCommandReplyCallback<Object> cbk = new HzCommandReplyCallback<>(m_nodeName,command);
 
         if(m_localSegment != null) {
             m_localSegment.dispatch(

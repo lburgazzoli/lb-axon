@@ -47,6 +47,7 @@ public class AxonServiceLoader {
                 return serviceIt.hasNext();
             }
 
+            @SuppressWarnings("unchecked")
             @Override
             public T next() {
                 if(localServiceIt != null && localServiceIt.hasNext()) {
