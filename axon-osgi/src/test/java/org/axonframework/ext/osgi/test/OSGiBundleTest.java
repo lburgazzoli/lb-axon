@@ -20,6 +20,7 @@ import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.options.WrappedUrlProvisionOption;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -65,10 +66,10 @@ public class OSGiBundleTest extends OSGiTestCommon {
             mavenBundleEnv("org.axonframework","axon-core","version.axon"),
             mavenBundleEnv("org.axonframework","axon-distributed-commandbus","version.axon"),
             mavenBundleEnv("com.google.guava","guava","version.guava"),
-            mavenBundleEnv("javax.cache","cache-api","version.javaxCache"),
+            mavenBundleWrap("javax.cache","cache-api","version.javaxCache"),
+            //mavenBundleWrap("net.sf.jsr107cache", "jsr107cache", "1.1"),
             mavenBundle("org.apache.geronimo.specs", "geronimo-servlet_3.0_spec", "1.0"),
             mavenBundle("joda-time", "joda-time", "2.3"),
-            wrappedBundle(mavenBundle("net.sf.jsr107cache", "jsr107cache", "1.1")),
             axonBundle("axon-common"),
             axonBundle("axon-hazelcast"),
             junitBundles(),

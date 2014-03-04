@@ -17,11 +17,13 @@ package org.axonframework.ext.osgi.test;
 
 import org.ops4j.pax.exam.options.MavenArtifactProvisionOption;
 import org.ops4j.pax.exam.options.UrlProvisionOption;
+import org.ops4j.pax.exam.options.WrappedUrlProvisionOption;
 
 import java.io.File;
 
 import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
 /**
  *
@@ -57,5 +59,29 @@ public class OSGiTestCommon {
      */
     protected MavenArtifactProvisionOption mavenBundleEnv(final String groupId,final String artifactId,final String systemProperyKey) {
         return mavenBundle(groupId, artifactId,System.getProperty(systemProperyKey));
+    }
+
+    /**
+     *
+     * @param groupId
+     * @param artifactId
+     * @param version
+     * @return
+     */
+    protected WrappedUrlProvisionOption mavenBundleWrap(final String groupId, final String artifactId, final String version) {
+        return wrappedBundle(mavenBundle(groupId,artifactId,version))
+             .overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL);
+    }
+
+    /**
+     *
+     * @param groupId
+     * @param artifactId
+     * @param systemProperyKey
+     * @return
+     */
+    protected WrappedUrlProvisionOption mavenBundleWrapEnv(final String groupId, final String artifactId, final String systemProperyKey) {
+        return wrappedBundle(mavenBundleEnv(groupId,artifactId,systemProperyKey))
+                .overwriteManifest(WrappedUrlProvisionOption.OverwriteMode.FULL);
     }
 }
