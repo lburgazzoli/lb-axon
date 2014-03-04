@@ -23,7 +23,7 @@ import org.axonframework.repository.Repository;
 import javax.cache.Cache;
 
 /**
- * TODO
+ *
  */
 public class CachingEventSourcingRepositoryFactory<T extends EventSourcedAggregateRoot> implements IRepositoryFactory {
 

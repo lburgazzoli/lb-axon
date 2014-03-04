@@ -22,6 +22,11 @@ import com.google.common.cache.RemovalNotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.cache.CacheManager;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * @author lburgazzoli
  *
@@ -31,18 +36,25 @@ import org.slf4j.LoggerFactory;
 public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<K,V> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GuavaCache.class);
 
+    private final String m_cacheName;
     private final Cache<K,V> m_cache;
 
     /**
      * c-tor
+     *
+     * @param cacheName
      */
-    public GuavaCache() {
+    public GuavaCache(String cacheName) {
+        m_cacheName = cacheName;
         m_cache = CacheBuilder.newBuilder()
             .removalListener(this)
             .build();
     }
 
-    /*
+    // *************************************************************************
+    //
+    // *************************************************************************
+
     @Override
     public V get(K key) {
         return m_cache.getIfPresent(key);
@@ -56,21 +68,6 @@ public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, Removal
     @Override
     public boolean containsKey(K key) {
         return m_cache.asMap().containsKey(key);
-    }
-
-    @Override
-    public Future<V> load(K key) {
-        return null;
-    }
-
-    @Override
-    public Future<Map<K, ? extends V>> loadAll(Set<? extends K> keys) {
-        return null;
-    }
-
-    @Override
-    public CacheStatistics getStatistics() {
-        return null;
     }
 
     @Override
@@ -94,7 +91,7 @@ public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, Removal
     @Override
     public boolean putIfAbsent(K key, V value) {
         if(!m_cache.asMap().containsKey(key)) {
-            m_cache.put(key,value);
+            m_cache.put(key, value);
             return true;
         }
 
@@ -146,26 +143,6 @@ public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, Removal
     }
 
     @Override
-    public CacheConfiguration<K, V> getConfiguration() {
-        return null;
-    }
-
-    @Override
-    public boolean registerCacheEntryListener(CacheEntryListener<? super K, ? super V> cacheEntryListener) {
-        return false;
-    }
-
-    @Override
-    public boolean unregisterCacheEntryListener(CacheEntryListener<?, ?> cacheEntryListener) {
-        return false;
-    }
-
-    @Override
-    public Object invokeEntryProcessor(K key, EntryProcessor<K, V> entryProcessor) {
-        return null;
-    }
-
-    @Override
     public String getName() {
         return null;
     }
@@ -184,27 +161,6 @@ public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, Removal
     public Iterator<Entry<K, V>> iterator() {
         return null;
     }
-
-    @Override
-    public CacheMXBean getMBean() {
-        return null;
-    }
-
-    @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void stop() {
-
-    }
-
-    @Override
-    public Status getStatus() {
-        return null;
-    }
-    */
 
     // *************************************************************************
     //
