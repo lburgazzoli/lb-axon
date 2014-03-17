@@ -133,6 +133,16 @@ public class HzProxy implements IHzProxy {
     // *************************************************************************
 
     @Override
+    public String getClusterName() {
+        return m_instance.getConfig().getGroupConfig().getName();
+    }
+
+    @Override
+    public String getNodeName() {
+        return m_instance.getCluster().getLocalMember().getUuid();
+    }
+
+    @Override
     public HazelcastInstance getInstance() {
         return m_instance;
     }

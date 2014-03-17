@@ -28,6 +28,18 @@ public interface IHzProxy {
      *
      * @return
      */
+    public String getClusterName();
+
+    /**
+     *
+     * @return
+     */
+    public String getNodeName();
+
+    /**
+     *
+     * @return
+     */
     public HazelcastInstance getInstance();
 
     /**

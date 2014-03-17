@@ -34,6 +34,7 @@ import org.axonframework.eventhandling.EventListener;
 import org.axonframework.eventhandling.SimpleEventBus;
 import org.axonframework.eventhandling.annotation.AnnotationEventListenerAdapter;
 import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
+import org.axonframework.ext.cache.GuavaCache;
 import org.axonframework.ext.hazelcast.HzConstants;
 import org.axonframework.ext.hazelcast.HzProxy;
 import org.axonframework.ext.hazelcast.IHzProxy;
@@ -44,12 +45,13 @@ import org.axonframework.ext.hazelcast.eventhandling.HzEventBusTerminal;
 import org.axonframework.ext.hazelcast.eventhandling.IHzTopicPublisher;
 import org.axonframework.ext.hazelcast.eventhandling.IHzTopicSubscriber;
 import org.axonframework.ext.hazelcast.store.HzEventStore;
-import org.axonframework.ext.repository.EventSourcingRepositoryFactory;
+import org.axonframework.ext.repository.CachingEventSourcingRepositoryFactory;
 import org.axonframework.ext.repository.IRepositoryFactory;
 import org.axonframework.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.cache.Cache;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
@@ -72,6 +74,7 @@ public class HzAxonEngine implements IHzAxonEngine {
     private EventBus m_evtBus;
     private CommandBus m_cmdBus;
     private CommandGateway m_cmdGw;
+    private Cache m_cache;
 
     private final Set<EventListener> m_eventListeners;
     private final Map<Object,EventListener> m_eventHandlers;
@@ -103,7 +106,7 @@ public class HzAxonEngine implements IHzAxonEngine {
         m_evtStore     = null;
         m_evtBus       = null;
 
-
+        m_cache          = new GuavaCache(m_nodeName);
         m_eventListeners = Sets.newHashSet();
         m_eventHandlers  = Maps.newConcurrentMap();
         m_aggregates     = Maps.newConcurrentMap();
@@ -248,18 +251,14 @@ public class HzAxonEngine implements IHzAxonEngine {
      *
      * @param aggregateType
      */
-    @SuppressWarnings("unchecked")
     public <T extends EventSourcedAggregateRoot> void addAggregateType(Class<T> aggregateType) {
         removeAggregateType(aggregateType);
 
-        Repository<T> repo = m_repositoryFactory.createRepository(aggregateType);
-
-        m_aggregates.put(aggregateType,new AggregateSubscription(
-            repo,
-            AggregateAnnotationCommandHandler.subscribe(
-                aggregateType,
-                repo,
-                m_cmdBus))
+        m_aggregates.put(
+            aggregateType,
+            createAggregateSubscription(
+                m_repositoryFactory.createRepository(aggregateType),
+                aggregateType)
         );
     }
 
@@ -319,11 +318,19 @@ public class HzAxonEngine implements IHzAxonEngine {
      */
     private CommandBus createCommandBus() {
         if(m_cmdBus == null && m_evtStore != null && m_evtBus != null) {
-            SimpleCommandBus scb = new SimpleCommandBus();
+            // The EventSourcingRepository factory
+            m_repositoryFactory = new CachingEventSourcingRepositoryFactory<>(
+                m_cache,
+                m_evtStore,
+                m_evtBus);
 
-            m_repositoryFactory = new EventSourcingRepositoryFactory(m_evtStore,m_evtBus);
+            // The CommandBus connector
+            m_connector = new HzCommandBusConnector(
+                m_hz,
+                new SimpleCommandBus(),
+                m_hz.getClusterName(),
+                m_nodeName);
 
-            m_connector = new HzCommandBusConnector(m_hz,scb,"","");
             m_connector.open();
 
             m_cmdBus = new DistributedCommandBus(m_connector);
@@ -370,10 +377,31 @@ public class HzAxonEngine implements IHzAxonEngine {
         return m_cmdGw;
     }
 
+
+    /**
+     *
+     * @param repo
+     * @param aggregateType
+     * @param <T>
+     */
+    private <T extends EventSourcedAggregateRoot> AggregateSubscription createAggregateSubscription(
+        Repository<T> repo, Class<T> aggregateType) {
+        return new AggregateSubscription(
+            repo,
+            AggregateAnnotationCommandHandler.subscribe(
+                aggregateType,
+                repo,
+                m_cmdBus)
+        );
+    }
+
     // *************************************************************************
     //
     // *************************************************************************
 
+    /**
+     *
+     */
     private final class AggregateSubscription {
 
         public final Repository<?> repository;

@@ -23,6 +23,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.cache.CacheManager;
+import javax.cache.configuration.CacheEntryListenerConfiguration;
+import javax.cache.configuration.Configuration;
+import javax.cache.integration.CompletionListener;
+import javax.cache.processor.EntryProcessor;
+import javax.cache.processor.EntryProcessorException;
+import javax.cache.processor.EntryProcessorResult;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +39,7 @@ import java.util.Set;
  * TODO: add eviction policy
  * TODO: issues in OSGi
  */
-public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<K,V> {
+public class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<K,V> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GuavaCache.class);
 
     private final String m_cacheName;
@@ -68,6 +74,11 @@ public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, Removal
     @Override
     public boolean containsKey(K key) {
         return m_cache.asMap().containsKey(key);
+    }
+
+    @Override
+    public void loadAll(Set<? extends K> keys, boolean replaceExistingValues, CompletionListener completionListener) {
+
     }
 
     @Override
@@ -115,51 +126,93 @@ public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, Removal
 
     @Override
     public V getAndRemove(K key) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean replace(K key, V oldValue, V newValue) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean replace(K key, V value) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public V getAndReplace(K key, V value) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void removeAll(Set<? extends K> keys) {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void removeAll() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear() {
+        m_cache.invalidateAll();
+        m_cache.asMap().clear();
+    }
+
+    @Override
+    public <C extends Configuration<K, V>> C getConfiguration(Class<C> clazz) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T> T invoke(K key, EntryProcessor<K, V, T> entryProcessor, Object... arguments) throws EntryProcessorException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T> Map<K, EntryProcessorResult<T>> invokeAll(Set<? extends K> keys, EntryProcessor<K, V, T> entryProcessor, Object... arguments) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public String getName() {
-        return null;
+        return m_cacheName;
     }
 
     @Override
     public CacheManager getCacheManager() {
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void close() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isClosed() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public <T> T unwrap(Class<T> cls) {
-        return null;
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void registerCacheEntryListener(CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void deregisterCacheEntryListener(CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Iterator<Entry<K, V>> iterator() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     // *************************************************************************

@@ -15,9 +15,9 @@ subprojects {
 
     project.ext.slf4jVersion              = '1.7.5'
     project.ext.log4jVersion              = '1.2.17'
-    project.ext.jacksonVersion            = '2.3.1'
-    project.ext.jacksonAnnotationsVersion = '2.3.1'
-    project.ext.openhftLangVersion        = '6.1.4'
+    project.ext.jacksonVersion            = '2.3.2'
+    project.ext.jacksonAnnotationsVersion = '2.3.2'
+    project.ext.openhftLangVersion        = '6.3.3'
     project.ext.openhftChronicleVersion   = '2.0.3'
     project.ext.hazelcastVersion          = '3.1.6'
     project.ext.osgiVersion               = '5.0.0'
@@ -28,7 +28,7 @@ subprojects {
     project.ext.paxExamVersion            = '3.4.0'
     project.ext.paxUrlVersion             = '1.6.0'
     project.ext.jgroupsVersion            = '3.4.2.Final'
-    project.ext.commonsLanVersion         = '3.2.1'
+    project.ext.commonsLangVersion        = '3.2.1'
     project.ext.commonsBeanutilsVersion   = '1.8.3'
     project.ext.commonsCollectionsVersion = '3.2.1'
     project.ext.javaxCacheVersion         = '1.0.0-RC1'
@@ -39,7 +39,7 @@ subprojects {
     }
 
     dependencies {
-        compile "org.apache.commons:commons-lang3:$commonsLanVersion"
+        compile "org.apache.commons:commons-lang3:$commonsLangVersion"
         compile "commons-beanutils:commons-beanutils:$commonsBeanutilsVersion"
         compile "org.slf4j:slf4j-api:$slf4jVersion"
         compile "org.slf4j:slf4j-ext:$slf4jVersion"
@@ -88,7 +88,7 @@ subprojects {
             'version.felix'              : felixVersion,
             'version.paxExam'            : paxExamVersion,
             'version.paxUrl'             : paxUrlVersion,
-            'version.commonsLang'        : commonsLanVersion,
+            'version.commonsLang'        : commonsLangVersion,
             'version.commonsCollections' : commonsCollectionsVersion,
             'version.javaxCache'         : javaxCacheVersion,
             'pax.exam.framework'         : 'felix',
