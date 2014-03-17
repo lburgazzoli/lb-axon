@@ -22,10 +22,16 @@ import com.google.common.cache.RemovalNotification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.cache.CacheConfiguration;
 import javax.cache.CacheManager;
+import javax.cache.CacheStatistics;
+import javax.cache.Status;
+import javax.cache.event.CacheEntryListener;
+import javax.cache.mbeans.CacheMXBean;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 /**
  * @author lburgazzoli
@@ -33,7 +39,7 @@ import java.util.Set;
  * TODO: add eviction policy
  * TODO: issues in OSGi
  */
-public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<K,V> {
+public class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<K,V> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GuavaCache.class);
 
     private final String m_cacheName;
@@ -70,11 +76,20 @@ public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, Removal
         return m_cache.asMap().containsKey(key);
     }
 
-    /*
     @Override
-    public void loadAll(Set<? extends K> keys, boolean replaceExistingValues, CompletionListener completionListener) {
+    public Future<V> load(K key) {
+        throw new UnsupportedOperationException();
     }
-    */
+
+    @Override
+    public Future<Map<K, ? extends V>> loadAll(Set<? extends K> keys) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public CacheStatistics getStatistics() {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public void put(K key, V value) {
@@ -116,7 +131,7 @@ public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, Removal
 
     @Override
     public boolean remove(K key, V oldValue) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -150,27 +165,24 @@ public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, Removal
     }
 
     @Override
-    public void clear() {
-        m_cache.invalidateAll();
-        m_cache.asMap().clear();
-    }
-
-    /*
-    @Override
-    public <C extends Configuration<K, V>> C getConfiguration(Class<C> clazz) {
+    public CacheConfiguration<K, V> getConfiguration() {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> T invoke(K key, EntryProcessor<K, V, T> entryProcessor, Object... arguments) throws EntryProcessorException {
+    public boolean registerCacheEntryListener(CacheEntryListener<? super K, ? super V> cacheEntryListener) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public <T> Map<K, EntryProcessorResult<T>> invokeAll(Set<? extends K> keys, EntryProcessor<K, V, T> entryProcessor, Object... arguments) {
+    public boolean unregisterCacheEntryListener(CacheEntryListener<?, ?> cacheEntryListener) {
         throw new UnsupportedOperationException();
     }
-    */
+
+    @Override
+    public Object invokeEntryProcessor(K key, EntryProcessor<K, V> entryProcessor) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     public String getName() {
@@ -183,34 +195,17 @@ public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, Removal
     }
 
     @Override
-    public void close() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean isClosed() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public <T> T unwrap(Class<T> cls) {
         throw new UnsupportedOperationException();
     }
 
-    /*
-    @Override
-    public void registerCacheEntryListener(CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void deregisterCacheEntryListener(CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration) {
-        throw new UnsupportedOperationException();
-    }
-    */
-
     @Override
     public Iterator<Entry<K, V>> iterator() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public CacheMXBean getMBean() {
         throw new UnsupportedOperationException();
     }
 
@@ -221,5 +216,20 @@ public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, Removal
     @Override
     public void onRemoval(RemovalNotification<K, V> notification) {
         LOGGER.debug("onRemoval: {}",notification.getCause());
+    }
+
+    @Override
+    public void start() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void stop() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Status getStatus() {
+        throw new UnsupportedOperationException();
     }
 }

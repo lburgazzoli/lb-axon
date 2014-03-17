@@ -4,7 +4,8 @@ language:
 script: 
   - ./gradlew clean
   - ./gradlew compileJava
-  - ./gradlew test
+  - ./gradlew :axon-chronicle:test
+  - ./gradlew :axon-hazelcast:test
 
 jdk:
   - oraclejdk7
