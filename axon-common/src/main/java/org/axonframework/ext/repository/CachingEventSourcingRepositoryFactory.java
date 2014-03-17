@@ -25,7 +25,7 @@ import javax.cache.Cache;
 /**
  *
  */
-public class CachingEventSourcingRepositoryFactory<T extends EventSourcedAggregateRoot> implements IRepositoryFactory {
+public class CachingEventSourcingRepositoryFactory implements IRepositoryFactory {
 
     private final EventBus m_evtBus;
     private final EventStore m_evtStore;

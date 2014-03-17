@@ -23,12 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.cache.CacheManager;
-import javax.cache.configuration.CacheEntryListenerConfiguration;
-import javax.cache.configuration.Configuration;
-import javax.cache.integration.CompletionListener;
-import javax.cache.processor.EntryProcessor;
-import javax.cache.processor.EntryProcessorException;
-import javax.cache.processor.EntryProcessorResult;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -39,7 +33,7 @@ import java.util.Set;
  * TODO: add eviction policy
  * TODO: issues in OSGi
  */
-public class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<K,V> {
+public abstract class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<K,V> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GuavaCache.class);
 
     private final String m_cacheName;
@@ -76,10 +70,11 @@ public class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<
         return m_cache.asMap().containsKey(key);
     }
 
+    /*
     @Override
     public void loadAll(Set<? extends K> keys, boolean replaceExistingValues, CompletionListener completionListener) {
-
     }
+    */
 
     @Override
     public void put(K key, V value) {
@@ -160,6 +155,7 @@ public class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<
         m_cache.asMap().clear();
     }
 
+    /*
     @Override
     public <C extends Configuration<K, V>> C getConfiguration(Class<C> clazz) {
         throw new UnsupportedOperationException();
@@ -174,6 +170,7 @@ public class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<
     public <T> Map<K, EntryProcessorResult<T>> invokeAll(Set<? extends K> keys, EntryProcessor<K, V, T> entryProcessor, Object... arguments) {
         throw new UnsupportedOperationException();
     }
+    */
 
     @Override
     public String getName() {
@@ -200,6 +197,7 @@ public class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<
         throw new UnsupportedOperationException();
     }
 
+    /*
     @Override
     public void registerCacheEntryListener(CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration) {
         throw new UnsupportedOperationException();
@@ -209,6 +207,7 @@ public class GuavaCache<K,V> implements javax.cache.Cache<K,V>, RemovalListener<
     public void deregisterCacheEntryListener(CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration) {
         throw new UnsupportedOperationException();
     }
+    */
 
     @Override
     public Iterator<Entry<K, V>> iterator() {

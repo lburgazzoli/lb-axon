@@ -46,6 +46,7 @@ import org.axonframework.ext.hazelcast.eventhandling.IHzTopicPublisher;
 import org.axonframework.ext.hazelcast.eventhandling.IHzTopicSubscriber;
 import org.axonframework.ext.hazelcast.store.HzEventStore;
 import org.axonframework.ext.repository.CachingEventSourcingRepositoryFactory;
+import org.axonframework.ext.repository.EventSourcingRepositoryFactory;
 import org.axonframework.ext.repository.IRepositoryFactory;
 import org.axonframework.repository.Repository;
 import org.slf4j.Logger;
@@ -74,7 +75,7 @@ public class HzAxonEngine implements IHzAxonEngine {
     private EventBus m_evtBus;
     private CommandBus m_cmdBus;
     private CommandGateway m_cmdGw;
-    private Cache m_cache;
+    //private final Cache m_cache;
 
     private final Set<EventListener> m_eventListeners;
     private final Map<Object,EventListener> m_eventHandlers;
@@ -106,7 +107,7 @@ public class HzAxonEngine implements IHzAxonEngine {
         m_evtStore     = null;
         m_evtBus       = null;
 
-        m_cache          = new GuavaCache(m_nodeName);
+        //m_cache          = new GuavaCache(m_nodeName);
         m_eventListeners = Sets.newHashSet();
         m_eventHandlers  = Maps.newConcurrentMap();
         m_aggregates     = Maps.newConcurrentMap();
@@ -319,8 +320,11 @@ public class HzAxonEngine implements IHzAxonEngine {
     private CommandBus createCommandBus() {
         if(m_cmdBus == null && m_evtStore != null && m_evtBus != null) {
             // The EventSourcingRepository factory
-            m_repositoryFactory = new CachingEventSourcingRepositoryFactory<>(
-                m_cache,
+            //m_repositoryFactory = new CachingEventSourcingRepositoryFactory<>(
+            //    m_cache,
+            //    m_evtStore,
+            //    m_evtBus);
+            m_repositoryFactory = new EventSourcingRepositoryFactory(
                 m_evtStore,
                 m_evtBus);
 
