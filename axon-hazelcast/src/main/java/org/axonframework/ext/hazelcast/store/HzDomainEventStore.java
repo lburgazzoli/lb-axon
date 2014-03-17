@@ -47,9 +47,6 @@ public class HzDomainEventStore extends AbstractDomainEventStore {
         super(storageId,aggregateType,aggregateId);
         m_hazelcastManager = hazelcastManager;
         m_storage = m_hazelcastManager.getMap(storageId);
-
-        // put a key as placeholder
-        m_hazelcastManager.getMap(HzConstants.REG_AGGREGATES).put(aggregateId,aggregateType);
     }
 
 

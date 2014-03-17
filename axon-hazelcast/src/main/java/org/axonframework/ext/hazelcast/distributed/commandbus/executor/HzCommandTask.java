@@ -18,6 +18,7 @@ package org.axonframework.ext.hazelcast.distributed.commandbus.executor;
 import org.axonframework.ext.hazelcast.distributed.HzEngineTask;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
+import org.slf4j.LoggerFactory;
 
 /**
  *

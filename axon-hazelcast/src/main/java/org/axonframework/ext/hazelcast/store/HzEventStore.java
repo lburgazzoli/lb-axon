@@ -91,8 +91,8 @@ public class HzEventStore extends AbstractEventStore {
             }
         }
 
-        LOGGER.debug("appendEvents: type={}, nbStoredEvents={}, eventStoreSize={}",
-            type,size,(des != null) ? des.getStorageSize() : 0);
+        //LOGGER.debug("appendEvents: type={}, nbStoredEvents={}, eventStoreSize={}",
+        //    type,size,(des != null) ? des.getStorageSize() : 0);
     }
 
     @Override

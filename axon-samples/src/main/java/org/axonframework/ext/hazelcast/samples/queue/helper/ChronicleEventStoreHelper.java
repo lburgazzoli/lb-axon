@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.samples.helper;
+package org.axonframework.ext.hazelcast.samples.queue.helper;
 
-import org.axonframework.commandhandling.CommandCallback;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.axonframework.ext.eventstore.chronicle.ChronicleEventStore;
 
 /**
  *
  */
-public class CommandCallbackAdapter<T> implements CommandCallback<T> {
-    @Override
-    public void onSuccess(T result) {
-    }
+public class ChronicleEventStoreHelper {
+    /**
+     * @return
+     */
+    public static ChronicleEventStore defaultEventStore() {
+        String basePath = FilenameUtils.concat(
+            FileUtils.getTempDirectoryPath(),
+            "chronicle/axon-evt-store");
 
-    @Override
-    public void onFailure(Throwable cause) {
+        return new ChronicleEventStore(basePath);
     }
 }

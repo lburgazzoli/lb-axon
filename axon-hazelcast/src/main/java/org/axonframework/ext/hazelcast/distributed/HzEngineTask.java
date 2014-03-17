@@ -19,13 +19,14 @@ import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceAware;
 import org.axonframework.ext.hazelcast.HzConstants;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
  *
  */
-public abstract class HzEngineTask<T> implements HazelcastInstanceAware, Callable<T> {
+public abstract class HzEngineTask<T> implements HazelcastInstanceAware, Serializable, Callable<T> {
     private HazelcastInstance m_instance;
 
     /**
@@ -47,6 +48,14 @@ public abstract class HzEngineTask<T> implements HazelcastInstanceAware, Callabl
     // *************************************************************************
     // Callable<HzCommandReply>
     // *************************************************************************
+
+    /**
+     *
+     * @return
+     */
+    protected HazelcastInstance instance() {
+        return m_instance;
+    }
 
     /**
      *

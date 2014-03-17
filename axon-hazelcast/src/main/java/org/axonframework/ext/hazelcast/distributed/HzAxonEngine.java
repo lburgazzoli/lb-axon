@@ -97,7 +97,18 @@ public class HzAxonEngine implements IHzAxonEngine {
      * @param hz
      */
     public HzAxonEngine(final String nodeName, final HazelcastInstance hz) {
-        m_hz           = new HzProxy(hz);
+        this(nodeName,new HzProxy(hz));
+    }
+
+
+    /**
+     * c-tor
+     *
+     * @param nodeName
+     * @param proxy
+     */
+    public HzAxonEngine(final String nodeName, final HzProxy proxy) {
+        m_hz           = proxy;
         m_nodeName     = nodeName;
         m_evtBusTer    = null;
         m_connector    = null;
@@ -116,9 +127,7 @@ public class HzAxonEngine implements IHzAxonEngine {
     //
     // *************************************************************************
 
-    /**
-     *
-     */
+    @Override
     public void init() {
         createEventBus();
         cerateEventStore();
@@ -128,9 +137,7 @@ public class HzAxonEngine implements IHzAxonEngine {
         m_hz.getInstance().getUserContext().put(HzConstants.USER_CONTEXT_NAME,this);
     }
 
-    /**
-     *
-     */
+    @Override
     public void destroy() {
         LOGGER.debug("Cleanup - EventListeners ({})",m_eventListeners.size());
         for(EventListener listener : m_eventListeners) {
@@ -203,10 +210,7 @@ public class HzAxonEngine implements IHzAxonEngine {
     //
     // *************************************************************************
 
-    /**
-     *
-     * @param eventHandler
-     */
+    @Override
     public void addEventHandler(Object eventHandler) {
         if(!m_eventHandlers.containsKey(eventHandler)) {
             EventListener eventListener = new AnnotationEventListenerAdapter(eventHandler);
@@ -216,10 +220,7 @@ public class HzAxonEngine implements IHzAxonEngine {
         }
     }
 
-    /**
-     *
-     * @param eventHandler
-     */
+    @Override
     public void removeEventHandler(Object eventHandler) {
         if(m_eventHandlers.containsKey(eventHandler)) {
             m_evtBus.unsubscribe(m_eventHandlers.get(eventHandler));
@@ -227,30 +228,21 @@ public class HzAxonEngine implements IHzAxonEngine {
         }
     }
 
-    /**
-     *
-     * @param eventListener
-     */
+    @Override
     public void addEventListener(EventListener eventListener) {
         if(m_eventListeners.add(eventListener)) {
             m_evtBus.subscribe(eventListener);
         }
     }
 
-    /**
-     *
-     * @param eventListener
-     */
+    @Override
     public void removeEventListener(EventListener eventListener) {
         if(eventListener != null) {
             m_evtBus.unsubscribe(eventListener);
         }
     }
 
-    /**
-     *
-     * @param aggregateType
-     */
+    @Override
     public <T extends EventSourcedAggregateRoot> void addAggregateType(Class<T> aggregateType) {
         removeAggregateType(aggregateType);
 
@@ -262,10 +254,7 @@ public class HzAxonEngine implements IHzAxonEngine {
         );
     }
 
-    /**
-     *
-     * @param aggregateType
-     */
+    @Override
     public void removeAggregateType(Class<? extends EventSourcedAggregateRoot> aggregateType) {
         if(m_aggregates.containsKey(aggregateType)) {
             AggregateSubscription subscription = m_aggregates.get(aggregateType);

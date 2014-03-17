@@ -6,6 +6,10 @@ project.ext {
 dependencies {
     compile project(':axon-hazelcast')
     compile project(':axon-chronicle')
+
+    compile "com.hazelcast:hazelcast:$hazelcastVersion"
+    compile "com.hazelcast:hazelcast-spring:$hazelcastVersion"
+    compile "org.springframework:spring-context:$springVersion"
 }
 
 jar {
@@ -21,7 +25,21 @@ jar {
 
 task axonHzSimpleApp(dependsOn: classes) << {
     javaexec {
-        main = 'org.axonframework.ext.hazelcast.samples.SimpleApp'
+        main = 'org.axonframework.ext.hazelcast.samples.queue.SimpleApp'
+        classpath = project.runtimeClasspath
+    }
+}
+
+task axonHzEngine(dependsOn: classes) << {
+    javaexec {
+        main = 'org.axonframework.ext.hazelcast.samples.executor.AxonNode'
+        classpath = project.runtimeClasspath
+    }
+}
+
+task axonHzProcessor(dependsOn: classes) << {
+    javaexec {
+        main = 'org.axonframework.ext.hazelcast.samples.executor.AxonNodeProcessor'
         classpath = project.runtimeClasspath
     }
 }

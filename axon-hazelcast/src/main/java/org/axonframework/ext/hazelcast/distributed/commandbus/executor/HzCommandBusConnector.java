@@ -21,6 +21,7 @@ import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.CommandMessage;
+import org.axonframework.ext.hazelcast.HzConstants;
 import org.axonframework.ext.hazelcast.IHzProxy;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
@@ -89,6 +90,11 @@ public class HzCommandBusConnector implements IHzCommandBusConnector {
     @Override
     public <R> void send(String routingKey, CommandMessage<?> command, CommandCallback<R> callback) throws Exception {
         try {
+            // put a key as placeholder
+            m_proxy.getMap(HzConstants.REG_AGGREGATES).put(
+                routingKey,
+                m_proxy.getNodeName());
+
             Future<HzCommandReply> fr = m_executor.submitToKeyOwner(
                 new HzCommandTask(new HzCommand(m_nodeName,command,true)),
                 routingKey);
@@ -97,8 +103,12 @@ public class HzCommandBusConnector implements IHzCommandBusConnector {
 
             if(callback != null) {
                 if(reply.isSuccess()) {
+                    LOGGER.debug("HzCommandReply.CommandId {}",reply.getCommandId());
+                    LOGGER.debug("HzCommandReply.NodeName  {}",reply.getNodeName());
                     callback.onSuccess((R)reply.getReturnValue());
                 } else {
+                    LOGGER.debug("HzCommandReply.CommandId {}",reply.getCommandId());
+                    LOGGER.debug("HzCommandReply.NodeName  {}",reply.getNodeName());
                     callback.onFailure(reply.getError());
                 }
             }

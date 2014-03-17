@@ -32,6 +32,7 @@ subprojects {
     project.ext.commonsBeanutilsVersion   = '1.8.3'
     project.ext.commonsCollectionsVersion = '3.2.1'
     project.ext.javaxCacheVersion         = '0.5' //''1.0.0-RC1'
+    project.ext.springVersion             = '3.1.0.RELEASE'
 
     repositories {
         mavenCentral()

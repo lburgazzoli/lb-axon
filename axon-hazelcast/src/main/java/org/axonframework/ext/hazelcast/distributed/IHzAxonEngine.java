@@ -1,6 +1,8 @@
 package org.axonframework.ext.hazelcast.distributed;
 
 import org.axonframework.commandhandling.CommandCallback;
+import org.axonframework.eventhandling.EventListener;
+import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
 
@@ -11,6 +13,16 @@ import java.util.concurrent.TimeUnit;
  * @author lburgazzoli
  */
 public interface IHzAxonEngine {
+    /**
+     *
+     */
+    public void init();
+
+    /**
+     *
+     */
+    public void destroy();
+
     /**
      *
      * @param command
@@ -49,4 +61,40 @@ public interface IHzAxonEngine {
      * @return
      */
     public Future<HzCommandReply> dispatch(final HzCommand command);
+
+    /**
+     *
+     * @param eventHandler
+     */
+    public void addEventHandler(Object eventHandler);
+
+    /**
+     *
+     * @param eventHandler
+     */
+    public void removeEventHandler(Object eventHandler);
+
+    /**
+     *
+     * @param eventListener
+     */
+    public void addEventListener(EventListener eventListener);
+
+    /**
+     *
+     * @param eventListener
+     */
+    public void removeEventListener(EventListener eventListener) ;
+
+    /**
+     *
+     * @param aggregateType
+     */
+    public <T extends EventSourcedAggregateRoot> void addAggregateType(Class<T> aggregateType);
+
+    /**
+     *
+     * @param aggregateType
+     */
+    public void removeAggregateType(Class<? extends EventSourcedAggregateRoot> aggregateType);
 }

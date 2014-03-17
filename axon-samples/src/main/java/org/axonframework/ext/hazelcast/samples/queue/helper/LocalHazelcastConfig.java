@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.samples.helper;
+package org.axonframework.ext.hazelcast.samples.queue.helper;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.axonframework.ext.eventstore.chronicle.ChronicleEventStore;
+import com.hazelcast.config.Config;
 
 /**
  *
  */
-public class ChronicleEventStoreHelper {
-    /**
-     * @return
-     */
-    public static ChronicleEventStore defaultEventStore() {
-        String basePath = FilenameUtils.concat(
-            FileUtils.getTempDirectoryPath(),
-            "chronicle/axon-evt-store");
+public class LocalHazelcastConfig extends Config {
 
-        return new ChronicleEventStore(basePath);
+    /**
+     * c-tor
+     */
+    public LocalHazelcastConfig() {
+        super.setProperty("hazelcast.logging.type","slf4j");
+        super.getNetworkConfig().setPortAutoIncrement(false);
+        super.getNetworkConfig().getInterfaces().setEnabled(false);
+        super.getNetworkConfig().getJoin().getAwsConfig().setEnabled(false);
+        super.getNetworkConfig().getJoin().getMulticastConfig().setEnabled(false);
+        super.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(false);
     }
 }

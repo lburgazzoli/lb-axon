@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.samples;
+package org.axonframework.ext.hazelcast.samples.queue;
 
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
@@ -25,9 +25,7 @@ import org.axonframework.eventhandling.ClusteringEventBus;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
-import org.axonframework.ext.eventstore.chronicle.ChronicleEventStore;
-import org.axonframework.ext.hazelcast.samples.helper.*;
-import org.axonframework.ext.hazelcast.store.HzEventStore;
+import org.axonframework.ext.hazelcast.samples.queue.helper.*;
 import org.axonframework.ext.repository.DisruptorRepositoryFactory;
 import org.axonframework.ext.repository.EventSourcingRepositoryFactory;
 import org.axonframework.ext.repository.IRepositoryFactory;

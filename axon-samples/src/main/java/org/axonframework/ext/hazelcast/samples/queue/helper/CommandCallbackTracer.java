@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.samples.helper;
+package org.axonframework.ext.hazelcast.samples.queue.helper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

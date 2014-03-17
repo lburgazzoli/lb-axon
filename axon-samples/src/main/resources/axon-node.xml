@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:hz="http://www.hazelcast.com/schema/spring"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+            http://www.hazelcast.com/schema/spring
+            http://www.hazelcast.com/schema/spring/hazelcast-spring-3.0.xsd">
+
+    <!-- ******************************************************************* -->
+    <!--                                                                     -->
+    <!-- ******************************************************************* -->
+
+    <hz:hazelcast id="axon-hz-node">
+        <hz:config>
+            <hz:group name="axon-cluster" password="password"/>
+            <hz:properties>
+                <hz:property name="hazelcast.logging.type">slf4j</hz:property>
+                <hz:property name="hazelcast.jmx">false</hz:property>
+            </hz:properties>
+            <hz:network port="5701" port-auto-increment="true">
+                <hz:join>
+                    <hz:multicast enabled="true"/>
+                    <hz:tcp-ip enabled="false"/>
+                </hz:join>
+            </hz:network>
+        </hz:config>
+
+    </hz:hazelcast>
+
+    <!-- ******************************************************************* -->
+    <!--                                                                     -->
+    <!-- ******************************************************************* -->
+
+    <bean id="axon-hz-proxy" class="org.axonframework.ext.hazelcast.HzProxy">
+        <constructor-arg ref="axon-hz-node"/>
+        <property name="distributedObjectNamePrefix" value="axon"/>
+    </bean>
+
+    <bean id             = "axon-engine"
+          class          = "org.axonframework.ext.hazelcast.distributed.HzAxonEngine"
+          init-method    = "init"
+          destroy-method = "destroy">
+        <constructor-arg value="axon-node"/>
+        <constructor-arg ref  ="axon-hz-proxy"/>
+    </bean>
+
+</beans>

@@ -26,7 +26,7 @@ import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.SimpleEventBus;
 import org.axonframework.eventsourcing.GenericAggregateFactory;
 import org.axonframework.eventstore.EventStore;
-import org.axonframework.ext.hazelcast.samples.helper.MemoryEventStore;
+import org.axonframework.ext.hazelcast.samples.queue.helper.MemoryEventStore;
 import org.axonframework.ext.hazelcast.samples.model.DataItem;
 import org.axonframework.ext.hazelcast.samples.model.DataItemCmd;
 import org.axonframework.serializer.xml.XStreamSerializer;
