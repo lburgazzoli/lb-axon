@@ -25,7 +25,7 @@ public class HzTestBase {
         cfg.getNetworkConfig().getJoin().getTcpIpConfig().setEnabled(false);
 
         HzProxy hxPx = new HzProxy(cfg);
-        hxPx.setDistributedObjectNamePrefix("axon");
+        hxPx.setPrefix("axon");
 
         return hxPx;
     }

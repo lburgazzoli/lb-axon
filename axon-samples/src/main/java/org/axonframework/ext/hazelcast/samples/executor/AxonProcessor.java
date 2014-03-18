@@ -15,10 +15,11 @@
  */
 package org.axonframework.ext.hazelcast.samples.executor;
 
+import com.hazelcast.core.IMap;
+import org.axonframework.ext.hazelcast.HzConstants;
+import org.axonframework.ext.hazelcast.IHzProxy;
 import org.axonframework.ext.hazelcast.distributed.IHzAxonEngine;
 import org.axonframework.ext.hazelcast.samples.model.DataItem;
-import org.axonframework.ext.hazelcast.samples.model.DataItemCmd;
-import org.axonframework.ext.hazelcast.samples.queue.helper.CommandCallbackTracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -27,43 +28,42 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 /**
  *
  */
-public class AxonNode {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AxonNode.class);
+public class AxonProcessor {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AxonProcessor.class);
 
     // *************************************************************************
     //
     // *************************************************************************
 
     public static void main(String[] args) {
+        System.setProperty("hazelcast.logging.type","slf4j");
+        System.setProperty("hazelcast.jmx","false");
+
         ConfigurableApplicationContext context = null;
         IHzAxonEngine engine = null;
+        IHzProxy proxy = null;
 
         try {
-            context = new ClassPathXmlApplicationContext("axon-node.xml");
+            context = new ClassPathXmlApplicationContext("axon-processor.xml");
+
+            proxy = context.getBean("axon-hz-proxy",IHzProxy.class);
 
             engine = context.getBean("axon-engine",IHzAxonEngine.class);
             engine.addAggregateType(DataItem.class);
 
-            for(int n=0;n<3;n++) {
-                for(int i=0;i<3;i++) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                    }
-                    engine.send(
-                        new DataItemCmd.Create(
-                            String.format("k_%03d",i),
-                            String.format("d_%03d",i)
-                        ),
-                        new CommandCallbackTracer<>(LOGGER)
-                    );
-                }
-            }
-
             try {
-                LOGGER.debug("sleep...");
-                Thread.sleep(5000);
+                for(int i=0;i<10000;i++) {
+                    LOGGER.debug("Sleep");
+
+                    IMap<String,String> map = proxy.getMap(HzConstants.REG_AGGREGATES);
+                    for(String key : map.localKeySet()) {
+                        LOGGER.debug("Local Key : {}",key);
+                    }
+
+                    Thread.sleep(5000);
+                }
             } catch (InterruptedException e) {
+                LOGGER.warn("InterruptedException", e);
             }
 
         } catch(Exception e) {

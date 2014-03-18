@@ -64,7 +64,7 @@ public class SimpleApp {
         HzEventBusTerminal evtBusTer = new HzEventBusTerminal(proxy);
         evtBusTer.setPublisher(new PackageNamePublisher());
         evtBusTer.setSubscriber(new DynamicSubscriber(
-            proxy.getDistributedObjectName("org.axonframework.ext.hazelcast.samples.model.*"))
+            proxy.getPrefix("org.axonframework.ext.hazelcast.samples.model.*"))
         );
 
         CommandBus         cmdBus       = null;
@@ -206,7 +206,7 @@ public class SimpleApp {
 
     public static void main(String[] args) {
         HzProxy hxPx = new HzProxy(new LocalHazelcastConfig());
-        hxPx.setDistributedObjectNamePrefix("axon");
+        hxPx.setPrefix("axon");
         hxPx.init();
 
         AxonService svc = newAxonService(hxPx,true,"main");

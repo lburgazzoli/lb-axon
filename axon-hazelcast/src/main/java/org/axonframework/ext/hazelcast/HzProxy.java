@@ -28,22 +28,31 @@ import java.util.Collection;
  *
  */
 public class HzProxy implements IHzProxy {
-    private static final Logger LOGGER =
-        LoggerFactory.getLogger(HzProxy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HzProxy.class);
 
-    private final Config m_config;
     private final boolean m_shutdownInstance;
     private final boolean m_sharedInstance;
-    private HazelcastInstance m_instance;
-    private String m_distributedObjectNamePrefix;
+    private final HazelcastInstance m_instance;
+    private String m_prefix;
+    private String m_groupName;
+    private String m_nodeName;
 
     /**
      * c-tor
      *
      * @param instance
      */
-    public HzProxy(HazelcastInstance instance) {
+    public HzProxy(final HazelcastInstance instance) {
        this(instance,false);
+    }
+
+    /**
+     * c-tor
+     *
+     * @param config
+     */
+    public HzProxy(final Config config) {
+        this(Hazelcast.newHazelcastInstance(config),true);
     }
 
     /**
@@ -52,25 +61,13 @@ public class HzProxy implements IHzProxy {
      * @param instance
      * @param shutdownInstance
      */
-    public HzProxy(HazelcastInstance instance,boolean shutdownInstance) {
+    public HzProxy(final HazelcastInstance instance,boolean shutdownInstance) {
         m_instance = instance;
         m_shutdownInstance = shutdownInstance;
         m_sharedInstance = true;
-        m_config = m_instance.getConfig();
-        m_distributedObjectNamePrefix = null;
-    }
-
-    /**
-     * c-tor
-     *
-     * @param config
-     */
-    public HzProxy(Config config) {
-        m_instance = null;
-        m_shutdownInstance = true;
-        m_sharedInstance = false;
-        m_config = config;
-        m_distributedObjectNamePrefix = null;
+        m_prefix = null;
+        m_groupName = null;
+        m_nodeName = null;
     }
 
     // *************************************************************************
@@ -79,10 +76,10 @@ public class HzProxy implements IHzProxy {
 
     /**
      *
-     * @param distributedObjectNamePrefix
+     * @param prefix
      */
-    public void setDistributedObjectNamePrefix(String distributedObjectNamePrefix) {
-        m_distributedObjectNamePrefix = distributedObjectNamePrefix;
+    public void setPrefix(String prefix) {
+        m_prefix = prefix;
     }
 
     /**
@@ -90,10 +87,10 @@ public class HzProxy implements IHzProxy {
      * @param name
      * @return
      */
-    public String getDistributedObjectName(String name) {
-        return StringUtils.isEmpty(m_distributedObjectNamePrefix)
+    public String getPrefix(String name) {
+        return StringUtils.isEmpty(m_prefix)
              ? name
-             : m_distributedObjectNamePrefix + ":" + name;
+             : m_prefix + ":" + name;
     }
 
     // *************************************************************************
@@ -104,27 +101,15 @@ public class HzProxy implements IHzProxy {
      *
      */
     public void init() {
-        if(m_instance == null) {
-            if(m_config != null) {
-                m_instance = Hazelcast.newHazelcastInstance(m_config);
-            } else {
-                m_instance = Hazelcast.newHazelcastInstance();
-            }
-        }
     }
 
     /**
      *
      */
     public void destroy() {
-        if(m_instance != null && m_shutdownInstance == true) {
-            LOGGER.debug("Destroying instance {}", m_instance);
-
+        if(m_shutdownInstance == true) {
+            LOGGER.debug("Shutdown instance {}", m_instance);
             m_instance.getLifecycleService().shutdown();
-
-            if(!m_sharedInstance) {
-                m_instance = null;
-            }
         }
     }
 
@@ -132,14 +117,34 @@ public class HzProxy implements IHzProxy {
     // IHzProxy
     // *************************************************************************
 
+    /**
+     *
+     * @param groupName
+     */
+    public void setGroupName(String groupName) {
+        m_groupName = groupName;
+    }
+
     @Override
-    public String getClusterName() {
-        return m_instance.getConfig().getGroupConfig().getName();
+    public String getGroupName() {
+        return StringUtils.isNoneBlank(m_groupName)
+             ? m_groupName
+             : m_instance.getConfig().getGroupConfig().getName();
+    }
+
+    /**
+     *
+     * @param nodeName
+     */
+    public void setNodeName(String nodeName) {
+        m_nodeName = nodeName;
     }
 
     @Override
     public String getNodeName() {
-        return m_instance.getCluster().getLocalMember().getUuid();
+        return StringUtils.isNoneBlank(m_nodeName)
+             ? m_nodeName
+             : m_instance.getCluster().getLocalMember().getUuid();
     }
 
     @Override
@@ -154,35 +159,35 @@ public class HzProxy implements IHzProxy {
 
     @Override
     public <K,V> IMap<K,V> getMap(String name) {
-        return m_instance.getMap(getDistributedObjectName(name));
+        return m_instance.getMap(getPrefix(name));
     }
 
     @Override
     public <K,V> MultiMap<K,V> getMultiMap(String name) {
-        return  m_instance.getMultiMap(getDistributedObjectName(name));
+        return  m_instance.getMultiMap(getPrefix(name));
     }
 
     @Override
     public <T> IList<T> getList(String name) {
-        return  m_instance.getList(getDistributedObjectName(name));
+        return  m_instance.getList(getPrefix(name));
     }
 
     public <T> IQueue<T> getQueue(String name) {
-        return  m_instance.getQueue(getDistributedObjectName(name));
+        return  m_instance.getQueue(getPrefix(name));
     }
 
     @Override
     public ILock getLock(String name) {
-        return m_instance.getLock(getDistributedObjectName(name));
+        return m_instance.getLock(getPrefix(name));
     }
 
     @Override
     public <T> ITopic<T> getTopic(String name) {
-        return m_instance.getTopic(getDistributedObjectName(name));
+        return m_instance.getTopic(getPrefix(name));
     }
 
     public IExecutorService getExecutorService(String name) {
-        return m_instance.getExecutorService(getDistributedObjectName(name));
+        return m_instance.getExecutorService(getPrefix(name));
     }
 
     @Override

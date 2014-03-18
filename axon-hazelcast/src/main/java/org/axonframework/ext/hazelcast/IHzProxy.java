@@ -28,7 +28,7 @@ public interface IHzProxy {
      *
      * @return
      */
-    public String getClusterName();
+    public String getGroupName();
 
     /**
      *

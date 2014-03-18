@@ -27,7 +27,7 @@ import java.util.concurrent.Callable;
  *
  */
 public abstract class HzEngineTask<T> implements HazelcastInstanceAware, Serializable, Callable<T> {
-    private HazelcastInstance m_instance;
+    private transient HazelcastInstance m_instance;
 
     /**
      * c-tor

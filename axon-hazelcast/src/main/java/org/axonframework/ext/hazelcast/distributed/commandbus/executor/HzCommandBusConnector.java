@@ -113,7 +113,7 @@ public class HzCommandBusConnector implements IHzCommandBusConnector {
                 }
             }
         } catch(Exception e) {
-            m_logger.warn("Exception,e");
+            m_logger.warn("Exception",e);
             throw e;
         }
     }

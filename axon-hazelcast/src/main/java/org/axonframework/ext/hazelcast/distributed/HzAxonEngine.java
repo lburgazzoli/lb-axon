@@ -317,7 +317,7 @@ public class HzAxonEngine implements IHzAxonEngine {
             m_connector = new HzCommandBusConnector(
                 m_hz,
                 new SimpleCommandBus(),
-                m_hz.getClusterName(),
+                m_hz.getGroupName(),
                 m_nodeName);
 
             m_connector.open();
