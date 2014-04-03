@@ -18,31 +18,30 @@ package org.axonframework.ext.hazelcast.store;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  *
  */
 public class HzDomainEventStream implements DomainEventStream {
 
+    private final static HzDomainEventKey[] EMPTY_KEY_ARR = new HzDomainEventKey[]{};
+
     private int m_nextIndex;
-    private final Long[] m_keys;
-    private final Map<Long,HzDomainEventMessage> m_data;
+    private final HzDomainEventKey[] m_keys;
+    private final Map<HzDomainEventKey,HzDomainEventMessage> m_data;
 
     /**
      * c-tor
      *
      * @param data
      */
-    public HzDomainEventStream(Map<Long,HzDomainEventMessage> data) {
+    public HzDomainEventStream(Map<HzDomainEventKey,HzDomainEventMessage> data) {
         m_data      = data;
-        m_keys      = new TreeSet<Long>(m_data.keySet()).toArray(new Long[]{});
+        m_keys      = new TreeSet<HzDomainEventKey>(m_data.keySet()).toArray(EMPTY_KEY_ARR);
         m_nextIndex = 0;
 
-        Arrays.sort(m_keys);
+        //Arrays.sort(m_keys);
     }
 
     @Override

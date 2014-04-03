@@ -18,7 +18,6 @@ package org.axonframework.ext.hazelcast.store;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.ext.eventstore.AbstractDomainEventStore;
-import org.axonframework.ext.hazelcast.HzConstants;
 import org.axonframework.ext.hazelcast.IHzProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +32,7 @@ public class HzDomainEventStore extends AbstractDomainEventStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(HzDomainEventStore.class);
 
     private final IHzProxy m_hazelcastManager;
-    private final Map<Long,HzDomainEventMessage> m_storage;
+    private final Map<HzDomainEventKey,HzDomainEventMessage> m_storage;
 
     /**
      * c-tor
@@ -68,7 +67,7 @@ public class HzDomainEventStore extends AbstractDomainEventStore {
     @Override
     @SuppressWarnings("unchecked")
     public void add(DomainEventMessage message) {
-        m_storage.put(message.getSequenceNumber(),new HzDomainEventMessage(message));
+        m_storage.put(new HzDomainEventKey(message),new HzDomainEventMessage(message));
     }
 
     @Override

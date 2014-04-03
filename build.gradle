@@ -10,8 +10,8 @@ subprojects {
 
     version             = '1.0.0.SNAPSHOT'
     group               = 'com.github.lburgazzoli'
-    sourceCompatibility = '1.7'
-    targetCompatibility = '1.7'
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
 
     project.ext.slf4jVersion              = '1.7.5'
     project.ext.log4jVersion              = '1.2.17'
@@ -19,19 +19,19 @@ subprojects {
     project.ext.jacksonAnnotationsVersion = '2.3.2'
     project.ext.openhftLangVersion        = '6.1.4'
     project.ext.openhftChronicleVersion   = '2.0.3'
-    project.ext.hazelcastVersion          = '3.1.6'
+    project.ext.hazelcastVersion          = '3.2'
     project.ext.osgiVersion               = '5.0.0'
-    project.ext.guavaVersion              = '15.0'
-    project.ext.axonVersion               = '2.1.1'
+    project.ext.guavaVersion              = '16.0.1'
+    project.ext.axonVersion               = '2.1.2'
     project.ext.junitVersion              = '4.11'
     project.ext.felixVersion              = '4.2.1'
     project.ext.paxExamVersion            = '3.4.0'
     project.ext.paxUrlVersion             = '1.6.0'
     project.ext.jgroupsVersion            = '3.4.2.Final'
-    project.ext.commonsLangVersion        = '3.2.1'
-    project.ext.commonsBeanutilsVersion   = '1.8.3'
-    project.ext.commonsCollectionsVersion = '3.2.1'
-    project.ext.javaxCacheVersion         = '0.5' //''1.0.0-RC1'
+    project.ext.commonsLangVersion        = '3.3.1'
+    project.ext.commonsBeanutilsVersion   = '1.9.1'
+    project.ext.commonsCollectionsVersion = '4.0'
+    project.ext.javaxCacheVersion         = '1.0.0'
     project.ext.springVersion             = '3.1.0.RELEASE'
 
     repositories {
@@ -41,6 +41,7 @@ subprojects {
 
     dependencies {
         compile "org.apache.commons:commons-lang3:$commonsLangVersion"
+        compile "org.apache.commons:commons-collections4:$commonsCollectionsVersion"
         compile "commons-beanutils:commons-beanutils:$commonsBeanutilsVersion"
         compile "org.slf4j:slf4j-api:$slf4jVersion"
         compile "org.slf4j:slf4j-ext:$slf4jVersion"
@@ -107,6 +108,6 @@ subprojects {
 // *****************************************************************************
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.9'
+    gradleVersion = '1.11'
 }
 

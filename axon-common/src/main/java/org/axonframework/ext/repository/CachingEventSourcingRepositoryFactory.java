@@ -15,12 +15,14 @@
  */
 package org.axonframework.ext.repository;
 
+import org.axonframework.cache.Cache;
 import org.axonframework.eventhandling.EventBus;
-import org.axonframework.eventsourcing.*;
+import org.axonframework.eventsourcing.AggregateFactory;
+import org.axonframework.eventsourcing.CachingEventSourcingRepository;
+import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
+import org.axonframework.eventsourcing.GenericAggregateFactory;
 import org.axonframework.eventstore.EventStore;
 import org.axonframework.repository.Repository;
-
-import javax.cache.Cache;
 
 /**
  *
