@@ -15,8 +15,8 @@
  */
 package org.axonframework.ext.eventstore.chronicle;
 
+import net.openhft.chronicle.Chronicle;
 import net.openhft.chronicle.ExcerptTailer;
-import net.openhft.chronicle.IndexedChronicle;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
@@ -28,18 +28,19 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class ChronicleDomainEventReader implements DomainEventStream {
+public class ChronicleDomainEventReader<T> implements DomainEventStream {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleDomainEventReader.class);
 
     private final Serializer m_serializer;
     private ExcerptTailer m_excerpt;
 
     /**
+     * c-tor
      *
-     * @param chronicle
-     * @param serializer
+     * @param chronicle   the Chronicle
+     * @param serializer  the DomainEventStream serializer
      */
-    public ChronicleDomainEventReader(IndexedChronicle chronicle, Serializer serializer) {
+    public ChronicleDomainEventReader(Chronicle chronicle, Serializer serializer) {
         m_serializer = serializer;
 
         try {
@@ -48,14 +49,6 @@ public class ChronicleDomainEventReader implements DomainEventStream {
             m_excerpt = null;
             LOGGER.warn("CreateTailer - Exception",e);
         }
-    }
-
-    /**
-     *
-     */
-    private ChronicleDomainEventReader() {
-        m_serializer = null;
-        m_excerpt = null;
     }
 
     // *************************************************************************
@@ -68,12 +61,12 @@ public class ChronicleDomainEventReader implements DomainEventStream {
     }
 
     @Override
-    public DomainEventMessage next() {
+    public DomainEventMessage<T> next() {
         return m_excerpt != null ? eventAt(m_excerpt.index()) : null;
     }
 
     @Override
-    public DomainEventMessage peek() {
+    public DomainEventMessage<T> peek() {
         return m_excerpt != null ? eventAt(m_excerpt.index()) : null;
     }
 
@@ -84,11 +77,11 @@ public class ChronicleDomainEventReader implements DomainEventStream {
     /**
      * TODO: check de-serialization
      *
-     * @param index
-     * @return
+     * @param index the Chronicle index to read
+     * @return the event at the given index
      */
-    private DomainEventMessage eventAt(long index) {
-        DomainEventMessage dem = null;
+    private DomainEventMessage<T> eventAt(long index) {
+        DomainEventMessage<T> dem = null;
 
         if(m_excerpt.index(index)) {
             int len = m_excerpt.readInt();
@@ -98,7 +91,7 @@ public class ChronicleDomainEventReader implements DomainEventStream {
 
             //TODO: check revision
             dem = m_serializer.deserialize(
-                new SimpleSerializedObject<byte[]>(
+                new SimpleSerializedObject<>(
                     buffer,
                     byte[].class,
                     DomainEventMessage.class.getName(),

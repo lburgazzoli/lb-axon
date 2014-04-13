@@ -10,8 +10,8 @@ subprojects {
 
     version             = '1.0.0.SNAPSHOT'
     group               = 'com.github.lburgazzoli'
-    sourceCompatibility = '1.7'
-    targetCompatibility = '1.7'
+    sourceCompatibility = '1.8'
+    targetCompatibility = '1.8'
 
     ext {
         slf4jVersion              = '1.7.5'

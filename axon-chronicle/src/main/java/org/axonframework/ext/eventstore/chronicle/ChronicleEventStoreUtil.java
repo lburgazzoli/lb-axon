@@ -29,9 +29,9 @@ public class ChronicleEventStoreUtil {
 
     /**
      *
-     * @param type
-     * @param identifier
-     * @return
+     * @param type        the type
+     * @param identifier  the identifier
+     * @return            the id
      */
     public static String getStorageIdentifier(String type,String identifier) {
         return String.format("%s-%s",
@@ -41,9 +41,9 @@ public class ChronicleEventStoreUtil {
 
     /**
      *
-     * @param type
-     * @param message
-     * @return
+     * @param type    the type
+     * @param message the message
+     * @return        the id
      */
     public static String getStorageIdentifier(String type, DomainEventMessage message) {
         return getStorageIdentifier(type, message.getAggregateIdentifier().toString());
@@ -51,8 +51,8 @@ public class ChronicleEventStoreUtil {
 
     /**
      *
-     * @param id
-     * @return
+     * @param id the id
+     * @return   the id
      */
     public static String safeIdentifier(String id) {
         try {
@@ -63,7 +63,9 @@ public class ChronicleEventStoreUtil {
     }
 
     /**
-     * @param path
+     * Delete IndexedChronicle data at JVM exit
+     *
+     * @param path the path
      */
     public static void deleteOnExit(String path) {
         new File(path + ".data" ).deleteOnExit();

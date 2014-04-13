@@ -16,7 +16,6 @@
 package org.axonframework.ext.hazelcast.samples.executor;
 
 import org.axonframework.ext.hazelcast.distributed.IHzAxonEngine;
-import org.axonframework.ext.hazelcast.samples.model.DataItem;
 import org.axonframework.ext.hazelcast.samples.model.DataItemCmd;
 import org.axonframework.ext.hazelcast.samples.queue.helper.CommandCallbackTracer;
 import org.slf4j.Logger;

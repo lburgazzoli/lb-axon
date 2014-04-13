@@ -23,7 +23,7 @@ import java.io.Closeable;
 /**
  * @author lburgazzoli
  */
-public interface CloseableDomainEventStore extends Closeable {
+public interface CloseableDomainEventStore<T> extends Closeable {
 
     /**
      *
@@ -58,7 +58,7 @@ public interface CloseableDomainEventStore extends Closeable {
      *
      * @param message
      */
-    public void add(DomainEventMessage message);
+    public void add(DomainEventMessage<T> message);
 
     /**
      *

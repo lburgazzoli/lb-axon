@@ -34,12 +34,12 @@ import java.util.Map;
 /**
  *
  */
-public class ChronicleEventStore extends AbstractEventStore {
+public class ChronicleEventStore<T> extends AbstractEventStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleEventStore.class);
 
     private final Serializer m_serializer;
     private final String m_basePath;
-    private final Map<String,CloseableDomainEventStore> m_domainEventStore;
+    private final Map<String,CloseableDomainEventStore<T>> m_domainEventStore;
 
     // *************************************************************************
     //
@@ -48,7 +48,7 @@ public class ChronicleEventStore extends AbstractEventStore {
     /**
      * c-tor
      *
-     * @param basePath
+     * @param basePath the Chronicle base path
      */
     public ChronicleEventStore(String basePath) {
         this(basePath,new XStreamSerializer());
@@ -57,8 +57,8 @@ public class ChronicleEventStore extends AbstractEventStore {
     /**
      * c-tor
      *
-     * @param basePath
-     * @param serializer
+     * @param basePath   the Chronicle base path
+     * @param serializer the DomainEventStream serializer
      */
     public ChronicleEventStore(String basePath,Serializer serializer) {
         m_basePath = basePath;
@@ -85,22 +85,23 @@ public class ChronicleEventStore extends AbstractEventStore {
     //
     // *************************************************************************
 
+    @SuppressWarnings("unchecked")
     @Override
     public void appendEvents(String type, DomainEventStream events) {
         int size = 0;
 
         String storageId = null;
-        CloseableDomainEventStore des = null;
+        CloseableDomainEventStore<T> des = null;
 
         while(events.hasNext()) {
-            DomainEventMessage dem = events.next();
+            DomainEventMessage<T> dem = events.next();
             if(size == 0) {
                 storageId = ChronicleEventStoreUtil.getStorageIdentifier(type, dem);
                 des  = m_domainEventStore.get(storageId);
 
                 if(des == null) {
                     // create a new DomainEventStore
-                    des = new ChronicleDomainEventStore(
+                    des = new ChronicleDomainEventStore<>(
                         m_serializer,
                         m_basePath,
                         storageId,
@@ -129,7 +130,7 @@ public class ChronicleEventStore extends AbstractEventStore {
     @Override
     public DomainEventStream readEvents(String type, Object identifier) {
         String mapId = ChronicleEventStoreUtil.getStorageIdentifier(type, identifier.toString());
-        CloseableDomainEventStore hdes = m_domainEventStore.get(mapId);
+        CloseableDomainEventStore<T> hdes = m_domainEventStore.get(mapId);
 
         if(hdes != null) {
             return hdes.getEventStream();

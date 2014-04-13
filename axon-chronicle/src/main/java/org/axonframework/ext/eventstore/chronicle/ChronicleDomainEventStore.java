@@ -16,6 +16,7 @@
 package org.axonframework.ext.eventstore.chronicle;
 
 
+import net.openhft.chronicle.Chronicle;
 import net.openhft.chronicle.IndexedChronicle;
 import org.apache.commons.io.FilenameUtils;
 import org.axonframework.domain.DomainEventMessage;
@@ -25,28 +26,28 @@ import org.axonframework.serializer.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
  *
  */
-public class ChronicleDomainEventStore extends AbstractDomainEventStore {
+public class ChronicleDomainEventStore<T> extends AbstractDomainEventStore<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleDomainEventStore.class);
 
     private final String m_basePath;
     private final Serializer m_serializer;
 
-    private IndexedChronicle m_chronicle;
-    private ChronicleDomainEventWriter m_writer;
+    private Chronicle m_chronicle;
+    private ChronicleDomainEventWriter<T> m_writer;
 
     /**
      * c-tor
      *
-     * @param basePath
-     * @param storageId
-     * @param aggregateType
-     * @param aggregateId
+     * @param serializer    the DomainEventStream serializer
+     * @param basePath      the Chronicle data path
+     * @param storageId     the Chronicle data name
+     * @param aggregateType the AggregateType
+     * @param aggregateId   the AggregateId
      */
     public ChronicleDomainEventStore(Serializer serializer,String basePath,String storageId, String aggregateType, String aggregateId) {
         super(storageId,aggregateType,aggregateId);
@@ -59,7 +60,7 @@ public class ChronicleDomainEventStore extends AbstractDomainEventStore {
 
             m_chronicle = new IndexedChronicle(dataPath);
             if(m_chronicle != null) {
-                m_writer = new ChronicleDomainEventWriter(m_chronicle,m_serializer);
+                m_writer = new ChronicleDomainEventWriter<>(m_chronicle,m_serializer);
             }
         } catch(Exception e) {
             //TODO: check what to do
@@ -86,7 +87,7 @@ public class ChronicleDomainEventStore extends AbstractDomainEventStore {
     }
 
     @Override
-    public void add(DomainEventMessage message) {
+    public void add(DomainEventMessage<T> message) {
         if(m_writer != null) {
             m_writer.write(message);
         }

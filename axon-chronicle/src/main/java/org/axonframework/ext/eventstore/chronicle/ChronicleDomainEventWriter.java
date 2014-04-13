@@ -15,8 +15,8 @@
  */
 package org.axonframework.ext.eventstore.chronicle;
 
+import net.openhft.chronicle.Chronicle;
 import net.openhft.chronicle.ExcerptAppender;
-import net.openhft.chronicle.IndexedChronicle;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.serializer.SerializedObject;
 import org.axonframework.serializer.Serializer;
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class ChronicleDomainEventWriter {
+public class ChronicleDomainEventWriter<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleDomainEventWriter.class);
 
     private final Serializer m_serializer;
@@ -35,9 +35,10 @@ public class ChronicleDomainEventWriter {
     /**
      * c-tor
      *
-     * @param serializer
+     * @param chronicle  the Chronicle
+     * @param serializer the DomainEventStream serializer
      */
-    public ChronicleDomainEventWriter(IndexedChronicle chronicle, Serializer serializer) {
+    public ChronicleDomainEventWriter(Chronicle chronicle, Serializer serializer) {
         m_serializer = serializer;
 
         try {
@@ -51,21 +52,16 @@ public class ChronicleDomainEventWriter {
     /**
      * TODO: check serialization
      *
-     * @param message
+     * @param message the mesage to persist
      */
-    public long write(DomainEventMessage message) {
+    public void write(DomainEventMessage<T> message) {
         if(m_excerpt != null) {
             SerializedObject<byte[]> data = m_serializer.serialize(message,byte[].class);
-            int len = data.getData().length;
 
-            m_excerpt.startExcerpt(4 + len);
-            m_excerpt.writeInt(len);
+            m_excerpt.startExcerpt(4 + data.getData().length);
+            m_excerpt.writeInt(data.getData().length);
             m_excerpt.write(data.getData());
             m_excerpt.finish();
-
-            return m_excerpt.lastWrittenIndex();
         }
-
-        return -1;
     }
 }

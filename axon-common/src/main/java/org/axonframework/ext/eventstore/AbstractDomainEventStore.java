@@ -20,7 +20,7 @@ import java.io.IOException;
 /**
  *
  */
-public abstract class AbstractDomainEventStore implements CloseableDomainEventStore {
+public abstract class AbstractDomainEventStore<T> implements CloseableDomainEventStore<T> {
     private final String m_aggregateType;
     private final String m_aggregateId;
     private final String m_storageId;
