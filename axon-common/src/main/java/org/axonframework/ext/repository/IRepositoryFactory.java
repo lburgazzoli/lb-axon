@@ -23,11 +23,13 @@ import org.axonframework.repository.Repository;
  */
 public interface IRepositoryFactory {
     /**
+     * Factory method
      *
-     * @param aggregateType
-     * @param <T>
-     * @return
+     * @param type the aggregate class
+     * @param <T>  the aggregate type
+     * @param <I>  the type of the identifier of the aggregate
+     * @return     a Repository instance
      */
-    public <T extends EventSourcedAggregateRoot> Repository<T> createRepository(
-        Class<T> aggregateType);
+    public <I, T extends EventSourcedAggregateRoot<I>> Repository<T> createRepository(
+        Class<T> type);
 }

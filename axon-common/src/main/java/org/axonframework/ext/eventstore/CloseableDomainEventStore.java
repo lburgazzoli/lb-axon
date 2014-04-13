@@ -56,7 +56,7 @@ public interface CloseableDomainEventStore<T> extends Closeable {
 
     /**
      *
-     * @param message
+     * @param message the event
      */
     public void add(DomainEventMessage<T> message);
 

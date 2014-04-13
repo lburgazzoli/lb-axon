@@ -28,9 +28,9 @@ public abstract class AbstractDomainEventStore<T> implements CloseableDomainEven
     /**
      * c-tor
      *
-     * @param storageId
-     * @param aggregateType
-     * @param aggregateId
+     * @param storageId      the storage id
+     * @param aggregateType  the aggregate type
+     * @param aggregateId    the aggregate id
      */
     public AbstractDomainEventStore(String storageId, String aggregateType, String aggregateId) {
         m_aggregateType = aggregateType;

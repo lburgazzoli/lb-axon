@@ -23,20 +23,21 @@ import org.axonframework.repository.Repository;
 /**
  *
  */
-public class DisruptorRepositoryFactory implements IRepositoryFactory {
+public class DisruptorRepositoryFactory<T> implements IRepositoryFactory {
 
     private DisruptorCommandBus m_cmdBus;
 
     /**
+     * c-tor
      *
-     * @param cmdBus
+     * @param cmdBus the command bus
      */
     public DisruptorRepositoryFactory(final DisruptorCommandBus cmdBus) {
         m_cmdBus = cmdBus;
     }
 
     @Override
-    public <T extends EventSourcedAggregateRoot> Repository<T> createRepository(Class<T> aggregateType) {
-        return m_cmdBus.createRepository(new GenericAggregateFactory<>(aggregateType));
+    public <I, T extends EventSourcedAggregateRoot<I>> Repository<T> createRepository(Class<T> type) {
+        return m_cmdBus.createRepository(new GenericAggregateFactory<>(type));
     }
 }

@@ -36,7 +36,7 @@ public class GuavaCache implements org.axonframework.cache.Cache {
     /**
      * c-tor
      *
-     * @param cacheName
+     * @param cacheName the cache name
      */
     public GuavaCache(String cacheName) {
         m_cacheName = cacheName;

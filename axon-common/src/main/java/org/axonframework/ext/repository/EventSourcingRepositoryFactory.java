@@ -24,7 +24,7 @@ import org.axonframework.repository.Repository;
 /**
  *
  */
-public class EventSourcingRepositoryFactory implements IRepositoryFactory {
+public class EventSourcingRepositoryFactory<T> implements IRepositoryFactory {
 
     private final EventBus m_evtBus;
     private final EventStore m_evtStore;
@@ -32,8 +32,8 @@ public class EventSourcingRepositoryFactory implements IRepositoryFactory {
     /**
      * c-tor
      *
-     * @param evtStore
-     * @param evtBus
+     * @param evtStore the event store
+     * @param evtBus   the event bus
      */
     public EventSourcingRepositoryFactory(final EventStore evtStore, final EventBus evtBus) {
         m_evtBus = evtBus;
@@ -41,8 +41,8 @@ public class EventSourcingRepositoryFactory implements IRepositoryFactory {
     }
 
     @Override
-    public <T extends EventSourcedAggregateRoot> Repository<T> createRepository(Class<T> aggregateType) {
-        EventSourcingRepository<T> repo = new EventSourcingRepository<>(aggregateType,m_evtStore);
+    public <I, T extends EventSourcedAggregateRoot<I>> Repository<T> createRepository(Class<T> type) {
+        EventSourcingRepository<T> repo = new EventSourcingRepository<>(type,m_evtStore);
         repo.setEventBus(m_evtBus);
 
         return repo;

@@ -25,13 +25,13 @@ import java.util.*;
  */
 public class AxonServiceLoader {
 
-    private static final Map<Class<?>,Set<Object>> SERVICES = Maps.newHashMap();
+    private static final Map<Class<?>,Set<Object>> SERVICES = Maps.newConcurrentMap();
 
     /**
      *
-     * @param type
-     * @param <T>
-     * @return
+     * @param type the service class
+     * @param <T>  the service type
+     * @return     the service iterator
      */
     public static <T> Iterator<T> iterator(final Class<T> type) {
         final Iterator<Object> localServiceIt = SERVICES.containsKey(type) ? SERVICES.get(type).iterator() : null;
@@ -59,23 +59,24 @@ public class AxonServiceLoader {
 
             @Override
             public void remove() {
+                throw new UnsupportedOperationException();
             }
         };
     }
 
     /**
      *
-     * @param type
-     * @param object
-     * @param <T>
+     * @param type     the service class
+     * @param instance the service instance
+     * @param <T>      the service type
      */
-    public static <T> void add(Class<T> type,T object) {
+    public static <T> void add(final Class<T> type,final T instance) {
         Set<Object> services = SERVICES.get(type);
         if(services == null) {
             services = Sets.newHashSet();
             SERVICES.put(type,services);
         }
 
-        services.add(object);
+        services.add(instance);
     }
 }
