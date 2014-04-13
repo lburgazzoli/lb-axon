@@ -1,11 +1,14 @@
-language: 
-  - java
-
-script: 
-  - ./gradlew clean
-  - ./gradlew compileJava
-  - ./gradlew :axon-chronicle:test
-  - ./gradlew :axon-hazelcast:test
-
+language:
+- java
+script:
+- "./gradlew clean"
+- "./gradlew compileJava"
+- "./gradlew :axon-chronicle:test"
+- "./gradlew :axon-hazelcast:test"
+- "./gradlew uploadArchives"
 jdk:
-  - oraclejdk8
+- oraclejdk8
+env:
+  global:
+  - secure: ZvfWAmpB64EaZ6QiQU23u0ce61e2e2BjC00k8JgLiufB6RJmlchzw4aFVUoXzhLu3l5Red6oQorlJeE2WHBw4AimsqvozlZHiWXm14Ncm3KDlBQmlc8tVNOmWlXfFeBBQsn8NjztQTTyW4YzB5O6QFzfbIUNTq/f7TN+9smV4wg=
+  - secure: BmjdSJNE5/GYawyPDJB0K3QkYKNp50mtY4CAeWKbdZQ99uA6RZ6QkOOpRbXd/OiTRwDUM5q0LGdYIkGhCG5op3IkXBV0tlhdmexpAyqvLdj/ITEi1NldjDgzPiuH+gXNg7A4F2rE3Jnqu9/ZWN5e97UyGSL66xam54X9A8bkKys=

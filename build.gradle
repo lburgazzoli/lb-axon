@@ -10,30 +10,49 @@ subprojects {
 
     version             = '1.0.0.SNAPSHOT'
     group               = 'com.github.lburgazzoli'
-    sourceCompatibility = '1.8'
-    targetCompatibility = '1.8'
+    sourceCompatibility = '1.7'
+    targetCompatibility = '1.7'
 
-    project.ext.slf4jVersion              = '1.7.5'
-    project.ext.log4jVersion              = '1.2.17'
-    project.ext.jacksonVersion            = '2.3.2'
-    project.ext.jacksonAnnotationsVersion = '2.3.2'
-    project.ext.openhftLangVersion        = '6.1.4'
-    project.ext.openhftChronicleVersion   = '2.0.3'
-    project.ext.hazelcastVersion          = '3.2'
-    project.ext.osgiVersion               = '5.0.0'
-    project.ext.guavaVersion              = '16.0.1'
-    project.ext.axonVersion               = '2.1.2'
-    project.ext.junitVersion              = '4.11'
-    project.ext.felixVersion              = '4.2.1'
-    project.ext.paxExamVersion            = '3.4.0'
-    project.ext.paxUrlVersion             = '1.6.0'
-    project.ext.jgroupsVersion            = '3.4.2.Final'
-    project.ext.commonsLangVersion        = '3.3.1'
-    project.ext.commonsBeanutilsVersion   = '1.9.1'
-    project.ext.commonsCollectionsVersion = '4.0'
-    project.ext.javaxCacheVersion         = '1.0.0'
-    project.ext.springVersion             = '3.1.0.RELEASE'
+    ext {
+        slf4jVersion              = '1.7.5'
+        log4jVersion              = '1.2.17'
+        jacksonVersion            = '2.3.2'
+        jacksonAnnotationsVersion = '2.3.2'
+        openhftLangVersion        = '6.1.4'
+        openhftChronicleVersion   = '2.0.3'
+        hazelcastVersion          = '3.2'
+        osgiVersion               = '5.0.0'
+        guavaVersion              = '16.0.1'
+        axonVersion               = '2.1.2'
+        junitVersion              = '4.11'
+        felixVersion              = '4.2.1'
+        paxExamVersion            = '3.4.0'
+        paxUrlVersion             = '1.6.0'
+        jgroupsVersion            = '3.4.2.Final'
+        commonsLangVersion        = '3.3.1'
+        commonsBeanutilsVersion   = '1.9.1'
+        commonsCollectionsVersion = '4.0'
+        javaxCacheVersion         = '1.0.0'
+        springVersion             = '3.1.0.RELEASE'
 
+        gradleVersion             = '1.11'
+        gradleScriptDir           = "${rootProject.projectDir}/gradle"
+            
+        if(project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePassword')) {
+            ciUsr = sonatypeUsername
+            ciPwd = sonatypePassword
+        } else {
+            ciUsr = "$System.env.CI_DEPLOY_USERNAME"
+            ciPwd = "$System.env.CI_DEPLOY_PASSWORD"
+        }
+        
+        prefix              = 'lb'
+        isReleaseVersion    = !version.endsWith("SNAPSHOT")
+        gitRoot             = "https://github.com/lburgazzoli"
+        gitProject          = "https://github.com/lburgazzoli/lb-axon"
+        deploySnapshot      = "https://oss.sonatype.org/content/repositories/snapshots"
+    }
+    
     repositories {
         mavenCentral()
         mavenLocal()
@@ -56,13 +75,13 @@ subprojects {
     }
 
     jar {
-        baseName = "${project.name}"
+        baseName = "${project.prefix}-${project.name}"
 
-        manifest.attributes['Bundle-Description'     ] = "lb :: ${project.name}"
-        manifest.attributes['Bundle-Name'            ] = "lb :: ${project.name}"
-        manifest.attributes['Bundle-SymbolicName'    ] = "${project.group}.${project.name}"
+        manifest.attributes['Bundle-Description'     ] = "${project.prefix} :: ${project.name}"
+        manifest.attributes['Bundle-Name'            ] = "${project.prefix} :: ${project.name}"
+        manifest.attributes['Bundle-SymbolicName'    ] = "${project.group}-${project.prefix}-${project.name}"
         manifest.attributes['Bundle-Version'         ] = project.version
-        manifest.attributes['Implementation-Title'   ] = "${project.group}-${project.name}-${project.version}"
+        manifest.attributes['Implementation-Title'   ] = "${project.group}-${project.prefix}-${project.name}-${project.version}"
         manifest.attributes['Implementation-Version' ] = project.version
         manifest.attributes['Implementation-Vendor'  ] = 'lb'
 
@@ -101,6 +120,67 @@ subprojects {
         "-Xlint:unchecked",
         "-Xlint:deprecation",
     ]
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from 'build/docs/javadoc'
+    }
+
+    task sourcesJar(type: Jar) {
+        from sourceSets.main.allSource
+        classifier = 'sources'
+    }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    artifacts {
+        archives jar
+        archives javadocJar
+        archives sourcesJar
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+
+                repository(url: deploySnapshot) {
+                    authentication(
+                        userName: "${project.ciUsr}",
+                        password: "${project.ciPwd}"
+                    )
+                }
+
+                pom {
+                    project {
+                        name          = "${project.prefix}-${project.name}"
+                        description   = "${project.prefix}-${project.name}"
+                        url           = "${project.gitProject}"
+                        packaging     = 'jar'
+
+                        licenses {
+                            license {
+                        	    name         = "The Apache Software License, Version 2.0"
+                        		url          = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+                        		distribution = "repo"
+                        	}
+                        }
+            
+                        scm {
+                            url                 = "${project.gitProject}"
+                            connection          = "scm:git:${project.gitProject}.git"
+                            developerConnection = "scm:git:${project.gitProject}.git"
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 // *****************************************************************************
