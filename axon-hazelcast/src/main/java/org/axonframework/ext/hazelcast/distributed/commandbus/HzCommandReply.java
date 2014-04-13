@@ -27,7 +27,7 @@ public class HzCommandReply extends HzCommandCommon {
     /**
      * c-tor
      *
-     * @oaram nodeName
+     * @param nodeName
      */
     public HzCommandReply(String nodeName) {
         this(nodeName,null,null,false);
@@ -36,7 +36,7 @@ public class HzCommandReply extends HzCommandCommon {
     /**
      * c-tor
      *
-     * @oaram nodeName
+     * @param nodeName
      * @param commandId
      * @param returnValue
      */
