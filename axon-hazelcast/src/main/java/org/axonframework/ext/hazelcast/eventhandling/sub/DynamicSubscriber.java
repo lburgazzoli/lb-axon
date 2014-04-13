@@ -20,10 +20,10 @@ import com.google.common.collect.Sets;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.DistributedObjectEvent;
 import com.hazelcast.core.DistributedObjectListener;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ITopic;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.domain.EventMessage;
-import org.axonframework.ext.hazelcast.IHzProxy;
 import org.axonframework.ext.hazelcast.eventhandling.HzEventBusTerminal;
 import org.axonframework.ext.hazelcast.eventhandling.IHzTopicSubscriber;
 import org.slf4j.Logger;
@@ -41,7 +41,7 @@ public class DynamicSubscriber implements IHzTopicSubscriber, DistributedObjectL
 
     private final Set<String> m_topicNames;
     private final Map<String,String> m_subKeys;
-    private IHzProxy m_proxy;
+    private HazelcastInstance m_hzInstance;
     private HzEventBusTerminal m_terminal;
 
     /**
@@ -49,7 +49,7 @@ public class DynamicSubscriber implements IHzTopicSubscriber, DistributedObjectL
      */
     public DynamicSubscriber() {
         m_topicNames = Sets.newHashSet();
-        m_proxy      = null;
+        m_hzInstance = null;
         m_terminal   = null;
         m_subKeys    = Maps.newHashMap();
     }
@@ -57,11 +57,11 @@ public class DynamicSubscriber implements IHzTopicSubscriber, DistributedObjectL
     /**
      * c-tor
      *
-     * @param topicNames
+     * @param topicNames the topic names
      */
     public DynamicSubscriber(String... topicNames) {
         m_topicNames = Sets.newHashSet(topicNames);
-        m_proxy      = null;
+        m_hzInstance = null;
         m_terminal   = null;
         m_subKeys    = Maps.newHashMap();
     }
@@ -69,25 +69,25 @@ public class DynamicSubscriber implements IHzTopicSubscriber, DistributedObjectL
     /**
      * c-tor
      *
-     * @param topicNames
+     * @param topicNames the topic names
      */
     public DynamicSubscriber(List<String> topicNames) {
         m_topicNames = Sets.newHashSet(topicNames);
-        m_proxy      = null;
+        m_hzInstance = null;
         m_terminal   = null;
         m_subKeys    = Maps.newHashMap();
     }
 
     @Override
-    public void subscribe(IHzProxy proxy,HzEventBusTerminal terminal) {
-        m_proxy    = proxy;
-        m_terminal = terminal;
+    public void subscribe(final HazelcastInstance hzInstance,final HzEventBusTerminal terminal) {
+        m_hzInstance = hzInstance;
+        m_terminal   = terminal;
 
-        if(m_terminal != null && m_proxy != null) {
-            m_proxy.getInstance().addDistributedObjectListener(this);
+        if(m_terminal != null && m_hzInstance != null) {
+            m_hzInstance.addDistributedObjectListener(this);
         }
 
-        for(DistributedObject object : m_proxy.getDistributedObjects()) {
+        for(DistributedObject object : m_hzInstance.getDistributedObjects()) {
             if(object instanceof ITopic) {
                 subscribeTopic(object);
             }
@@ -95,15 +95,15 @@ public class DynamicSubscriber implements IHzTopicSubscriber, DistributedObjectL
     }
 
     @Override
-    public void unsubscribe(IHzProxy proxy,HzEventBusTerminal terminal) {
-        for(DistributedObject object : m_proxy.getDistributedObjects()) {
+    public void unsubscribe(final HazelcastInstance hzInstance,final HzEventBusTerminal terminal) {
+        for(DistributedObject object : hzInstance.getDistributedObjects()) {
             if(object instanceof ITopic) {
                 unsubscribeTopic(object);
             }
         }
 
-        m_proxy    = null;
-        m_terminal = null;
+        m_hzInstance = null;
+        m_terminal   = null;
     }
 
     @Override
@@ -126,7 +126,7 @@ public class DynamicSubscriber implements IHzTopicSubscriber, DistributedObjectL
 
     /**
      *
-     * @param object
+     * @param object the objects
      */
     @SuppressWarnings("unchecked")
     private void subscribeTopic(DistributedObject object) {
@@ -143,7 +143,7 @@ public class DynamicSubscriber implements IHzTopicSubscriber, DistributedObjectL
 
     /**
      *
-     * @param object
+     * @param object the objects
      */
     @SuppressWarnings("unchecked")
     private void unsubscribeTopic(DistributedObject object) {

@@ -20,18 +20,12 @@ import org.axonframework.serializer.Revision;
 
 import java.io.Serializable;
 
-/**
- *
- */
 public class DataItemCmd {
 
     // *************************************************************************
     //
     // *************************************************************************
 
-    /**
-     *
-     */
     @Revision("1")
     public static final class Create implements Serializable {
 
@@ -39,29 +33,15 @@ public class DataItemCmd {
         private final String m_id;
         private final String m_text;
 
-        /**
-         * c-tor
-         *
-         * @param id
-         * @param text
-         */
         public Create(String id, String text) {
             m_id = id;
             m_text = text;
         }
 
-        /**
-         *
-         * @return
-         */
         public String getId() {
             return m_id;
         }
 
-        /**
-         *
-         * @return
-         */
         public String getText() {
             return m_text;
         }
@@ -81,29 +61,15 @@ public class DataItemCmd {
         private final String m_id;
         private final String m_text;
 
-        /**
-         * c-tor
-         *
-         * @param id
-         * @param text
-         */
         public Update(String id, String text) {
             m_id = id;
             m_text = text;
         }
 
-        /**
-         *
-         * @return
-         */
         public String getId() {
             return m_id;
         }
 
-        /**
-         *
-         * @return
-         */
         public String getText() {
             return m_text;
         }

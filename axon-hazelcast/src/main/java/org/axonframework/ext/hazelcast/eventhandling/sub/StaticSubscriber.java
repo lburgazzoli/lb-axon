@@ -17,10 +17,10 @@ package org.axonframework.ext.hazelcast.eventhandling.sub;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ITopic;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.domain.EventMessage;
-import org.axonframework.ext.hazelcast.IHzProxy;
 import org.axonframework.ext.hazelcast.eventhandling.HzEventBusTerminal;
 import org.axonframework.ext.hazelcast.eventhandling.IHzTopicSubscriber;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ public class StaticSubscriber implements IHzTopicSubscriber {
     }
 
     /**
-     * @param topicNames
+     * @param topicNames the topic names
      */
     public StaticSubscriber(String... topicNames) {
         m_topicNames = Sets.newHashSet(topicNames);
@@ -56,7 +56,7 @@ public class StaticSubscriber implements IHzTopicSubscriber {
     }
 
     /**
-     * @param topicNames
+     * @param topicNames the topic names
      */
     public StaticSubscriber(List<String> topicNames) {
         m_topicNames = Sets.newHashSet(topicNames);
@@ -65,7 +65,7 @@ public class StaticSubscriber implements IHzTopicSubscriber {
 
     /**
      *
-     * @param topics
+     * @param topics the topics
      */
     public void setTopicNames(List<String> topics) {
         m_topicNames.clear();
@@ -73,19 +73,19 @@ public class StaticSubscriber implements IHzTopicSubscriber {
     }
 
     @Override
-    public void subscribe(IHzProxy proxy,HzEventBusTerminal terminal) {
+    public void subscribe(final HazelcastInstance hzInstance, final HzEventBusTerminal terminal) {
         for(String topicName : m_topicNames) {
             LOGGER.debug("Subscribing to <{}>",topicName);
-            ITopic<EventMessage> topic = proxy.getTopic(topicName);
+            ITopic<EventMessage> topic = hzInstance.getTopic(topicName);
             m_subKeys.put(topicName, topic.addMessageListener(terminal));
         }
     }
 
     @Override
-    public void unsubscribe(IHzProxy proxy,HzEventBusTerminal terminal) {
+    public void unsubscribe(final HazelcastInstance hzInstance, final HzEventBusTerminal terminal) {
         for(String topicName : m_topicNames) {
             LOGGER.debug("Unsubscribing from <{}>",topicName);
-            ITopic<EventMessage> topic = proxy.getTopic(topicName);
+            ITopic<EventMessage> topic = hzInstance.getTopic(topicName);
 
             String key = m_subKeys.remove(topicName);
             if(StringUtils.isNotEmpty(key)) {

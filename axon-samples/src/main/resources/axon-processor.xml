@@ -52,8 +52,8 @@
         <property name="prefix" value="axon"/>
     </bean>
 
-    <bean id             = "axon-engine"
-          class          = "org.axonframework.ext.hazelcast.distributed.HzAxonEngine"
+    <bean id             = "axon-service"
+          class          = "org.axonframework.ext.hazelcast.samples.executor.AxonService"
           init-method    = "init"
           destroy-method = "destroy">
         <constructor-arg value="axon-node"/>

@@ -21,7 +21,7 @@ package org.axonframework.ext.hazelcast.distributed.commandbus;
 public interface IHzCommandHandler {
     /**
      *
-     * @param msg
+     * @param msg the command
      */
     public void onHzCommand(HzCommand msg);
 }

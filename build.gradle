@@ -37,7 +37,7 @@ subprojects {
 
         gradleVersion             = '1.11'
         gradleScriptDir           = "${rootProject.projectDir}/gradle"
-            
+
         if(project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePassword')) {
             ciUsr = sonatypeUsername
             ciPwd = sonatypePassword
@@ -45,7 +45,7 @@ subprojects {
             ciUsr = "$System.env.CI_DEPLOY_USERNAME"
             ciPwd = "$System.env.CI_DEPLOY_PASSWORD"
         }
-        
+
         prefix              = 'lb'
         isReleaseVersion    = !version.endsWith("SNAPSHOT")
         gitRoot             = "https://github.com/lburgazzoli"
@@ -170,7 +170,7 @@ subprojects {
                         		distribution = "repo"
                         	}
                         }
-            
+
                         scm {
                             url                 = "${project.gitProject}"
                             connection          = "scm:git:${project.gitProject}.git"

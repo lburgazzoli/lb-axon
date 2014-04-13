@@ -25,9 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 
-/**
- *
- */
 public class DataItem extends AbstractAnnotatedAggregateRoot implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(DataItem.class);
 
@@ -35,17 +32,11 @@ public class DataItem extends AbstractAnnotatedAggregateRoot implements Serializ
     private String m_id;
     private String m_text;
 
-    /**
-     * c-tor
-     */
     public DataItem() {
         m_id   = null;
         m_text = null;
     }
 
-    /**
-     * c-tor
-     */
     @CommandHandler
     public DataItem(DataItemCmd.Create command) {
         m_id   = null;

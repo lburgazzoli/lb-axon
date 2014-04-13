@@ -17,57 +17,66 @@ package org.axonframework.ext.hazelcast;
 
 import com.google.common.collect.Lists;
 import com.hazelcast.config.Config;
-import com.hazelcast.core.*;
+import com.hazelcast.core.ClientService;
+import com.hazelcast.core.Cluster;
+import com.hazelcast.core.DistributedObject;
+import com.hazelcast.core.DistributedObjectListener;
+import com.hazelcast.core.Endpoint;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IAtomicLong;
+import com.hazelcast.core.IAtomicReference;
+import com.hazelcast.core.ICountDownLatch;
+import com.hazelcast.core.IExecutorService;
+import com.hazelcast.core.IList;
+import com.hazelcast.core.ILock;
+import com.hazelcast.core.IMap;
+import com.hazelcast.core.IQueue;
+import com.hazelcast.core.ISemaphore;
+import com.hazelcast.core.ISet;
+import com.hazelcast.core.ITopic;
+import com.hazelcast.core.IdGenerator;
+import com.hazelcast.core.LifecycleService;
+import com.hazelcast.core.MultiMap;
+import com.hazelcast.core.PartitionService;
+import com.hazelcast.logging.LoggingService;
+import com.hazelcast.mapreduce.JobTracker;
+import com.hazelcast.transaction.TransactionContext;
+import com.hazelcast.transaction.TransactionException;
+import com.hazelcast.transaction.TransactionOptions;
+import com.hazelcast.transaction.TransactionalTask;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  *
  */
-public class HzProxy implements IHzProxy {
+public class HzProxy implements HazelcastInstance {
     private static final Logger LOGGER = LoggerFactory.getLogger(HzProxy.class);
 
-    private final boolean m_shutdownInstance;
-    private final boolean m_sharedInstance;
     private final HazelcastInstance m_instance;
     private String m_prefix;
-    private String m_groupName;
-    private String m_nodeName;
 
     /**
      * c-tor
      *
-     * @param instance
+     * @param instance the hazeclast instamce
      */
     public HzProxy(final HazelcastInstance instance) {
-       this(instance,false);
+        m_instance = instance;
     }
 
     /**
      * c-tor
      *
-     * @param config
+     * @param config the Hazelcast config
      */
     public HzProxy(final Config config) {
-        this(Hazelcast.newHazelcastInstance(config),true);
-    }
-
-    /**
-     * c-tor
-     *
-     * @param instance
-     * @param shutdownInstance
-     */
-    public HzProxy(final HazelcastInstance instance,boolean shutdownInstance) {
-        m_instance = instance;
-        m_shutdownInstance = shutdownInstance;
-        m_sharedInstance = true;
-        m_prefix = null;
-        m_groupName = null;
-        m_nodeName = null;
+        this(Hazelcast.newHazelcastInstance(config));
     }
 
     // *************************************************************************
@@ -76,7 +85,7 @@ public class HzProxy implements IHzProxy {
 
     /**
      *
-     * @param prefix
+     * @param prefix the name prefix
      */
     public void setPrefix(String prefix) {
         m_prefix = prefix;
@@ -84,8 +93,16 @@ public class HzProxy implements IHzProxy {
 
     /**
      *
-     * @param name
-     * @return
+     * @return the name prefix
+     */
+    public String getPrefix() {
+        return m_prefix;
+    }
+
+    /**
+     *
+     * @param name the name to prefix
+     * @return the prefix
      */
     public String getPrefix(String name) {
         return StringUtils.isEmpty(m_prefix)
@@ -97,30 +114,205 @@ public class HzProxy implements IHzProxy {
     //
     // *************************************************************************
 
-    /**
-     *
-     */
-    public void init() {
+    @Override
+    public String getName() {
+        return m_instance.getName();
     }
+
+    @Override
+    public <E> IQueue<E> getQueue(String name) {
+        return m_instance.getQueue(getPrefix(name));
+    }
+
+    @Override
+    public <E> ITopic<E> getTopic(String name) {
+        return m_instance.getTopic(getPrefix(name));
+    }
+
+    @Override
+    public <E> ISet<E> getSet(String name) {
+        return m_instance.getSet(getPrefix(name));
+    }
+
+    @Override
+    public <E> IList<E> getList(String name) {
+        return m_instance.getList(getPrefix(name));
+    }
+
+    @Override
+    public <K, V> IMap<K, V> getMap(String name) {
+        return m_instance.getMap(getPrefix(name));
+    }
+
+    @Override
+    public JobTracker getJobTracker(String name) {
+        return m_instance.getJobTracker(getPrefix(name));
+    }
+
+    @Override
+    public <K, V> MultiMap<K, V> getMultiMap(String name) {
+        return m_instance.getMultiMap(getPrefix(name));
+    }
+
+    @Override
+    public ILock getLock(String key) {
+        return m_instance.getLock(getPrefix(key));
+    }
+
+    @Deprecated
+    @Override
+    public ILock getLock(Object key) {
+        return m_instance.getLock(key);
+    }
+
+    @Override
+    public Cluster getCluster() {
+        return m_instance.getCluster();
+    }
+
+    @Override
+    public Endpoint getLocalEndpoint() {
+        return m_instance.getLocalEndpoint();
+    }
+
+    @Override
+    public IExecutorService getExecutorService(String name) {
+        return m_instance.getExecutorService(getPrefix(name));
+    }
+
+    @Override
+    public <T> T executeTransaction(TransactionalTask<T> task) throws TransactionException {
+        return m_instance.executeTransaction(task);
+    }
+
+    @Override
+    public <T> T executeTransaction(TransactionOptions options, TransactionalTask<T> task) throws TransactionException {
+        return m_instance.executeTransaction(options, task);
+    }
+
+    @Override
+    public TransactionContext newTransactionContext() {
+        return m_instance.newTransactionContext();
+    }
+
+    @Override
+    public TransactionContext newTransactionContext(TransactionOptions options) {
+        return m_instance.newTransactionContext(options);
+    }
+
+    @Override
+    public IdGenerator getIdGenerator(String name) {
+        return m_instance.getIdGenerator(getPrefix(name));
+    }
+
+    @Override
+    public IAtomicLong getAtomicLong(String name) {
+        return m_instance.getAtomicLong(getPrefix(name));
+    }
+
+    @Override
+    public <E> IAtomicReference<E> getAtomicReference(String name) {
+        return m_instance.getAtomicReference(getPrefix(name));
+    }
+
+    @Override
+    public ICountDownLatch getCountDownLatch(String name) {
+        return m_instance.getCountDownLatch(getPrefix(name));
+    }
+
+    @Override
+    public ISemaphore getSemaphore(String name) {
+        return m_instance.getSemaphore(getPrefix(name));
+    }
+
+    @Override
+    public Collection<DistributedObject> getDistributedObjects() {
+        return m_instance.getDistributedObjects();
+    }
+
+    @Override
+    public String addDistributedObjectListener(DistributedObjectListener distributedObjectListener) {
+        return m_instance.addDistributedObjectListener(distributedObjectListener);
+    }
+
+    @Override
+    public boolean removeDistributedObjectListener(String registrationId) {
+        return m_instance.removeDistributedObjectListener(registrationId);
+    }
+
+    @Override
+    public Config getConfig() {
+        return m_instance.getConfig();
+    }
+
+    @Override
+    public PartitionService getPartitionService() {
+        return m_instance.getPartitionService();
+    }
+
+    @Override
+    public ClientService getClientService() {
+        return m_instance.getClientService();
+    }
+
+    @Override
+    public LoggingService getLoggingService() {
+        return m_instance.getLoggingService();
+    }
+
+    @Override
+    public LifecycleService getLifecycleService() {
+        return m_instance.getLifecycleService();
+    }
+
+    @Deprecated
+    @Override
+    public <T extends DistributedObject> T getDistributedObject(String serviceName, Object id) {
+        return m_instance.getDistributedObject(serviceName, id);
+    }
+
+    @Override
+    public <T extends DistributedObject> T getDistributedObject(String serviceName, String name) {
+        return m_instance.getDistributedObject(serviceName, getPrefix(name));
+    }
+
+    @Override
+    public ConcurrentMap<String, Object> getUserContext() {
+        return m_instance.getUserContext();
+    }
+
+    @Override
+    public void shutdown() {
+        m_instance.shutdown();
+    }
+
+    // *************************************************************************
+    // Helpers
+    // *************************************************************************
 
     /**
      *
+     * @param type  the distributed object type
+     * @return      the distributed objects
      */
-    public void destroy() {
-        if(m_shutdownInstance == true) {
-            LOGGER.debug("Shutdown instance {}", m_instance);
-            m_instance.getLifecycleService().shutdown();
+    public Collection<DistributedObject> getDistributedObjects(Class<?> type) {
+        Collection<DistributedObject> rv = Lists.newArrayList();
+        for(DistributedObject object : m_instance.getDistributedObjects()) {
+            if(type == null) {
+                rv.add(object);
+            } else if(type.isAssignableFrom(object.getClass())) {
+                rv.add(object);
+            }
         }
+
+        return  rv;
     }
 
     // *************************************************************************
     // IHzProxy
     // *************************************************************************
 
-    /**
-     *
-     * @param groupName
-     */
+    /*
     public void setGroupName(String groupName) {
         m_groupName = groupName;
     }
@@ -132,10 +324,6 @@ public class HzProxy implements IHzProxy {
              : m_instance.getConfig().getGroupConfig().getName();
     }
 
-    /**
-     *
-     * @param nodeName
-     */
     public void setNodeName(String nodeName) {
         m_nodeName = nodeName;
     }
@@ -208,5 +396,6 @@ public class HzProxy implements IHzProxy {
 
         return  rv;
     }
+    */
 }
 

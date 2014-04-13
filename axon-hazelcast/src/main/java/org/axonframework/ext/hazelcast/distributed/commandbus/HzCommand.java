@@ -27,7 +27,7 @@ public class HzCommand extends HzCommandCommon {
     /**
      * c-tor
      *
-     * @param nodeName
+     * @param nodeName the node name
      */
     public HzCommand(String nodeName) {
         this(nodeName,null,false);
@@ -36,8 +36,8 @@ public class HzCommand extends HzCommandCommon {
     /**
      * c-tor
      *
-     * @param nodeName
-     * @param message
+     * @param nodeName the node name
+     * @param message  the command message
      */
     public HzCommand(String nodeName, CommandMessage<?> message) {
         this(nodeName,message,false);
@@ -46,9 +46,9 @@ public class HzCommand extends HzCommandCommon {
     /**
      * c-tor
      *
-     * @param nodeName
-     * @param message
-     * @param callback
+     * @param nodeName  the node name
+     * @param message   the comman message
+     * @param callback  the callback
      */
     public HzCommand(String nodeName, CommandMessage<?> message, boolean callback) {
         super(nodeName);
@@ -59,7 +59,7 @@ public class HzCommand extends HzCommandCommon {
 
     /**
      *
-     * @return
+     * @return the message
      */
     public CommandMessage<?> getMessage() {
         return m_message;
@@ -67,7 +67,7 @@ public class HzCommand extends HzCommandCommon {
 
     /**
      *
-     * @return
+     * @return true if a callback is required
      */
     public boolean isCallbackRequired() {
         return m_callback;

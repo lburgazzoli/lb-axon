@@ -20,68 +20,38 @@ import org.axonframework.serializer.Revision;
 
 import java.io.Serializable;
 
-/**
- *
- */
 public class DataItemEvt {
 
     // *************************************************************************
     //
     // *************************************************************************
 
-    /**
-     *
-     */
     private abstract static class AbstractEvent implements Serializable {
         private String m_id;
         private String m_text;
 
-        /**
-         *
-         */
         public AbstractEvent() {
             m_id = null;
             m_text = null;
         }
 
-        /**
-         *
-         * @param id
-         * @param text
-         */
         public AbstractEvent(String id,String text) {
             m_id   = id;
             m_text = text;
         }
 
-        /**
-         *
-         * @param id
-         */
         public void setId(String id) {
             m_id = id;
         }
 
-        /**
-         *
-         * @return
-         */
         public String getId() {
             return m_id;
         }
 
-        /**
-         *
-         * @param text
-         */
         public void setText(String text) {
             m_text = text;
         }
 
-        /**
-         *
-         * @return
-         */
         public String getText() {
             return m_text;
         }
@@ -99,25 +69,13 @@ public class DataItemEvt {
     //
     // *************************************************************************
 
-    /**
-     *
-     */
     @Revision("1")
     public static final class Create extends AbstractEvent implements Serializable {
 
-        /**
-         * c-tor
-         */
         public Create() {
             super();
         }
 
-        /**
-         * c-tor
-         *
-         * @param id
-         * @param text
-         */
         public Create(String id,String text) {
             super(id,text);
         }
@@ -127,25 +85,13 @@ public class DataItemEvt {
     //
     // *************************************************************************
 
-    /**
-     *
-     */
     @Revision("1")
     public static final class Update extends AbstractEvent implements Serializable {
 
-        /**
-         * c-tor
-         */
         public Update() {
             super();
         }
 
-        /**
-         * c-tor
-         *
-         * @param id
-         * @param text
-         */
         public Update(String id,String text) {
             super(id,text);
         }

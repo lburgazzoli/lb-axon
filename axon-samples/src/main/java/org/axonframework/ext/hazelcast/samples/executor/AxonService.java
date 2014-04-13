@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed;
+package org.axonframework.ext.hazelcast.samples.executor;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -38,10 +38,10 @@ import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
 import org.axonframework.ext.cache.GuavaCache;
 import org.axonframework.ext.hazelcast.HzConstants;
 import org.axonframework.ext.hazelcast.HzProxy;
-import org.axonframework.ext.hazelcast.IHzProxy;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
 import org.axonframework.ext.hazelcast.distributed.commandbus.executor.HzCommandBusConnector;
+import org.axonframework.ext.hazelcast.distributed.commandbus.executor.HzTaskDispatcher;
 import org.axonframework.ext.hazelcast.eventhandling.HzEventBusTerminal;
 import org.axonframework.ext.hazelcast.eventhandling.IHzTopicPublisher;
 import org.axonframework.ext.hazelcast.eventhandling.IHzTopicSubscriber;
@@ -58,15 +58,14 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-/**
- *
- */
-public class HzAxonEngine implements IHzAxonEngine {
+//TODO: review generics
+@SuppressWarnings("unchecked")
+public class AxonService implements HzTaskDispatcher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HzAxonEngine.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AxonService.class);
 
     private final String m_nodeName;
-    private final IHzProxy m_hz;
+    private final HazelcastInstance m_hzInstance;
     private HzEventBusTerminal m_evtBusTer;
     private HzCommandBusConnector m_connector;
     private IRepositoryFactory m_repositoryFactory;
@@ -78,37 +77,18 @@ public class HzAxonEngine implements IHzAxonEngine {
 
     private final Set<EventListener> m_eventListeners;
     private final Map<Object,EventListener> m_eventHandlers;
-    private final Map<Class<? extends AggregateRoot>,AggregateSubscription> m_aggregates;
+    private final Map<Class<? extends AggregateRoot>,AggregateSubscription<? extends AggregateRoot>> m_aggregates;
 
-    /**
-     * c-tor
-     *
-     * @param nodeName
-     * @param config
-     */
-    public HzAxonEngine(final String nodeName, final Config config) {
+    public AxonService(final String nodeName, final Config config) {
         this(nodeName,Hazelcast.newHazelcastInstance(config));
     }
 
-    /**
-     * c-tor
-     *
-     * @param nodeName
-     * @param hz
-     */
-    public HzAxonEngine(final String nodeName, final HazelcastInstance hz) {
+    public AxonService(final String nodeName, final HazelcastInstance hz) {
         this(nodeName,new HzProxy(hz));
     }
 
-
-    /**
-     * c-tor
-     *
-     * @param nodeName
-     * @param proxy
-     */
-    public HzAxonEngine(final String nodeName, final HzProxy proxy) {
-        m_hz           = proxy;
+    public AxonService(final String nodeName, final HzProxy proxy) {
+        m_hzInstance = proxy;
         m_nodeName     = nodeName;
         m_evtBusTer    = null;
         m_connector    = null;
@@ -127,17 +107,15 @@ public class HzAxonEngine implements IHzAxonEngine {
     //
     // *************************************************************************
 
-    @Override
     public void init() {
         createEventBus();
         cerateEventStore();
         createCommandBus();
         createCommandGateway();
 
-        m_hz.getInstance().getUserContext().put(HzConstants.USER_CONTEXT_NAME,this);
+        m_hzInstance.getUserContext().put(HzConstants.USER_CONTEXT_NAME,this);
     }
 
-    @Override
     public void destroy() {
         LOGGER.debug("Cleanup - EventListeners ({})",m_eventListeners.size());
         for(EventListener listener : m_eventListeners) {
@@ -154,7 +132,7 @@ public class HzAxonEngine implements IHzAxonEngine {
         m_eventHandlers.clear();
 
         LOGGER.debug("Cleanup - AggregateSubscription ({})",m_aggregates.size());
-        for(AggregateSubscription subscription : m_aggregates.values()) {
+        for(AggregateSubscription<?> subscription : m_aggregates.values()) {
             for (String supportedCommand : subscription.handler.supportedCommands()) {
                 m_cmdBus.unsubscribe(supportedCommand, subscription.handler);
             }
@@ -181,27 +159,22 @@ public class HzAxonEngine implements IHzAxonEngine {
     //
     // *************************************************************************
 
-    @Override
     public void send(Object command) {
         m_cmdGw.send(command);
     }
 
-    @Override
     public <R> void send(Object command, CommandCallback<R> callback) {
         m_cmdGw.send(command,callback);
     }
 
-    @Override
     public <R> R sendAndWait(Object command) {
         return m_cmdGw.sendAndWait(command);
     }
 
-    @Override
     public <R> R sendAndWait(Object command, long timeout, TimeUnit unit) {
         return m_cmdGw.sendAndWait(command,timeout,unit);
     }
 
-    @Override
     public Future<HzCommandReply> dispatch(final HzCommand command) {
         return m_connector.dispatch(command);
     }
@@ -210,7 +183,6 @@ public class HzAxonEngine implements IHzAxonEngine {
     //
     // *************************************************************************
 
-    @Override
     public void addEventHandler(Object eventHandler) {
         if(!m_eventHandlers.containsKey(eventHandler)) {
             EventListener eventListener = new AnnotationEventListenerAdapter(eventHandler);
@@ -220,7 +192,6 @@ public class HzAxonEngine implements IHzAxonEngine {
         }
     }
 
-    @Override
     public void removeEventHandler(Object eventHandler) {
         if(m_eventHandlers.containsKey(eventHandler)) {
             m_evtBus.unsubscribe(m_eventHandlers.get(eventHandler));
@@ -228,21 +199,18 @@ public class HzAxonEngine implements IHzAxonEngine {
         }
     }
 
-    @Override
     public void addEventListener(EventListener eventListener) {
         if(m_eventListeners.add(eventListener)) {
             m_evtBus.subscribe(eventListener);
         }
     }
 
-    @Override
     public void removeEventListener(EventListener eventListener) {
         if(eventListener != null) {
             m_evtBus.unsubscribe(eventListener);
         }
     }
 
-    @Override
     public <T extends EventSourcedAggregateRoot> void addAggregateType(Class<T> aggregateType) {
         removeAggregateType(aggregateType);
 
@@ -254,10 +222,9 @@ public class HzAxonEngine implements IHzAxonEngine {
         );
     }
 
-    @Override
     public void removeAggregateType(Class<? extends EventSourcedAggregateRoot> aggregateType) {
         if(m_aggregates.containsKey(aggregateType)) {
-            AggregateSubscription subscription = m_aggregates.get(aggregateType);
+            AggregateSubscription<?> subscription = m_aggregates.get(aggregateType);
             for (String supportedCommand : subscription.handler.supportedCommands()) {
                 m_cmdBus.subscribe(supportedCommand, subscription.handler);
             }
@@ -270,18 +237,10 @@ public class HzAxonEngine implements IHzAxonEngine {
     // Getters/Setters
     // *************************************************************************
 
-    /**
-     *
-     * @param publisher
-     */
     public void setPublisher(IHzTopicPublisher publisher) {
         createEventBusTerminal().setPublisher(publisher);
     }
 
-    /**
-     *
-     * @param subscriber
-     */
     public void setSubscriber(IHzTopicSubscriber subscriber) {
         createEventBusTerminal().setSubscriber(subscriber);
     }
@@ -290,21 +249,14 @@ public class HzAxonEngine implements IHzAxonEngine {
     // Helpers
     // *************************************************************************
 
-    /**
-     *
-     */
     private HzEventBusTerminal createEventBusTerminal() {
         if(m_evtBusTer == null) {
-            m_evtBusTer = new HzEventBusTerminal(m_hz);
+            m_evtBusTer = new HzEventBusTerminal(m_hzInstance);
         }
 
         return m_evtBusTer;
     }
 
-    /**
-     *
-     * @return
-     */
     private CommandBus createCommandBus() {
         if(m_cmdBus == null && m_evtStore != null && m_evtBus != null) {
             // The EventSourcingRepository factory
@@ -314,10 +266,11 @@ public class HzAxonEngine implements IHzAxonEngine {
                 m_evtBus);
 
             // The CommandBus connector
+            // TODO: check
             m_connector = new HzCommandBusConnector(
-                m_hz,
+                m_hzInstance,
                 new SimpleCommandBus(),
-                m_hz.getGroupName(),
+                m_hzInstance.getName(),
                 m_nodeName);
 
             m_connector.open();
@@ -328,22 +281,14 @@ public class HzAxonEngine implements IHzAxonEngine {
         return m_cmdBus;
     }
 
-    /**
-     *
-     * @return
-     */
     private HzEventStore cerateEventStore() {
         if(m_evtStore == null) {
-            m_evtStore = new HzEventStore(m_hz);
+            m_evtStore = new HzEventStore(m_hzInstance);
         }
 
         return m_evtStore;
     }
 
-    /**
-     *
-     * @return
-     */
     private EventBus createEventBus() {
         if(m_evtBus == null) {
             m_evtBus = (m_evtBusTer != null)
@@ -354,10 +299,6 @@ public class HzAxonEngine implements IHzAxonEngine {
         return m_evtBus;
     }
 
-    /**
-     *
-     * @return
-     */
     private CommandGateway createCommandGateway() {
         if(m_cmdGw == null && m_cmdBus != null) {
             m_cmdGw = new DefaultCommandGateway(m_cmdBus);
@@ -366,14 +307,7 @@ public class HzAxonEngine implements IHzAxonEngine {
         return m_cmdGw;
     }
 
-
-    /**
-     *
-     * @param repo
-     * @param aggregateType
-     * @param <T>
-     */
-    private <T extends EventSourcedAggregateRoot> AggregateSubscription createAggregateSubscription(
+    private <T extends EventSourcedAggregateRoot> AggregateSubscription<T> createAggregateSubscription(
         Repository<T> repo, Class<T> aggregateType) {
         return new AggregateSubscription(
             repo,
@@ -388,21 +322,12 @@ public class HzAxonEngine implements IHzAxonEngine {
     //
     // *************************************************************************
 
-    /**
-     *
-     */
-    private final class AggregateSubscription {
+    private final class AggregateSubscription<T extends AggregateRoot> {
 
-        public final Repository<?> repository;
-        public final AggregateAnnotationCommandHandler<?> handler;
+        public final Repository<T> repository;
+        public final AggregateAnnotationCommandHandler<T> handler;
 
-        /**
-         * c-tor
-         *
-         * @param repository
-         * @param handler
-         */
-        public AggregateSubscription(final Repository<?> repository,final AggregateAnnotationCommandHandler<?> handler) {
+        public AggregateSubscription(final Repository<T> repository,final AggregateAnnotationCommandHandler<T> handler) {
             this.repository = repository;
             this.handler    = handler;
         }

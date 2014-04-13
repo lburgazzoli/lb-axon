@@ -13,27 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed.commandbus;
+package org.axonframework.ext.hazelcast.distributed.commandbus.executor;
 
-/**
- *
- */
-public class HzCommandCommon extends HzMessage {
-    private final String m_nodeName;
 
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
+import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
+
+import java.util.concurrent.Future;
+
+public interface HzTaskDispatcher {
     /**
-     *
-     * @param nodeName the node name
+     * @param command  the command to execute
+     * @return         a future
      */
-    public HzCommandCommon(String nodeName) {
-        m_nodeName = nodeName;
-    }
-
-    /**
-     *
-     * @return the node name
-     */
-    public String getNodeName() {
-        return m_nodeName;
-    }
+    public Future<HzCommandReply> dispatch(final HzCommand command);
 }

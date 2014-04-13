@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.samples.queue.helper;
+package org.axonframework.ext.eventstore;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -29,9 +29,9 @@ import java.util.Map;
 /**
  *
  */
-public class MemoryEventStore implements EventStore {
+public class MemoryEventStore<T> implements EventStore {
 
-    private Map<String,Map<Object,List<DomainEventMessage>>> m_storage;
+    private Map<String,Map<Object,List<DomainEventMessage<T>>>> m_storage;
 
     /**
      *
@@ -42,16 +42,16 @@ public class MemoryEventStore implements EventStore {
 
     @Override
     public void appendEvents(String type, DomainEventStream events) {
-        Map<Object,List<DomainEventMessage>> typeStorage = m_storage.get(type);
+        Map<Object,List<DomainEventMessage<T>>> typeStorage = m_storage.get(type);
         if(typeStorage == null) {
             typeStorage = Maps.newHashMap();
             m_storage.put(type,typeStorage);
         }
 
         if(events.hasNext()) {
-            DomainEventMessage       message     = events.next();
-            Object                   aggregateId = message.getAggregateIdentifier();
-            List<DomainEventMessage> messages    = typeStorage.get(aggregateId);
+            DomainEventMessage          message     = events.next();
+            Object                      aggregateId = message.getAggregateIdentifier();
+            List<DomainEventMessage<T>> messages    = typeStorage.get(aggregateId);
 
             if(message.getSequenceNumber() == 0 || messages == null) {
                 messages = Lists.newLinkedList();
@@ -68,10 +68,10 @@ public class MemoryEventStore implements EventStore {
     @Override
     public DomainEventStream readEvents(String type, Object aggregateId) {
         DomainEventStream eventStream = null;
-        Map<Object,List<DomainEventMessage>> typeStorage = m_storage.get(type);
+        Map<Object,List<DomainEventMessage<T>>> typeStorage = m_storage.get(type);
 
         if(typeStorage != null) {
-            List<DomainEventMessage> messages = typeStorage.get(aggregateId);
+            List<DomainEventMessage<T>> messages = typeStorage.get(aggregateId);
             if(messages != null) {
                 eventStream = new SimpleDomainEventStream(messages);
             }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.distributed;
+package org.axonframework.ext.hazelcast.distributed.commandbus.executor;
 
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.HazelcastInstanceAware;
@@ -26,13 +26,13 @@ import java.util.concurrent.Callable;
 /**
  *
  */
-public abstract class HzEngineTask<T> implements HazelcastInstanceAware, Serializable, Callable<T> {
+public abstract class HzTask<T> implements HazelcastInstanceAware, Serializable, Callable<T> {
     private transient HazelcastInstance m_instance;
 
     /**
      * c-tor
      */
-    public HzEngineTask() {
+    public HzTask() {
         m_instance = null;
     }
 
@@ -51,7 +51,7 @@ public abstract class HzEngineTask<T> implements HazelcastInstanceAware, Seriali
 
     /**
      *
-     * @return
+     * @return the Hazelcast instance
      */
     protected HazelcastInstance instance() {
         return m_instance;
@@ -59,10 +59,10 @@ public abstract class HzEngineTask<T> implements HazelcastInstanceAware, Seriali
 
     /**
      *
-     * @return
+     * @return the task dispatcher
      */
-    protected IHzAxonEngine engine() {
+    protected HzTaskDispatcher dispatcher() {
         Map<String, Object> ctx = m_instance.getUserContext();
-        return (IHzAxonEngine)ctx.get(HzConstants.USER_CONTEXT_NAME);
+        return (HzTaskDispatcher)ctx.get(HzConstants.USER_CONTEXT_NAME);
     }
 }

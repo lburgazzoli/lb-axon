@@ -16,14 +16,12 @@
 package org.axonframework.ext.hazelcast.store;
 
 import com.google.common.collect.Maps;
+import com.hazelcast.core.HazelcastInstance;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.ext.eventstore.AbstractEventStore;
 import org.axonframework.ext.eventstore.CloseableDomainEventStore;
 import org.axonframework.ext.eventstore.NullDomainEventStream;
-import org.axonframework.ext.hazelcast.IHzProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
@@ -31,19 +29,17 @@ import java.util.Map;
 /**
  *
  */
-public class HzEventStore extends AbstractEventStore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HzEventStore.class);
-
-    private final IHzProxy m_hazelcastManager;
-    private final Map<String,CloseableDomainEventStore> m_domainEventStore;
+public class HzEventStore<T> extends AbstractEventStore {
+    private final HazelcastInstance m_hzInstance;
+    private final Map<String,CloseableDomainEventStore<T>> m_domainEventStore;
 
     /**
      * c-tor
      *
-     * @param hazelcastManager
+     * @param hzInstance the Hazelcast instance
      */
-    public HzEventStore(IHzProxy hazelcastManager) {
-        m_hazelcastManager = hazelcastManager;
+    public HzEventStore(final HazelcastInstance hzInstance) {
+        m_hzInstance = hzInstance;
         m_domainEventStore = Maps.newConcurrentMap();
     }
 
@@ -60,6 +56,7 @@ public class HzEventStore extends AbstractEventStore {
     // EventStore
     // *************************************************************************
 
+    @SuppressWarnings("unchecked")
     @Override
     public void appendEvents(String type, DomainEventStream events) {
         int size = 0;
@@ -68,14 +65,14 @@ public class HzEventStore extends AbstractEventStore {
         CloseableDomainEventStore des = null;
 
         while(events.hasNext()) {
-            DomainEventMessage dem = events.next();
+            DomainEventMessage<T> dem = events.next();
             if(size == 0) {
                 storageId = HzEventStoreUtil.getStorageIdentifier(type, dem);
                 des = m_domainEventStore.get(storageId);
 
                 if(des == null) {
-                    des = new HzDomainEventStore(
-                        storageId,type,dem.getAggregateIdentifier().toString(),m_hazelcastManager);
+                    des = new HzDomainEventStore<T>(
+                        storageId,type,dem.getAggregateIdentifier().toString(),m_hzInstance);
 
                     m_domainEventStore.put(des.getStorageId(),des);
                 }
@@ -90,15 +87,12 @@ public class HzEventStore extends AbstractEventStore {
                 size++;
             }
         }
-
-        //LOGGER.debug("appendEvents: type={}, nbStoredEvents={}, eventStoreSize={}",
-        //    type,size,(des != null) ? des.getStorageSize() : 0);
     }
 
     @Override
     public DomainEventStream readEvents(String type, Object identifier) {
         String mapId = HzEventStoreUtil.getStorageIdentifier(type, identifier.toString());
-        CloseableDomainEventStore hdes = m_domainEventStore.get(mapId);
+        CloseableDomainEventStore<T> hdes = m_domainEventStore.get(mapId);
 
         if(hdes != null) {
             return hdes.getEventStream();

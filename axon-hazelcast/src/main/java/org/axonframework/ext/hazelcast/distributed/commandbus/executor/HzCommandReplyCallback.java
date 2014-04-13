@@ -18,17 +18,17 @@ package org.axonframework.ext.hazelcast.distributed.commandbus.executor;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  *
  */
 public class HzCommandReplyCallback<T> implements Future<HzCommandReply>, CommandCallback<T> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HzCommandReplyCallback.class);
-
     private T m_result;
     private Throwable m_failuureCause;
 
@@ -39,7 +39,8 @@ public class HzCommandReplyCallback<T> implements Future<HzCommandReply>, Comman
     /**
      * c-tor
      *
-     * @param command
+     * @param nodeName the node name
+     * @param command  the comman
      */
     public HzCommandReplyCallback(String nodeName,final HzCommand command) {
         m_nodeName = nodeName;

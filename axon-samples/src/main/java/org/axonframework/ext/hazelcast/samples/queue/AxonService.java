@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.samples.queue.helper;
+package org.axonframework.ext.hazelcast.samples.queue;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -36,9 +36,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-/**
- *
- */
 public class AxonService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AxonService.class);
 
@@ -52,9 +49,6 @@ public class AxonService {
     private final Map<Object,EventListener> m_eventHandlers;
     private final Map<Class<? extends AggregateRoot>,AggregateSubscription> m_aggregates;
 
-    /**
-     * c-tor
-     */
     public AxonService() {
         m_commandBus = null;
         m_commandGateway = null;
@@ -70,9 +64,6 @@ public class AxonService {
     //
     // *************************************************************************
 
-    /**
-     *
-     */
     public void init() {
         LOGGER.debug("CommandBus     : {}",m_commandBus);
         LOGGER.debug("CommandGateway : {}",m_commandGateway);
@@ -80,9 +71,6 @@ public class AxonService {
         LOGGER.debug("EventBus       : {}",m_eventBus);
     }
 
-    /**
-     *
-     */
     public void destroy() {
         LOGGER.debug("Cleanup - EventListeners ({})",m_eventListeners.size());
         for(EventListener listener : m_eventListeners) {
@@ -176,10 +164,6 @@ public class AxonService {
     //
     // *************************************************************************
 
-    /**
-     *
-     * @param eventHandler
-     */
     public void addEventHandler(Object eventHandler) {
         if(!m_eventHandlers.containsKey(eventHandler)) {
             EventListener eventListener = new AnnotationEventListenerAdapter(eventHandler);
@@ -189,10 +173,6 @@ public class AxonService {
         }
     }
 
-    /**
-     *
-     * @param eventHandler
-     */
     public void removeEventHandler(Object eventHandler) {
         if(m_eventHandlers.containsKey(eventHandler)) {
             m_eventBus.unsubscribe(m_eventHandlers.get(eventHandler));
@@ -200,30 +180,18 @@ public class AxonService {
         }
     }
 
-    /**
-     *
-     * @param eventListener
-     */
     public void addEventListener(EventListener eventListener) {
         if(m_eventListeners.add(eventListener)) {
             m_eventBus.subscribe(eventListener);
         }
     }
 
-    /**
-     *
-     * @param eventListener
-     */
     public void removeEventListener(EventListener eventListener) {
         if(eventListener != null) {
             m_eventBus.unsubscribe(eventListener);
         }
     }
 
-    /**
-     *
-     * @param aggregateType
-     */
     @SuppressWarnings("unchecked")
     public <T extends EventSourcedAggregateRoot> void addAggregateType(Class<T> aggregateType) {
         removeAggregateType(aggregateType);
@@ -238,10 +206,6 @@ public class AxonService {
                 m_commandBus)));
     }
 
-    /**
-     *
-     * @param aggregateType
-     */
     public void removeAggregateType(Class<? extends EventSourcedAggregateRoot> aggregateType) {
         if(m_aggregates.containsKey(aggregateType)) {
             AggregateSubscription subscription = m_aggregates.get(aggregateType);
@@ -262,12 +226,6 @@ public class AxonService {
         public final Repository<?> repository;
         public final AggregateAnnotationCommandHandler<?> handler;
 
-        /**
-         * c-tor
-         *
-         * @param repository
-         * @param handler
-         */
         public AggregateSubscription(final Repository<?> repository,final AggregateAnnotationCommandHandler<?> handler) {
             this.repository = repository;
             this.handler    = handler;

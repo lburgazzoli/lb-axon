@@ -15,7 +15,7 @@
  */
 package org.axonframework.ext.hazelcast.eventhandling;
 
-import org.axonframework.ext.hazelcast.IHzProxy;
+import com.hazelcast.core.HazelcastInstance;
 
 /**
  *
@@ -23,15 +23,15 @@ import org.axonframework.ext.hazelcast.IHzProxy;
 public interface IHzTopicSubscriber {
     /**
      *
-     * @param proxy
-     * @param terminal
+     * @param hzInstance the Hazelcast instance
+     * @param terminal   the Axon terminal
      */
-    public void subscribe(IHzProxy proxy,HzEventBusTerminal terminal);
+    public void subscribe(HazelcastInstance hzInstance,HzEventBusTerminal terminal);
 
     /**
      *
-     * @param proxy
-     * @param terminal
+     * @param hzInstance the Hazelcast instance
+     * @param terminal   the Axon terminal
      */
-    public void unsubscribe(IHzProxy proxy,HzEventBusTerminal terminal);
+    public void unsubscribe(HazelcastInstance hzInstance,HzEventBusTerminal terminal);
 }

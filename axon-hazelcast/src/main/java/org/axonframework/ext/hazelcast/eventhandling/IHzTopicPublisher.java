@@ -15,8 +15,8 @@
  */
 package org.axonframework.ext.hazelcast.eventhandling;
 
+import com.hazelcast.core.HazelcastInstance;
 import org.axonframework.domain.EventMessage;
-import org.axonframework.ext.hazelcast.IHzProxy;
 
 /**
  *
@@ -24,7 +24,8 @@ import org.axonframework.ext.hazelcast.IHzProxy;
 public interface IHzTopicPublisher {
     /**
      *
-     * @param event
+     * @param hzInstance the Hazelcast instance
+     * @param event      the event
      */
-    public void publish(IHzProxy proxy,EventMessage event);
+    public void publish(HazelcastInstance hzInstance,EventMessage event);
 }

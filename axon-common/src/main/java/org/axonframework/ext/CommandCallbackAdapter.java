@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.hazelcast.samples.queue.helper;
+package org.axonframework.ext;
 
 import org.axonframework.commandhandling.CommandCallback;
 

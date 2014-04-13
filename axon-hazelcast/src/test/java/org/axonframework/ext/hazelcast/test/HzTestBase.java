@@ -15,7 +15,6 @@ public class HzTestBase {
      *
      */
     protected HzProxy createHzProxy() {
-
         Config cfg = new Config();
         cfg.setProperty("hazelcast.logging.type", "slf4j");
         cfg.getNetworkConfig().setPortAutoIncrement(false);

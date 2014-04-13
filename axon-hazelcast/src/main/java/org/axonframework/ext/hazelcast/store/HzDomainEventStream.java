@@ -23,25 +23,23 @@ import java.util.*;
 /**
  *
  */
-public class HzDomainEventStream implements DomainEventStream {
+public class HzDomainEventStream<T> implements DomainEventStream {
 
     private final static HzDomainEventKey[] EMPTY_KEY_ARR = new HzDomainEventKey[]{};
 
     private int m_nextIndex;
     private final HzDomainEventKey[] m_keys;
-    private final Map<HzDomainEventKey,HzDomainEventMessage> m_data;
+    private final Map<HzDomainEventKey<T>,HzDomainEventMessage<T>> m_data;
 
     /**
      * c-tor
      *
-     * @param data
+     * @param data the data
      */
-    public HzDomainEventStream(Map<HzDomainEventKey,HzDomainEventMessage> data) {
+    public HzDomainEventStream(Map<HzDomainEventKey<T>,HzDomainEventMessage<T>> data) {
         m_data      = data;
-        m_keys      = new TreeSet<HzDomainEventKey>(m_data.keySet()).toArray(EMPTY_KEY_ARR);
+        m_keys      = new TreeSet<>(m_data.keySet()).toArray(EMPTY_KEY_ARR);
         m_nextIndex = 0;
-
-        //Arrays.sort(m_keys);
     }
 
     @Override

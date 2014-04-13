@@ -15,14 +15,13 @@
  */
 package org.axonframework.ext.hazelcast.distributed.commandbus.executor;
 
-import org.axonframework.ext.hazelcast.distributed.HzEngineTask;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
 
 /**
  *
  */
-public class HzCommandTask extends HzEngineTask<HzCommandReply> {
+public class HzCommandTask extends HzTask<HzCommandReply> {
     private HzCommand m_command;
 
     /**
@@ -35,7 +34,7 @@ public class HzCommandTask extends HzEngineTask<HzCommandReply> {
     /**
      * c-tor
      *
-     * @param command
+     * @param command the command
      */
     public HzCommandTask(HzCommand command) {
         m_command = command;
@@ -47,6 +46,6 @@ public class HzCommandTask extends HzEngineTask<HzCommandReply> {
 
     @Override
     public HzCommandReply call() throws Exception {
-        return engine().dispatch(m_command).get();
+        return dispatcher().dispatch(m_command).get();
     }
 }

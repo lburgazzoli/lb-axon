@@ -18,10 +18,10 @@ package org.axonframework.ext.hazelcast.distributed.commandbus.queue;
 import com.google.common.collect.Maps;
 import com.hazelcast.core.EntryAdapter;
 import com.hazelcast.core.EntryEvent;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.IQueue;
 import org.axonframework.commandhandling.CommandMessage;
-import org.axonframework.ext.hazelcast.IHzProxy;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandCallback;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzMessage;
 import org.slf4j.Logger;
@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 public class HzCommandBusAgent {
     private static final Logger LOGGER = LoggerFactory.getLogger(HzCommandBusAgent.class);
 
-    private final IHzProxy m_proxy;
+    private final HazelcastInstance m_hzInstance;
     private final String m_clusterName;
     private final String m_nodeName;
     private final IQueue<HzMessage> m_queue;
@@ -47,18 +47,19 @@ public class HzCommandBusAgent {
     private final Map<String,HzCommandCallback> m_callbacks;
 
     /**
+     * c-tor
      *
-     * @param proxy
-     * @param clusterName
-     * @param nodeName
+     * @param hzInstance   the Hazelcast instance
+     * @param clusterName  the cluster name
+     * @param nodeName     the node name
      */
-    public HzCommandBusAgent(IHzProxy proxy, String clusterName, String nodeName) {
-        m_proxy       = proxy;
+    public HzCommandBusAgent(HazelcastInstance hzInstance, String clusterName, String nodeName) {
+        m_hzInstance  = hzInstance;
         m_clusterName = clusterName;
         m_nodeName    = nodeName + "@" + m_clusterName;
-        m_queue       = m_proxy.getQueue(m_nodeName);
+        m_queue       = m_hzInstance.getQueue(m_nodeName);
         m_scheduler   = Executors.newScheduledThreadPool(1);
-        m_registry    = m_proxy.getMap(HzCommandConstants.REG_CMD_NODES);
+        m_registry    = m_hzInstance.getMap(HzCommandConstants.REG_CMD_NODES);
         m_callbacks   = Maps.newConcurrentMap();
 
         m_registry.addEntryListener(new NodeListener(),true);
@@ -70,7 +71,7 @@ public class HzCommandBusAgent {
 
     /**
      *
-     * @return
+     * @return the cluster name
      */
     public String getClusterName() {
         return m_clusterName;
@@ -78,7 +79,7 @@ public class HzCommandBusAgent {
 
     /**
      *
-     * @return
+     * @return the node name
      */
     public String getNodeName() {
         return m_nodeName;
@@ -86,7 +87,7 @@ public class HzCommandBusAgent {
 
     /**
      *
-     * @return
+     * @return the registry
      */
     public IMap<String, HzCommandBusNode> getRegistry() {
         return m_registry;
@@ -94,7 +95,7 @@ public class HzCommandBusAgent {
 
     /**
      *
-     * @return
+     * @return the queue
      */
     public IQueue<HzMessage> getQueue() {
        return m_queue;
@@ -102,8 +103,8 @@ public class HzCommandBusAgent {
 
     /**
      *
-     * @param nodeName
-     * @return
+     * @param nodeName  the node name
+     * @return          true if is alive
      */
     public boolean isAlive(String nodeName) {
         return m_registry.containsKey(nodeName);
@@ -116,9 +117,9 @@ public class HzCommandBusAgent {
 
     /**
      *
-     * @param command
-     * @param callback
-     * @param <T>
+     * @param command   the command
+     * @param callback  the cllback
+     * @param <T>       the collback data type
      */
     public <T> void registerCallback(CommandMessage<?> command,HzCommandCallback<T> callback) {
         registerCallback(command.getIdentifier(), callback);
@@ -126,9 +127,9 @@ public class HzCommandBusAgent {
 
     /**
      *
-     * @param commandId
-     * @param callback
-     * @param <T>
+     * @param commandId  the command id
+     * @param callback   the callback
+     * @param <T>        the cllback data type
      */
     public <T> void registerCallback(String commandId,HzCommandCallback<T> callback) {
         if(!m_callbacks.containsKey(commandId)) {
@@ -140,8 +141,9 @@ public class HzCommandBusAgent {
 
     /**
      *
-     * @param commandId
-     * @return
+     * @param commandId  the command id
+     * @param <T>        the callback data type
+     * @return           the callback associated to the command id
      */
     @SuppressWarnings("unchecked")
     public <T> HzCommandCallback<T> getCallback(String commandId) {
@@ -150,8 +152,9 @@ public class HzCommandBusAgent {
 
     /**
      *
-     * @param command
-     * @return
+     * @param command  the command
+     * @param <T>      the callback data type
+     * @return         the callback associated to the command id
      */
     @SuppressWarnings("unchecked")
     public <T> HzCommandCallback<T> removeCallback(CommandMessage<?> command) {
@@ -160,8 +163,9 @@ public class HzCommandBusAgent {
 
     /**
      *
-     * @param commandId
-     * @return
+     * @param commandId  the command id
+     * @param <T>        the callback data type
+     * @return           the callback associated to the command id
      */
     @SuppressWarnings("unchecked")
     public <T> HzCommandCallback<T> removeCallback(String commandId) {
@@ -173,7 +177,7 @@ public class HzCommandBusAgent {
     // *************************************************************************
 
     /**
-     *
+     * @return true if cluster joined
      */
     public boolean joinCluster() {
         if(!m_registry.containsKey(m_nodeName)) {

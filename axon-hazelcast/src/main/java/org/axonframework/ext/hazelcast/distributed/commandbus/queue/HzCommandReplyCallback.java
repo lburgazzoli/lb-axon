@@ -15,8 +15,8 @@
  */
 package org.axonframework.ext.hazelcast.distributed.commandbus.queue;
 
+import com.hazelcast.core.HazelcastInstance;
 import org.axonframework.commandhandling.CommandCallback;
-import org.axonframework.ext.hazelcast.IHzProxy;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
 import org.slf4j.Logger;
@@ -29,27 +29,27 @@ public class HzCommandReplyCallback<T> implements CommandCallback<T> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HzCommandReplyCallback.class);
 
-    private final IHzProxy m_proxy;
+    private final HazelcastInstance m_hzInstance;
     private final HzCommandBusAgent m_agent;
     private final HzCommand m_command;
 
     /**
      * c-tor
      *
-     * @param proxy
-     * @param agent
-     * @param command
+     * @param hzInstance  the Hazelcast instance
+     * @param agent       the Agent
+     * @param command     the command
      */
-    public HzCommandReplyCallback(IHzProxy proxy,HzCommandBusAgent agent,HzCommand command) {
-        m_proxy   = proxy;
-        m_agent   = agent;
-        m_command = command;
+    public HzCommandReplyCallback(HazelcastInstance hzInstance,HzCommandBusAgent agent,HzCommand command) {
+        m_hzInstance = hzInstance;
+        m_agent      = agent;
+        m_command    = command;
     }
 
     @Override
     public void onSuccess(Object result) {
         try {
-            m_proxy.getQueue(getSourceNodeId()).put(
+            m_hzInstance.getQueue(getSourceNodeId()).put(
                 newReply(
                     m_command.getMessage().getIdentifier(),
                     result)
@@ -61,7 +61,7 @@ public class HzCommandReplyCallback<T> implements CommandCallback<T> {
     @Override
     public void onFailure(Throwable cause) {
         try {
-            m_proxy.getQueue(getSourceNodeId()).put(
+            m_hzInstance.getQueue(getSourceNodeId()).put(
                 newReply(
                     m_command.getMessage().getIdentifier(),
                     cause)

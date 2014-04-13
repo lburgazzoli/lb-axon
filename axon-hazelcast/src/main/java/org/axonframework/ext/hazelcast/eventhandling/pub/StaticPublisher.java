@@ -15,8 +15,8 @@
  */
 package org.axonframework.ext.hazelcast.eventhandling.pub;
 
+import com.hazelcast.core.HazelcastInstance;
 import org.axonframework.domain.EventMessage;
-import org.axonframework.ext.hazelcast.IHzProxy;
 
 /**
  *
@@ -25,10 +25,12 @@ public class StaticPublisher extends AbstractPublisher {
     private final String m_topicName;
 
     /**
+     * c-tor
      *
-     * @param topicName
+     * @param hzInstance the Hazelcast instance
+     * @param topicName  the topicName
      */
-    public StaticPublisher(IHzProxy proxy,String topicName) {
+    public StaticPublisher(final HazelcastInstance hzInstance,String topicName) {
         m_topicName = topicName;
     }
 

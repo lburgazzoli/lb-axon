@@ -43,8 +43,8 @@ public class HzCommandBusNode implements DataSerializable {
     /**
      * c-tor
      *
-     * @param name
-     * @param queueName
+     * @param name      the node name
+     * @param queueName the queue name
      */
     public HzCommandBusNode(String name, String queueName) {
         m_name          = name;
@@ -54,7 +54,7 @@ public class HzCommandBusNode implements DataSerializable {
 
     /**
      *
-     * @return
+     * @return the node name
      */
     public String getName() {
         return m_name;
@@ -62,7 +62,7 @@ public class HzCommandBusNode implements DataSerializable {
 
     /**
      *
-     * @return
+     * @return the queue name
      */
     public String getQueueName() {
         return m_queueName;

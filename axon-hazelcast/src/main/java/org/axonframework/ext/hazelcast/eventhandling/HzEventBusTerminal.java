@@ -16,12 +16,12 @@
 package org.axonframework.ext.hazelcast.eventhandling;
 
 import com.google.common.collect.Sets;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 import org.axonframework.domain.EventMessage;
 import org.axonframework.eventhandling.Cluster;
 import org.axonframework.eventhandling.EventBusTerminal;
-import org.axonframework.ext.hazelcast.IHzProxy;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Luca Burgazzoli
  */
 public class HzEventBusTerminal implements EventBusTerminal,MessageListener<EventMessage> {
-    private final IHzProxy m_proxy;
+    private final HazelcastInstance m_hzInstance;
     private final Set<Cluster> m_clusters;
     private final AtomicBoolean m_subscribed;
 
@@ -45,10 +45,10 @@ public class HzEventBusTerminal implements EventBusTerminal,MessageListener<Even
     /**
      * c-tor
      *
-     * @param proxy the hazelcast proxy
+     * @param hzInstance the hazelcast instance
      */
-    public HzEventBusTerminal(IHzProxy proxy) {
-        m_proxy      = proxy;
+    public HzEventBusTerminal(HazelcastInstance hzInstance) {
+        m_hzInstance = hzInstance;
         m_clusters   = Sets.newHashSet();
         m_publisher  = null;
         m_subscriber = null;
@@ -61,7 +61,7 @@ public class HzEventBusTerminal implements EventBusTerminal,MessageListener<Even
 
     /**
      *
-     * @return
+     * @return true if the pubisher is set
      */
     public boolean hasPublisher() {
         return m_publisher != null;
@@ -79,7 +79,7 @@ public class HzEventBusTerminal implements EventBusTerminal,MessageListener<Even
      */
     public void setSubscriber(IHzTopicSubscriber subscriber) {
         if(m_subscriber != null) {
-            m_subscriber.unsubscribe(m_proxy,this);
+            m_subscriber.unsubscribe(m_hzInstance,this);
         }
 
         m_subscriber = subscriber;
@@ -87,7 +87,7 @@ public class HzEventBusTerminal implements EventBusTerminal,MessageListener<Even
 
     /**
      *
-     * @return
+     * @return true if the subscriber is set
      */
     public boolean hasSubscriber() {
         return m_subscriber != null;
@@ -101,7 +101,7 @@ public class HzEventBusTerminal implements EventBusTerminal,MessageListener<Even
     public void publish(EventMessage... events) {
         if(m_publisher != null) {
             for(EventMessage event : events) {
-                m_publisher.publish(m_proxy,event);
+                m_publisher.publish(m_hzInstance,event);
             }
         }
     }
@@ -109,7 +109,7 @@ public class HzEventBusTerminal implements EventBusTerminal,MessageListener<Even
     @Override
     public void onClusterCreated(Cluster cluster) {
         if(m_subscriber != null && m_subscribed.get() == false) {
-            m_subscriber.subscribe(m_proxy,this);
+            m_subscriber.subscribe(m_hzInstance,this);
             m_subscribed.set(true);
         }
 

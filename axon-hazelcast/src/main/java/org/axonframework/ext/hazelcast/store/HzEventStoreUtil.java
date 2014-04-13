@@ -28,9 +28,9 @@ public class HzEventStoreUtil {
 
     /**
      *
-     * @param type
-     * @param identifier
-     * @return
+     * @param type        the type
+     * @param identifier  the identifier
+     * @return            the storage id
      */
     public static String getStorageIdentifier(String type,String identifier) {
         return String.format("%s:%s",
@@ -40,18 +40,19 @@ public class HzEventStoreUtil {
 
     /**
      *
-     * @param type
-     * @param message
-     * @return
+     * @param type    the type
+     * @param message the message
+     * @param <T>     the type of payload contained
+     * @return        the storage id
      */
-    public static String getStorageIdentifier(String type, DomainEventMessage message) {
+    public static <T> String getStorageIdentifier(String type, final DomainEventMessage<T> message) {
         return getStorageIdentifier(type, message.getAggregateIdentifier().toString());
     }
 
     /**
      *
-     * @param id
-     * @return
+     * @param id the unsafe id
+     * @return   the safe id
      */
     public static String safeIdentifier(String id) {
         try {

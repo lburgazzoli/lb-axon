@@ -42,12 +42,10 @@
     <bean id="axon-hz-proxy" class="org.axonframework.ext.hazelcast.HzProxy">
         <constructor-arg ref="axon-hz-node"/>
         <property name="prefix"    value="axon"/>
-        <property name="groupName" value="axon-cluster"/>
-        <property name="nodeName"  value="axon-client"/>
     </bean>
 
-    <bean id             = "axon-client"
-          class          = "org.axonframework.ext.hazelcast.distributed.HzAxonEngine"
+    <bean id             = "axon-service"
+          class          = "org.axonframework.ext.hazelcast.samples.executor.AxonService"
           init-method    = "init"
           destroy-method = "destroy">
         <constructor-arg value="axon-node"/>

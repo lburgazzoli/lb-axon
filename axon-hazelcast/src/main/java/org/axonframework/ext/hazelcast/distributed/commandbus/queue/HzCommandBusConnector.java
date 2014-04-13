@@ -17,6 +17,7 @@ package org.axonframework.ext.hazelcast.distributed.commandbus.queue;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import com.hazelcast.core.MultiMap;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +25,6 @@ import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.CommandCallback;
 import org.axonframework.commandhandling.CommandHandler;
 import org.axonframework.commandhandling.CommandMessage;
-import org.axonframework.ext.hazelcast.IHzProxy;
 import org.axonframework.ext.hazelcast.distributed.commandbus.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ import java.util.Set;
  *
  */
 public class HzCommandBusConnector implements IHzCommandBusConnector, IHzCommandHandler, IHzCommandReplyHandler {
-    private final IHzProxy m_proxy;
+    private final HazelcastInstance m_hzInstance;
     private final CommandBus m_localSegment;
     private final Set<String> m_supportedCmds;
     private final IMap<String,String> m_destinations;
@@ -51,19 +51,19 @@ public class HzCommandBusConnector implements IHzCommandBusConnector, IHzCommand
     /**
      * c-tor
      *
-     * @param proxy the hazelcast proxy
-     * @param localSegment CommandBus that dispatches Commands destined for the local JVM
-     * @param clusterName the name of the Cluster this segment registers to
-     * @param nodeName
+     * @param hzInstance    the Hazelcast instamce
+     * @param localSegment  CommandBus that dispatches Commands destined for the local JVM
+     * @param clusterName   the name of the Cluster this segment registers to
+     * @param nodeName      the node name
      */
-    public HzCommandBusConnector(IHzProxy proxy, CommandBus localSegment, String clusterName, String nodeName) {
-        m_proxy         = proxy;
+    public HzCommandBusConnector(HazelcastInstance hzInstance, CommandBus localSegment, String clusterName, String nodeName) {
+        m_hzInstance    = hzInstance;
         m_localSegment  = localSegment;
         m_supportedCmds = Sets.newHashSet();
-        m_destinations  = m_proxy.getMap(HzCommandConstants.REG_CMD_DESTINATIONS);
-        m_cmdHandlers   = m_proxy.getMultiMap(HzCommandConstants.REG_CMD_HANDLERS);
+        m_destinations  = m_hzInstance.getMap(HzCommandConstants.REG_CMD_DESTINATIONS);
+        m_cmdHandlers   = m_hzInstance.getMultiMap(HzCommandConstants.REG_CMD_HANDLERS);
         m_queueListener = null;
-        m_agent         = new HzCommandBusAgent(proxy,clusterName,nodeName);
+        m_agent         = new HzCommandBusAgent(m_hzInstance,clusterName,nodeName);
         m_logger        = LoggerFactory.getLogger(m_agent.getNodeName());
     }
 
@@ -109,8 +109,8 @@ public class HzCommandBusConnector implements IHzCommandBusConnector, IHzCommand
 
         if(StringUtils.isNotBlank(destination)) {
             try {
-                m_proxy.getQueue(destination)
-                       .put(new HzCommand(m_agent.getNodeName(), command, true));
+                m_hzInstance.getQueue(destination)
+                    .put(new HzCommand(m_agent.getNodeName(), command, true));
 
                 if(callback != null) {
                     m_agent.registerCallback(command,new HzCommandCallback(callback));
@@ -170,7 +170,7 @@ public class HzCommandBusConnector implements IHzCommandBusConnector, IHzCommand
         if(m_localSegment != null) {
             m_localSegment.dispatch(
                 command.getMessage(),
-                new HzCommandReplyCallback<Object>(m_proxy,m_agent,command)
+                new HzCommandReplyCallback<>(m_hzInstance,m_agent,command)
             );
         }
     }

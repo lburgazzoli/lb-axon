@@ -27,7 +27,7 @@ public class HzCommandReply extends HzCommandCommon {
     /**
      * c-tor
      *
-     * @param nodeName
+     * @param nodeName the node name
      */
     public HzCommandReply(String nodeName) {
         this(nodeName,null,null,false);
@@ -36,9 +36,9 @@ public class HzCommandReply extends HzCommandCommon {
     /**
      * c-tor
      *
-     * @param nodeName
-     * @param commandId
-     * @param returnValue
+     * @param nodeName     the node name
+     * @param commandId    the command id
+     * @param returnValue  the return value
      */
     public HzCommandReply(String nodeName, String commandId, Object returnValue) {
         this(
@@ -53,10 +53,10 @@ public class HzCommandReply extends HzCommandCommon {
     /**
      * c-tor
      *
-     * @param nodeName
-     * @param commandId
-     * @param returnValue
-     * @param success
+     * @param nodeName    the node name
+     * @param commandId   the command id
+     * @param returnValue the return value
+     * @param success     the status
      */
     public HzCommandReply(String nodeName, String commandId, Object returnValue, boolean success) {
         super(nodeName);
@@ -73,7 +73,7 @@ public class HzCommandReply extends HzCommandCommon {
 
     /**
      *
-     * @return
+     * @return the command id
      */
     public String getCommandId() {
         return m_commandId;
@@ -81,7 +81,7 @@ public class HzCommandReply extends HzCommandCommon {
 
     /**
      *
-     * @return
+     * @return true if success
      */
     public boolean isSuccess() {
         return m_success;
@@ -89,7 +89,7 @@ public class HzCommandReply extends HzCommandCommon {
 
     /**
      *
-     * @return
+     * @return the return value
      */
     public Object getReturnValue() {
         return m_success ? m_returnValue : null;
@@ -97,7 +97,7 @@ public class HzCommandReply extends HzCommandCommon {
 
     /**
      *
-     * @return
+     * @return the error
      */
     public Throwable getError() {
         return m_success ? null : (Throwable)m_returnValue;

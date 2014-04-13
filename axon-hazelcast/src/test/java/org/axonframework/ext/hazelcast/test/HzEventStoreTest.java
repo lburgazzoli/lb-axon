@@ -45,12 +45,11 @@ public class HzEventStoreTest extends HzTestBase {
     @Before
     public void setUp() throws Exception {
         m_proxy = createHzProxy();
-        m_proxy.init();
     }
 
     @After
     public void tearDown() throws Exception {
-        m_proxy.destroy();
+        m_proxy.shutdown();
     }
 
     // *************************************************************************

@@ -15,12 +15,10 @@
  */
 package org.axonframework.ext.hazelcast.store;
 
+import com.hazelcast.core.HazelcastInstance;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.ext.eventstore.AbstractDomainEventStore;
-import org.axonframework.ext.hazelcast.IHzProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
@@ -28,24 +26,22 @@ import java.util.Map;
 /**
  *
  */
-public class HzDomainEventStore extends AbstractDomainEventStore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HzDomainEventStore.class);
-
-    private final IHzProxy m_hazelcastManager;
-    private final Map<HzDomainEventKey,HzDomainEventMessage> m_storage;
+public class HzDomainEventStore<T> extends AbstractDomainEventStore<T> {
+    private final HazelcastInstance m_hzInstance;
+    private final Map<HzDomainEventKey<T>,HzDomainEventMessage<T>> m_storage;
 
     /**
      * c-tor
      *
-     * @param storageId
-     * @param aggregateType
-     * @param aggregateId
-     * @param hazelcastManager
+     * @param storageId      the storage id
+     * @param aggregateType  the aggregate type
+     * @param aggregateId    the aggregate id
+     * @param hzInstance     the Hazelcast instance
      */
-    public HzDomainEventStore(String storageId, String aggregateType, String aggregateId, IHzProxy hazelcastManager) {
+    public HzDomainEventStore(String storageId, String aggregateType, String aggregateId, HazelcastInstance hzInstance) {
         super(storageId,aggregateType,aggregateId);
-        m_hazelcastManager = hazelcastManager;
-        m_storage = m_hazelcastManager.getMap(storageId);
+        m_hzInstance = hzInstance;
+        m_storage = m_hzInstance.getMap(storageId);
     }
 
 
@@ -65,13 +61,12 @@ public class HzDomainEventStore extends AbstractDomainEventStore {
 
 
     @Override
-    @SuppressWarnings("unchecked")
-    public void add(DomainEventMessage message) {
-        m_storage.put(new HzDomainEventKey(message),new HzDomainEventMessage(message));
+    public void add(DomainEventMessage<T> message) {
+        m_storage.put(new HzDomainEventKey<>(message),new HzDomainEventMessage<>(message));
     }
 
     @Override
     public DomainEventStream getEventStream() {
-        return new HzDomainEventStream(m_storage);
+        return new HzDomainEventStream<>(m_storage);
     }
 }

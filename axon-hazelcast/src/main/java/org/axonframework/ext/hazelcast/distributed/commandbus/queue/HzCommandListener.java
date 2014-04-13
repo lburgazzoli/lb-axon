@@ -39,10 +39,10 @@ public class HzCommandListener extends Thread {
     /**
      * c-tor
      *
-     * @param cmdHandler
-     * @param replyHandler
-     * @param segment
-     * @param queue
+     * @param cmdHandler    the command handler
+     * @param replyHandler  the reply handler
+     * @param segment       the segment
+     * @param queue         the queue
      */
     public HzCommandListener(IHzCommandHandler cmdHandler, IHzCommandReplyHandler replyHandler,CommandBus segment, IQueue<HzMessage> queue) {
         m_segment = segment;

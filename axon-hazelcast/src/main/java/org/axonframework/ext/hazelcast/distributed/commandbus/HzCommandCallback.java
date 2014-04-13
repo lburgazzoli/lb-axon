@@ -15,10 +15,7 @@
  */
 package org.axonframework.ext.hazelcast.distributed.commandbus;
 
-import com.google.common.collect.Maps;
 import org.axonframework.commandhandling.CommandCallback;
-
-import java.util.Map;
 
 /**
  *
@@ -26,12 +23,11 @@ import java.util.Map;
 public class HzCommandCallback<T> implements CommandCallback<T> {
     private final boolean m_local;
     private final CommandCallback<T> m_callback;
-    private final Map<String,String> m_attributes;
 
     /**
      * c-tor
      *
-     * @param callback
+     * @param callback the callback
      */
     public HzCommandCallback(CommandCallback<T> callback) {
         this(false, callback);
@@ -40,18 +36,17 @@ public class HzCommandCallback<T> implements CommandCallback<T> {
     /**
      * c-tor
      *
-     * @param local
-     * @param callback
+     * @param local     local command
+     * @param callback  the callback
      */
     public HzCommandCallback(boolean local, CommandCallback<T> callback) {
-        m_local    = local;
-        m_callback = callback;
-        m_attributes = Maps.newHashMap();
+        m_local      = local;
+        m_callback   = callback;
     }
 
     /**
      *
-     * @return
+     * @return  true if local
      */
     public boolean isLocal() {
         return m_local;
@@ -65,13 +60,5 @@ public class HzCommandCallback<T> implements CommandCallback<T> {
     @Override
     public void onFailure(Throwable cause) {
         m_callback.onFailure(cause);
-    }
-
-    /**
-     *
-     * @return
-     */
-    public Map<String,String> getAttributes() {
-        return m_attributes;
     }
 }

@@ -25,10 +25,8 @@ import org.axonframework.eventhandling.ClusteringEventBus;
 import org.axonframework.eventhandling.EventBus;
 import org.axonframework.eventhandling.annotation.EventHandler;
 import org.axonframework.eventstore.EventStore;
-import org.axonframework.ext.hazelcast.samples.queue.helper.*;
-import org.axonframework.ext.repository.DisruptorRepositoryFactory;
-import org.axonframework.ext.repository.EventSourcingRepositoryFactory;
-import org.axonframework.ext.repository.IRepositoryFactory;
+import org.axonframework.ext.CommandCallbackTracer;
+import org.axonframework.ext.eventstore.MemoryEventStore;
 import org.axonframework.ext.hazelcast.HzProxy;
 import org.axonframework.ext.hazelcast.distributed.commandbus.queue.HzCommandBusConnector;
 import org.axonframework.ext.hazelcast.eventhandling.HzEventBusTerminal;
@@ -37,6 +35,10 @@ import org.axonframework.ext.hazelcast.eventhandling.sub.DynamicSubscriber;
 import org.axonframework.ext.hazelcast.samples.model.DataItem;
 import org.axonframework.ext.hazelcast.samples.model.DataItemCmd;
 import org.axonframework.ext.hazelcast.samples.model.DataItemEvt;
+import org.axonframework.ext.repository.DisruptorRepositoryFactory;
+import org.axonframework.ext.repository.EventSourcingRepositoryFactory;
+import org.axonframework.ext.repository.IRepositoryFactory;
+import org.axonframework.ext.samples.AxonSamplesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +47,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- *
- */
 public class SimpleApp {
 
     private static final Logger LOGGER =
@@ -68,14 +67,12 @@ public class SimpleApp {
         );
 
         CommandBus         cmdBus       = null;
-        //EventStore         evtStore     =  ChronicleEventStoreHelper.defaultEventStore()
-        //EventStore         evtStore     = new HzEventStore(proxy);
         EventStore         evtStore     = new MemoryEventStore();
         EventBus           evtBus       = new ClusteringEventBus(evtBusTer);
         IRepositoryFactory repoFactory  = null;
 
         if(remote) {
-            DisruptorCommandBus cmdBusLoc = new DisruptorCommandBus(evtStore,evtBus);
+            DisruptorCommandBus   cmdBusLoc = new DisruptorCommandBus(evtStore,evtBus);
             HzCommandBusConnector cmdBusCnx = new HzCommandBusConnector(proxy,cmdBusLoc,"axon",nodeName);
 
             cmdBusCnx.open();
@@ -106,10 +103,6 @@ public class SimpleApp {
         private final AtomicBoolean m_running;
         private final Logger m_logger;
 
-        /**
-         * @param threadName
-         * @param proxy
-         */
         public AxonServiceThread(String threadName,HzProxy proxy) {
             super(threadName);
             m_proxy   = proxy;
@@ -146,9 +139,6 @@ public class SimpleApp {
             m_running.set(false);
         }
 
-        /**
-         *
-         */
         public void shutdown() {
             m_running.set(false);
         }
@@ -161,11 +151,6 @@ public class SimpleApp {
         private final String m_nodeName;
         private final Logger m_logger;
 
-        /**
-         * @param nodeName
-         * @param threadName
-         * @param proxy
-         */
         public AxonRemoteServiceThread(String nodeName,String threadName,HzProxy proxy) {
             super(threadName);
             m_proxy    = proxy;
@@ -192,9 +177,6 @@ public class SimpleApp {
             svc.destroy();
         }
 
-        /**
-         *
-         */
         public void shutdown() {
             m_running.set(false);
         }
@@ -205,9 +187,8 @@ public class SimpleApp {
     // *************************************************************************
 
     public static void main(String[] args) {
-        HzProxy hxPx = new HzProxy(new LocalHazelcastConfig());
+        HzProxy hxPx = new HzProxy(AxonSamplesUtils.newHazelcastLocalConfig());
         hxPx.setPrefix("axon");
-        hxPx.init();
 
         AxonService svc = newAxonService(hxPx,true,"main");
         svc.init();
@@ -258,6 +239,6 @@ public class SimpleApp {
         }
 
         svc.destroy();
-        hxPx.destroy();
+        hxPx.shutdown();
     }
 }

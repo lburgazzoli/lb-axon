@@ -17,17 +17,13 @@ package org.axonframework.ext.hazelcast.samples.executor;
 
 import com.hazelcast.core.IMap;
 import org.axonframework.ext.hazelcast.HzConstants;
-import org.axonframework.ext.hazelcast.IHzProxy;
-import org.axonframework.ext.hazelcast.distributed.IHzAxonEngine;
+import org.axonframework.ext.hazelcast.HzProxy;
 import org.axonframework.ext.hazelcast.samples.model.DataItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-/**
- *
- */
 public class AxonProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(AxonProcessor.class);
 
@@ -40,15 +36,15 @@ public class AxonProcessor {
         System.setProperty("hazelcast.jmx","false");
 
         ConfigurableApplicationContext context = null;
-        IHzAxonEngine engine = null;
-        IHzProxy proxy = null;
+        AxonService engine = null;
+        HzProxy proxy = null;
 
         try {
             context = new ClassPathXmlApplicationContext("axon-processor.xml");
 
-            proxy = context.getBean("axon-hz-proxy",IHzProxy.class);
+            proxy = context.getBean("axon-hz-proxy",HzProxy.class);
 
-            engine = context.getBean("axon-engine",IHzAxonEngine.class);
+            engine = context.getBean("axon-service",AxonService.class);
             engine.addAggregateType(DataItem.class);
 
             try {
