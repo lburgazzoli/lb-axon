@@ -34,7 +34,8 @@ public class CommandCallbackTracer<T> extends CommandCallbackAdapter<T> {
     /**
      * c-tor
      *
-     * @param type
+     * @param type the class
+     * @param <C>  the type
      */
     public <C> CommandCallbackTracer(Class<C> type) {
         this(type.getName());
@@ -43,7 +44,7 @@ public class CommandCallbackTracer<T> extends CommandCallbackAdapter<T> {
     /**
      * c-tor
      *
-     * @param loggerId
+     * @param loggerId the logger id
      */
     public CommandCallbackTracer(String loggerId) {
         this(LoggerFactory.getLogger(loggerId));
@@ -52,7 +53,7 @@ public class CommandCallbackTracer<T> extends CommandCallbackAdapter<T> {
     /**
      * c-tor
      *
-     * @param logger
+     * @param logger the logger
      */
     public CommandCallbackTracer(Logger logger) {
         m_logger = logger;

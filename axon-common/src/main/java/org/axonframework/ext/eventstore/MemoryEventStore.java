@@ -40,6 +40,7 @@ public class MemoryEventStore<T> implements EventStore {
         m_storage = Maps.newConcurrentMap();
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void appendEvents(String type, DomainEventStream events) {
         Map<Object,List<DomainEventMessage<T>>> typeStorage = m_storage.get(type);
@@ -49,7 +50,7 @@ public class MemoryEventStore<T> implements EventStore {
         }
 
         if(events.hasNext()) {
-            DomainEventMessage          message     = events.next();
+            DomainEventMessage<T>       message     = events.next();
             Object                      aggregateId = message.getAggregateIdentifier();
             List<DomainEventMessage<T>> messages    = typeStorage.get(aggregateId);
 
@@ -65,6 +66,7 @@ public class MemoryEventStore<T> implements EventStore {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public DomainEventStream readEvents(String type, Object aggregateId) {
         DomainEventStream eventStream = null;
