@@ -7,7 +7,7 @@ script:
 - "./gradlew :axon-hazelcast:test"
 - "./gradlew uploadArchives"
 jdk:
-- oraclejdk7
+- oraclejdk8
 env:
   global:
   - secure: ZvfWAmpB64EaZ6QiQU23u0ce61e2e2BjC00k8JgLiufB6RJmlchzw4aFVUoXzhLu3l5Red6oQorlJeE2WHBw4AimsqvozlZHiWXm14Ncm3KDlBQmlc8tVNOmWlXfFeBBQsn8NjztQTTyW4YzB5O6QFzfbIUNTq/f7TN+9smV4wg=
