@@ -8,17 +8,18 @@ dependencies {
     compile project(':axon-chronicle')
     compile project(':axon-hazelcast')
 
-    compile("org.osgi:org.osgi.core:$osgiVersion")
-    compile("org.osgi:org.osgi.compendium:$osgiVersion")
+    compile("org.osgi:org.osgi.core:$versions.osgi")
+    compile("org.osgi:org.osgi.compendium:$versions.osgi")
 
+	testCompile "org.slf4j:slf4j-simple:$versions.slf4j"
     testCompile "javax.inject:javax.inject:1"
-    testCompile "org.ops4j.pax.exam:pax-exam-junit4:$paxExamVersion"
-    testRuntime "org.ops4j.pax.exam:pax-exam-container-native:$paxExamVersion"
-    testRuntime "org.ops4j.pax.exam:pax-exam-link-mvn:$paxExamVersion"
-    testRuntime "org.ops4j.pax.url:pax-url-aether:$paxUrlVersion"
-    testRuntime "org.ops4j.pax.url:pax-url-reference:$paxUrlVersion"
-    testRuntime "org.ops4j.pax.url:pax-url-wrap:$paxUrlVersion"
-    testRuntime "org.apache.felix:org.apache.felix.framework:$felixVersion"
+    testCompile "org.ops4j.pax.exam:pax-exam-junit4:$versions.paxExam"
+    testRuntime "org.ops4j.pax.exam:pax-exam-container-native:$versions.paxExam"
+    testRuntime "org.ops4j.pax.exam:pax-exam-link-mvn:$versions.paxExam"
+    testRuntime "org.ops4j.pax.url:pax-url-aether:$versions.paxUrl"
+    testRuntime "org.ops4j.pax.url:pax-url-reference:$versions.paxUrl"
+    testRuntime "org.ops4j.pax.url:pax-url-wrap:$versions.paxUrl"
+    testRuntime "org.apache.felix:org.apache.felix.framework:$versions.felix"
 }
 
 jar {
@@ -27,4 +28,22 @@ jar {
         instruction 'Import-Package'  , bundleInportPackages.join(',')
         instruction 'Export-Package'  , bundleExportPackages.join(',')
     }
+}
+
+test {
+	systemProperties = configurations.testCompile.resolvedConfiguration.resolvedArtifacts.collectEntries {
+		[ (it.moduleVersion.id.group + ":" + it.moduleVersion.id.name) : "${it.moduleVersion.id.version}" ]
+	} + [ 
+		'project.version' : "${project.version}" 
+	]
+}
+	
+// *****************************************************************************
+//
+// *****************************************************************************
+
+task printResolvedDependencies(dependsOn: classes) << {
+    configurations.testCompile.resolvedConfiguration.resolvedArtifacts.each {		
+		println "$it.moduleVersion.id.group:$it.moduleVersion.id.name:$it.moduleVersion.id.version"
+	}
 }

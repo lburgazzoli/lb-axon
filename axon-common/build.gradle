@@ -4,10 +4,8 @@ project.ext {
 }
 
 dependencies {
-    compile "com.google.guava:guava:$guavaVersion"
-    compile "javax.cache:cache-api:$javaxCacheVersion"
-
-    testCompile "junit:junit:$junitVersion"
+    compile "com.google.guava:guava:$versions.guava"
+    compile "javax.cache:cache-api:$versions.javaxCache"
 }
 
 jar {

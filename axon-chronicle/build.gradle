@@ -6,10 +6,8 @@ project.ext {
 dependencies {
     compile project(':axon-common')
 
-    compile "net.openhft:lang:$openhftLangVersion"
-    compile "net.openhft:chronicle:$openhftChronicleVersion"
-
-    testCompile "junit:junit:$junitVersion"
+    compile "net.openhft:lang:$versions.openhftLang"
+    compile "net.openhft:chronicle:$versions.openhftChronicle"
 }
 
 jar {

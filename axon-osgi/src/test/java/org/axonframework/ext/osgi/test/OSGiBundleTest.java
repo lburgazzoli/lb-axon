@@ -16,6 +16,7 @@
 package org.axonframework.ext.osgi.test;
 
 import org.junit.Test;
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
@@ -36,6 +37,7 @@ import static org.ops4j.pax.exam.CoreOptions.*;
 /**
  * @author lburgazzoli
  */
+@Ignore
 @RunWith(PaxExam.class)
 public class OSGiBundleTest extends OSGiTestCommon {
     private static final List<String> BUNDLE_NAMES = Arrays.asList(
@@ -46,22 +48,21 @@ public class OSGiBundleTest extends OSGiTestCommon {
     BundleContext context;
 
     @Configuration
-    public Option[] config() {
-
+    public Option[] config() {	
         return options(
             systemProperty("org.osgi.framework.storage.clean").value("true"),
             systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("WARN"),
-            mavenBundleEnv("org.slf4j", "slf4j-api", "version.slf4j"),
-            mavenBundleEnv("org.slf4j", "slf4j-simple", "version.slf4j").noStart(),
-            mavenBundleEnv("org.apache.commons","commons-lang3","version.commonsLang"),
-            mavenBundleEnv("commons-collections","commons-collections","version.commonsCollections"),
-            mavenBundleEnv("com.hazelcast","hazelcast","version.hazelcast"),
-            mavenBundleEnv("org.axonframework","axon-core","version.axon"),
-            mavenBundleEnv("org.axonframework","axon-distributed-commandbus","version.axon"),
-            mavenBundleEnv("com.google.guava","guava","version.guava"),
-            mavenBundleEnv("javax.cache", "cache-api", "version.javaxCache"),
-            mavenBundle("org.apache.geronimo.specs", "geronimo-servlet_3.0_spec", "1.0"),
-            mavenBundle("joda-time", "joda-time", "2.3"),
+            mavenBundleEnv("org.slf4j", "slf4j-api"),
+            mavenBundleEnv("org.slf4j", "slf4j-simple").noStart(),
+            mavenBundleEnv("org.apache.commons","commons-lang3"),
+            mavenBundleEnv("commons-collections","commons-collections"),
+            mavenBundleEnv("com.hazelcast","hazelcast"),
+            mavenBundleEnv("org.axonframework","axon-core"),
+            mavenBundleEnv("org.axonframework","axon-distributed-commandbus"),
+            mavenBundleEnv("com.google.guava","guava"),
+            mavenBundleEnv("javax.cache", "cache-api"),
+            mavenBundle("org.apache.geronimo.specs", "geronimo-servlet_3.0_spec"),
+            mavenBundle("joda-time", "joda-time"),
             axonBundle("axon-common"),
             axonBundle("axon-hazelcast"),
             junitBundles(),

@@ -3,6 +3,7 @@ language:
 script:
 - "./gradlew clean"
 - "./gradlew compileJava"
+- "./gradlew compileGroovy"
 - "./gradlew :axon-chronicle:test"
 - "./gradlew :axon-hazelcast:test"
 - "./gradlew uploadArchives"

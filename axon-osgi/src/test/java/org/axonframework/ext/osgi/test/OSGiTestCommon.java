@@ -27,6 +27,8 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
  *
  */
 public class OSGiTestCommon {
+	public static final String FILE_SEPARATOR = System.getProperty("file.separator");
+	
     /**
      * @param axonBundleName
      * @return
@@ -34,18 +36,18 @@ public class OSGiTestCommon {
     protected UrlProvisionOption axonBundle(final String axonBundleName) {
         String jarName = new StringBuilder()
             .append("build")
-            .append(File.separator)
+            .append(FILE_SEPARATOR)
             .append("libs")
-            .append(File.separator)
+            .append(FILE_SEPARATOR)
             .append(axonBundleName)
             .append("-")
             .append(System.getProperty("version.project"))
             .append(".jar")
             .toString();
 
-        return new File(axonBundleName + File.separator + jarName).exists()
-            ? bundle("reference:file:" + axonBundleName + File.separator + jarName)
-            : bundle("reference:file:.." + File.separator + axonBundleName + File.separator + jarName);
+        return new File(axonBundleName + FILE_SEPARATOR + jarName).exists()
+            ? bundle("reference:file:" + axonBundleName + FILE_SEPARATOR + jarName)
+            : bundle("reference:file:.." + FILE_SEPARATOR + axonBundleName + FILE_SEPARATOR + jarName);
     }
 
     /**
@@ -55,7 +57,7 @@ public class OSGiTestCommon {
      * @param systemProperyKey
      * @return
      */
-    protected MavenArtifactProvisionOption mavenBundleEnv(final String groupId,final String artifactId,final String systemProperyKey) {
-        return mavenBundle(groupId, artifactId, System.getProperty(systemProperyKey));
+    protected MavenArtifactProvisionOption mavenBundleEnv(final String groupId,final String artifactId) {
+        return mavenBundle(groupId, artifactId, System.getProperty(groupId + ":" + artifactId));
     }
 }

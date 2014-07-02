@@ -5,6 +5,7 @@
 subprojects {
 
     apply plugin: 'java'
+	apply plugin: 'groovy'
     apply plugin: 'osgi'
     apply plugin: 'maven'
 
@@ -14,29 +15,30 @@ subprojects {
     targetCompatibility = '1.8'
 
     ext {
-        slf4jVersion              = '1.7.5'
-        log4jVersion              = '1.2.17'
-        jacksonVersion            = '2.3.2'
-        jacksonAnnotationsVersion = '2.3.2'
-        openhftLangVersion        = '6.1.4'
-        openhftChronicleVersion   = '2.0.3'
-        hazelcastVersion          = '3.2'
-        osgiVersion               = '5.0.0'
-        guavaVersion              = '16.0.1'
-        axonVersion               = '2.1.2'
-        junitVersion              = '4.11'
-        felixVersion              = '4.2.1'
-        paxExamVersion            = '3.4.0'
-        paxUrlVersion             = '1.6.0'
-        jgroupsVersion            = '3.4.2.Final'
-        commonsLangVersion        = '3.3.1'
-        commonsBeanutilsVersion   = '1.9.1'
-        commonsCollectionsVersion = '4.0'
-        javaxCacheVersion         = '1.0.0'
-        springVersion             = '3.1.0.RELEASE'
-
-        gradleVersion             = '1.11'
-        gradleScriptDir           = "${rootProject.projectDir}/gradle"
+		versions = [
+			'slf4j'              : '1.7.5',
+			'log4j'              : '1.2.17',
+			'jackson'            : '2.4.1',
+			'jacksonAnnotations' : '2.4.1',
+			'openhftLang'        : '6.4.4',
+			'openhftChronicle'   : '3.1.1',
+			'hazelcast'          : '3.2.3',
+			'osgi'               : '5.0.0',
+			'guava'              : '17.0',
+			'axon'               : '2.2',
+			'junit'              : '4.11',
+			'felix'              : '4.4.0',
+			'paxExam'            : '4.0.0',
+			'paxUrl'             : '2.1.0',
+			'jgroups'            : '3.4.4.Final',
+			'commonsLang'        : '3.3.2',
+			'commonsBeanutils'   : '1.9.1',
+			'commonsCollections' : '4.0',
+			'javaxCache'         : '1.0.0',
+			'spring'             : '3.2.9.RELEASE',
+			'groovy'             : '2.3.3',
+			'jodaTime'           : '2.3'
+		]
 
         if(project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePassword')) {
             ciUsr = sonatypeUsername
@@ -59,19 +61,21 @@ subprojects {
     }
 
     dependencies {
-        compile "org.apache.commons:commons-lang3:$commonsLangVersion"
-        compile "org.apache.commons:commons-collections4:$commonsCollectionsVersion"
-        compile "commons-beanutils:commons-beanutils:$commonsBeanutilsVersion"
-        compile "org.slf4j:slf4j-api:$slf4jVersion"
-        compile "org.slf4j:slf4j-ext:$slf4jVersion"
-        compile "org.slf4j:jul-to-slf4j:$slf4jVersion"
-        compile "org.slf4j:jcl-over-slf4j:$slf4jVersion"
-        compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
-        compile "log4j:log4j:$log4jVersion"
+        compile "org.apache.commons:commons-lang3:$versions.commonsLang"
+        compile "org.apache.commons:commons-collections4:$versions.commonsCollections"
+        compile "commons-beanutils:commons-beanutils:$versions.commonsBeanutils"
+        compile "org.slf4j:slf4j-api:$versions.slf4j"
+        compile "org.slf4j:slf4j-ext:$versions.slf4j"
+        compile "org.slf4j:jul-to-slf4j:$versions.slf4j"
+        compile "org.slf4j:jcl-over-slf4j:$versions.slf4j"        
         compile "org.apache.geronimo.specs:geronimo-jpa_2.0_spec:1.1"
-        compile "org.axonframework:axon-core:$axonVersion"
-        compile "org.axonframework:axon-distributed-commandbus:$axonVersion"
-        compile "org.jgroups:jgroups:$jgroupsVersion"
+        compile "org.axonframework:axon-core:$versions.axon"
+        compile "org.axonframework:axon-distributed-commandbus:$versions.axon"
+        compile "org.jgroups:jgroups:$versions.jgroups"
+		compile "org.codehaus.groovy:groovy:$versions.groovy"
+		compile "joda-time:joda-time:$versions.jodaTime"
+		
+		testCompile "junit:junit:$versions.junit"
     }
 
     jar {
@@ -94,26 +98,6 @@ subprojects {
             events "failed"
             exceptionFormat "full"
         }
-
-        systemProperties = [
-            'version.project'            : version,
-            'version.slf4j'              : slf4jVersion,
-            'version.log4j'              : log4jVersion,
-            'version.jackson'            : jacksonVersion,
-            'version.hazelcast'          : hazelcastVersion,
-            'version.osgi'               : osgiVersion,
-            'version.guava'              : guavaVersion,
-            'version.axon'               : axonVersion,
-            'version.junit'              : junitVersion,
-            'version.felix'              : felixVersion,
-            'version.paxExam'            : paxExamVersion,
-            'version.paxUrl'             : paxUrlVersion,
-            'version.commonsLang'        : commonsLangVersion,
-            'version.commonsCollections' : commonsCollectionsVersion,
-            'version.javaxCache'         : javaxCacheVersion,
-            'pax.exam.framework'         : 'felix',
-            'pax.exam.logging'           : 'none'
-        ]
     }
 
     [compileJava, compileTestJava]*.options*.compilerArgs = [
@@ -133,7 +117,7 @@ subprojects {
     task sourcesJar(type: Jar) {
         from sourceSets.main.allSource
         classifier = 'sources'
-    }
+    } 
 
     // *************************************************************************
     //
@@ -188,6 +172,6 @@ subprojects {
 // *****************************************************************************
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.11'
+    gradleVersion = '2.0'
 }
 

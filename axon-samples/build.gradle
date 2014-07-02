@@ -7,10 +7,13 @@ dependencies {
     compile project(':axon-hazelcast')
     compile project(':axon-chronicle')
 
-    compile "com.hazelcast:hazelcast:$hazelcastVersion"
-    compile "com.hazelcast:hazelcast-spring:$hazelcastVersion"
-    compile "com.hazelcast:hazelcast-client:$hazelcastVersion"
-    compile "org.springframework:spring-context:$springVersion"
+    compile "com.hazelcast:hazelcast:$versions.hazelcast"
+    compile "com.hazelcast:hazelcast-spring:$versions.hazelcast"
+    compile "com.hazelcast:hazelcast-client:$versions.hazelcast"
+    compile "org.springframework:spring-context:$versions.spring"
+	
+	runtime "org.slf4j:slf4j-log4j12:$versions.slf4j"
+    runtime "log4j:log4j:$versions.log4j"
 }
 
 jar {
