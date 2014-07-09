@@ -32,7 +32,6 @@ import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
 /**
@@ -90,15 +89,13 @@ public class OSGiBundleTest extends OSGiTestCommon {
 
     @Test
     public void checkBundle() {
-        for(final Map.Entry<String,Integer> entry : BUNDLES.entrySet()) {
-            for(final Bundle bundle : context.getBundles()) {
-                if(entry.getKey().equals(bundle.getSymbolicName())) {
-                    assertTrue(bundle.getState() == entry.getValue());
-                    continue;
-                }
-            }
+        assertNotNull(context);
 
-            fail("Bundle <" + entry.getKey() + "> not found"); 
+        final Bundle[] bundles = context.getBundles();
+        for(final Map.Entry<String,Integer> entry : BUNDLES.entrySet()) {
+            final Bundle bundle = findBundle(entry.getKey(), bundles);
+            assertNotNull(bundle)
+            assertTrue(bundle.getState() == entry.getValue());
         }
     }
 }

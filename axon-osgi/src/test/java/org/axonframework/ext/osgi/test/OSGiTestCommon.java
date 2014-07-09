@@ -60,4 +60,19 @@ public class OSGiTestCommon {
     protected MavenArtifactProvisionOption mavenBundleEnv(final String groupId,final String artifactId) {
         return mavenBundle(groupId, artifactId, System.getProperty(groupId + ":" + artifactId));
     }
+
+    /**
+     * @param symbolicName
+     * @param bundles
+     * @return
+     */
+    protected Bundle findBundle(String symbolicName, final Bundle... bundles) {
+        for(final Bundle bundle : context.getBundles()) {
+            if(entry.getKey().equals(bundle.getSymbolicName())) {
+                return bundle;
+            }
+        }
+
+        return null;
+    }
 }
