@@ -2,12 +2,27 @@
 //
 // *****************************************************************************
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7.1'
+    }
+}
+
+// *****************************************************************************
+//
+// *****************************************************************************
+
 subprojects {
 
     apply plugin: 'java'
-	apply plugin: 'groovy'
+    apply plugin: 'groovy'
     apply plugin: 'osgi'
     apply plugin: 'maven'
+    apply plugin: 'nexus'
 
     version             = '1.0.0.SNAPSHOT'
     group               = 'com.github.lburgazzoli'
@@ -15,44 +30,45 @@ subprojects {
     targetCompatibility = '1.8'
 
     ext {
-		versions = [
-			'slf4j'              : '1.7.5',
-			'log4j'              : '1.2.17',
-			'jackson'            : '2.4.1',
-			'jacksonAnnotations' : '2.4.1',
-			'openhftLang'        : '6.4.4',
-			'openhftChronicle'   : '3.1.1',
-			'hazelcast'          : '3.2.3',
-			'osgi'               : '5.0.0',
-			'guava'              : '17.0',
-			'axon'               : '2.2',
-			'junit'              : '4.11',
-			'felix'              : '4.4.0',
-			'paxExam'            : '4.0.0',
-			'paxUrl'             : '2.1.0',
-			'jgroups'            : '3.4.4.Final',
-			'commonsLang'        : '3.3.2',
-			'commonsBeanutils'   : '1.9.1',
-			'commonsCollections' : '4.0',
-			'javaxCache'         : '1.0.0',
-			'spring'             : '3.2.9.RELEASE',
-			'groovy'             : '2.3.3',
-			'jodaTime'           : '2.3'
-		]
+        versions = [
+            'slf4j'              : '1.7.5',
+            'log4j'              : '1.2.17',
+            'jackson'            : '2.4.1',
+            'jacksonAnnotations' : '2.4.1',
+            'openhftLang'        : '6.4.4',
+            'openhftChronicle'   : '3.1.1',
+            'hazelcast'          : '3.2.3',
+            'osgi'               : '5.0.0',
+            'guava'              : '17.0',
+            'axon'               : '2.2',
+            'junit'              : '4.11',
+            'felix'              : '4.4.0',
+            'paxExam'            : '4.0.0',
+            'paxUrl'             : '2.1.0',
+            'jgroups'            : '3.4.4.Final',
+            'commonsLang'        : '3.3.2',
+            'commonsBeanutils'   : '1.9.1',
+            'commonsCollections' : '4.0',
+            'javaxCache'         : '1.0.0',
+            'spring'             : '3.2.9.RELEASE',
+            'groovy'             : '2.3.4',
+            'jodaTime'           : '2.3'
+        ]
 
         if(project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePassword')) {
-            ciUsr = sonatypeUsername
-            ciPwd = sonatypePassword
+            nexusUsername = sonatypeUsername
+            nexusPassword = sonatypePassword
         } else {
-            ciUsr = "$System.env.CI_DEPLOY_USERNAME"
-            ciPwd = "$System.env.CI_DEPLOY_PASSWORD"
+            nexusUsername = "$System.env.CI_DEPLOY_USERNAME"
+            nexusPassword = "$System.env.CI_DEPLOY_PASSWORD"
         }
 
         prefix              = 'lb'
         isReleaseVersion    = !version.endsWith("SNAPSHOT")
-        gitRoot             = "https://github.com/lburgazzoli"
-        gitProject          = "https://github.com/lburgazzoli/lb-axon"
-        deploySnapshot      = "https://oss.sonatype.org/content/repositories/snapshots"
+        gitRoot             = 'https://github.com/lburgazzoli'
+        gitProject          = 'https://github.com/lburgazzoli/lb-axon'
+        deployRelease       = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+        deploySnapshot      = 'https://oss.sonatype.org/content/repositories/snapshots'
     }
     
     repositories {
@@ -72,10 +88,10 @@ subprojects {
         compile "org.axonframework:axon-core:$versions.axon"
         compile "org.axonframework:axon-distributed-commandbus:$versions.axon"
         compile "org.jgroups:jgroups:$versions.jgroups"
-		compile "org.codehaus.groovy:groovy:$versions.groovy"
-		compile "joda-time:joda-time:$versions.jodaTime"
-		
-		testCompile "junit:junit:$versions.junit"
+        compile "org.codehaus.groovy:groovy:$versions.groovy"
+        compile "joda-time:joda-time:$versions.jodaTime"
+        
+        testCompile "junit:junit:$versions.junit"
     }
 
     jar {
@@ -109,60 +125,35 @@ subprojects {
     //
     // *************************************************************************
 
-    task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
-        from 'build/docs/javadoc'
+    nexus {
+        attachJavadoc         = true
+        attachSources         = true
+        attachTests           = true
+        sign                  = false
+        repositoryUrl         = deployRelease
+        snapshotRepositoryUrl = deploySnapshot
     }
 
-    task sourcesJar(type: Jar) {
-        from sourceSets.main.allSource
-        classifier = 'sources'
-    } 
+    modifyPom {
+        project {
+	    name          = "${project.prefix}-${project.name}"
+	    description   = "${project.prefix}-${project.name}"
+	    url           = "${project.gitProject}"
+	    packaging     = 'jar'
 
-    // *************************************************************************
-    //
-    // *************************************************************************
+	    licenses {
+	        license {
+		    name         = "The Apache Software License, Version 2.0"
+		    url          = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+		    distribution = "repo"
+	        }
+	    }
 
-    artifacts {
-        archives jar
-        archives javadocJar
-        archives sourcesJar
-    }
-
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-
-                repository(url: deploySnapshot) {
-                    authentication(
-                        userName: "${project.ciUsr}",
-                        password: "${project.ciPwd}"
-                    )
-                }
-
-                pom {
-                    project {
-                        name          = "${project.prefix}-${project.name}"
-                        description   = "${project.prefix}-${project.name}"
-                        url           = "${project.gitProject}"
-                        packaging     = 'jar'
-
-                        licenses {
-                            license {
-                        	    name         = "The Apache Software License, Version 2.0"
-                        		url          = "http://www.apache.org/licenses/LICENSE-2.0.txt"
-                        		distribution = "repo"
-                        	}
-                        }
-
-                        scm {
-                            url                 = "${project.gitProject}"
-                            connection          = "scm:git:${project.gitProject}.git"
-                            developerConnection = "scm:git:${project.gitProject}.git"
-                        }
-                    }
-                }
-            }
+	    scm {
+	        url                 = "${project.gitProject}"
+	        connection          = "scm:git:${project.gitProject}.git"
+	        developerConnection = "scm:git:${project.gitProject}.git"
+	    }
         }
     }
 }

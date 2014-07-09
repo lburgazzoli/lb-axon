@@ -11,7 +11,7 @@ dependencies {
     compile("org.osgi:org.osgi.core:$versions.osgi")
     compile("org.osgi:org.osgi.compendium:$versions.osgi")
 
-	testCompile "org.slf4j:slf4j-simple:$versions.slf4j"
+    testCompile "org.slf4j:slf4j-simple:$versions.slf4j"
     testCompile "javax.inject:javax.inject:1"
     testCompile "org.ops4j.pax.exam:pax-exam-junit4:$versions.paxExam"
     testRuntime "org.ops4j.pax.exam:pax-exam-container-native:$versions.paxExam"
@@ -31,19 +31,19 @@ jar {
 }
 
 test {
-	systemProperties = configurations.testCompile.resolvedConfiguration.resolvedArtifacts.collectEntries {
-		[ (it.moduleVersion.id.group + ":" + it.moduleVersion.id.name) : "${it.moduleVersion.id.version}" ]
-	} + [ 
-		'project.version' : "${project.version}" 
-	]
+    systemProperties = configurations.testCompile.resolvedConfiguration.resolvedArtifacts.collectEntries {
+        [ (it.moduleVersion.id.group + ":" + it.moduleVersion.id.name) : "${it.moduleVersion.id.version}" ]
+    } + [ 
+        'project.version' : "${project.version}" 
+    ]
 }
-	
+    
 // *****************************************************************************
 //
 // *****************************************************************************
 
 task printResolvedDependencies(dependsOn: classes) << {
-    configurations.testCompile.resolvedConfiguration.resolvedArtifacts.each {		
-		println "$it.moduleVersion.id.group:$it.moduleVersion.id.name:$it.moduleVersion.id.version"
-	}
+    configurations.testCompile.resolvedConfiguration.resolvedArtifacts.each {       
+        println "$it.moduleVersion.id.group:$it.moduleVersion.id.name:$it.moduleVersion.id.version"
+    }
 }
