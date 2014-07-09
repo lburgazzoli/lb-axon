@@ -37,14 +37,14 @@ import static org.ops4j.pax.exam.CoreOptions.*;
 /**
  * @author lburgazzoli
  */
-@Ignore
+//@Ignore
 @RunWith(PaxExam.class)
 public class OSGiBundleTest extends OSGiTestCommon {
     private static final Map<String,Integer> BUNDLES = new HashMap<String,Integer>() {{
-        put("org.axonframework:axon-core"                   , Bundle.ACTIVE);
-        put("org.axonframework:axon-distributed-commandbus" , Bundle.ACTIVE);
-        put("com.github.lburgazzoli.axon-common"            , Bundle.ACTIVE);
-        put("com.github.lburgazzoli.axon-hazelcast"         , Bundle.ACTIVE);
+        put("org.axonframework.axon-core"                    , Bundle.ACTIVE);
+        put("org.axonframework.axon-distributed-commandbus"  , Bundle.ACTIVE);
+        put("com.github.lburgazzoli-lb-axon-common"          , Bundle.ACTIVE);
+        put("com.github.lburgazzoli-lb-axon-hazelcast"       , Bundle.ACTIVE);
     }};
 
     @Inject
@@ -94,7 +94,7 @@ public class OSGiBundleTest extends OSGiTestCommon {
         final Bundle[] bundles = context.getBundles();
         for(final Map.Entry<String,Integer> entry : BUNDLES.entrySet()) {
             final Bundle bundle = findBundle(entry.getKey(), bundles);
-            assertNotNull(bundle)
+            assertNotNull("Bundle <" + entry.getKey() + "> does not exist",bundle);
             assertTrue(bundle.getState() == entry.getValue());
         }
     }

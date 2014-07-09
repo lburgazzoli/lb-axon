@@ -15,6 +15,8 @@
  */
 package org.axonframework.ext.osgi.test;
 
+import org.osgi.framework.Bundle;
+
 import org.ops4j.pax.exam.options.MavenArtifactProvisionOption;
 import org.ops4j.pax.exam.options.UrlProvisionOption;
 
@@ -39,9 +41,11 @@ public class OSGiTestCommon {
             .append(FILE_SEPARATOR)
             .append("libs")
             .append(FILE_SEPARATOR)
+            .append("lb")
+            .append("-")
             .append(axonBundleName)
             .append("-")
-            .append(System.getProperty("version.project"))
+            .append(System.getProperty("project.version"))
             .append(".jar")
             .toString();
 
@@ -66,9 +70,9 @@ public class OSGiTestCommon {
      * @param bundles
      * @return
      */
-    protected Bundle findBundle(String symbolicName, final Bundle... bundles) {
-        for(final Bundle bundle : context.getBundles()) {
-            if(entry.getKey().equals(bundle.getSymbolicName())) {
+    protected Bundle findBundle(final String symbolicName, final Bundle... bundles) {
+        for(final Bundle bundle : bundles) {
+            if(symbolicName.equals(bundle.getSymbolicName())) {
                 return bundle;
             }
         }

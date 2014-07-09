@@ -1,12 +1,7 @@
 language:
 - java
 script:
-- "./gradlew clean"
-- "./gradlew compileJava"
-- "./gradlew compileGroovy"
-- "./gradlew :axon-chronicle:test"
-- "./gradlew :axon-hazelcast:test"
-- "./gradlew uploadArchives"
+- "./gradlew clean build uploadArchives"
 jdk:
 - oraclejdk8
 env:
