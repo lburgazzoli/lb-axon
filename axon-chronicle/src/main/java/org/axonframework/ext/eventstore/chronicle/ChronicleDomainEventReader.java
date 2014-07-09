@@ -25,10 +25,12 @@ import org.axonframework.serializer.SimpleSerializedObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.axonframework.ext.eventstore.CloseableDomainEventReader;
+
 /**
  *
  */
-public class ChronicleDomainEventReader<T> implements DomainEventStream {
+public class ChronicleDomainEventReader<T> implements CloseableDomainEventReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleDomainEventReader.class);
 
     private final Serializer m_serializer;
@@ -68,6 +70,14 @@ public class ChronicleDomainEventReader<T> implements DomainEventStream {
     @Override
     public DomainEventMessage<T> peek() {
         return m_excerpt != null ? eventAt(m_excerpt.index()) : null;
+    }
+
+    @Override
+    public void close() {
+        if(m_excerpt != null) {
+            m_excerpt.close();
+            m_excerpt = null;
+        }
     }
 
     // *************************************************************************

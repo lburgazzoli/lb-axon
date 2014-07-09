@@ -32,6 +32,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
 /**
@@ -40,12 +41,19 @@ import static org.ops4j.pax.exam.CoreOptions.*;
 @Ignore
 @RunWith(PaxExam.class)
 public class OSGiBundleTest extends OSGiTestCommon {
-    private static final List<String> BUNDLE_NAMES = Arrays.asList(
-        "com.github.lburgazzoli.axon-hazelcast"
-    );
+    private static final Map<String,Integer> BUNDLES = new HashMap<String,Integer>() {{
+        put("org.axonframework:axon-core"                   , Bundle.ACTIVE);
+        put("org.axonframework:axon-distributed-commandbus" , Bundle.ACTIVE);
+        put("com.github.lburgazzoli.axon-common"            , Bundle.ACTIVE);
+        put("com.github.lburgazzoli.axon-hazelcast"         , Bundle.ACTIVE);
+    }};
 
     @Inject
     BundleContext context;
+
+    // *************************************************************************
+    // SET-UP
+    // *************************************************************************
 
     @Configuration
     public Option[] config() {	
@@ -54,11 +62,11 @@ public class OSGiBundleTest extends OSGiTestCommon {
             systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("WARN"),
             mavenBundleEnv("org.slf4j", "slf4j-api"),
             mavenBundleEnv("org.slf4j", "slf4j-simple").noStart(),
-            mavenBundleEnv("org.apache.commons","commons-lang3"),
-            mavenBundleEnv("commons-collections","commons-collections"),
-            mavenBundleEnv("com.hazelcast","hazelcast"),
-            mavenBundleEnv("org.axonframework","axon-core"),
-            mavenBundleEnv("org.axonframework","axon-distributed-commandbus"),
+            mavenBundleEnv("org.apache.commons", "commons-lang3"),
+            mavenBundleEnv("commons-collections", "commons-collections"),
+            mavenBundleEnv("com.hazelcast", "hazelcast"),
+            mavenBundleEnv("org.axonframework", "axon-core"),
+            mavenBundleEnv("org.axonframework", "axon-distributed-commandbus"),
             mavenBundleEnv("com.google.guava","guava"),
             mavenBundleEnv("javax.cache", "cache-api"),
             mavenBundle("org.apache.geronimo.specs", "geronimo-servlet_3.0_spec"),
@@ -71,6 +79,10 @@ public class OSGiBundleTest extends OSGiTestCommon {
         );
     }
 
+    // *************************************************************************
+    // TESTS
+    // *************************************************************************
+
     @Test
     public void checkInject() {
         assertNotNull(context);
@@ -78,17 +90,16 @@ public class OSGiBundleTest extends OSGiTestCommon {
 
     @Test
     public void checkBundle() {
-        Map<String,Bundle> axonBundles = new HashMap<String,Bundle>();
-
-        for(Bundle bundle : context.getBundles()) {
-            if(BUNDLE_NAMES.contains(bundle.getSymbolicName())) {
-                axonBundles.put(bundle.getSymbolicName(),bundle);
+        for(final Map.Entry<String,Integer> entry : BUNDLES.entrySet()) {
+            for(final Bundle bundle : context.getBundles()) {
+                if(entry.getKey().equals(bundle.getSymbolicName())) {
+                    assertTrue(bundle.getState() == entry.getValue());
+                    continue;
+                }
             }
-        }
 
-        for(String bundleName : BUNDLE_NAMES) {
-            assertTrue(axonBundles.containsKey(bundleName));
-            assertTrue(axonBundles.get(bundleName).getState() == Bundle.ACTIVE);
+            fail("Bundle <" + entry.getKey() + "> not found"); 
         }
     }
 }
+

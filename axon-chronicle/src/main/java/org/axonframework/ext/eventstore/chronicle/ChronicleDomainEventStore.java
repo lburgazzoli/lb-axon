@@ -49,22 +49,29 @@ public class ChronicleDomainEventStore<T> extends AbstractDomainEventStore<T> {
      * @param aggregateType the AggregateType
      * @param aggregateId   the AggregateId
      */
-    public ChronicleDomainEventStore(Serializer serializer,String basePath,String storageId, String aggregateType, String aggregateId) {
+    public ChronicleDomainEventStore(Serializer serializer, String basePath, String storageId, String aggregateType, String aggregateId) {
         super(storageId,aggregateType,aggregateId);
+
         m_serializer = serializer;
         m_basePath = basePath;
 
         try {
             String dataPath = FilenameUtils.concat(m_basePath,storageId);
-            LOGGER.debug("IndexedChronicle => BasePath: {}, DataPath: {}",basePath,dataPath);
+            LOGGER.debug("IndexedChronicle => BasePath: {}, DataPath: {}",basePath, dataPath);
 
             m_chronicle = new IndexedChronicle(dataPath);
             if(m_chronicle != null) {
                 m_writer = new ChronicleDomainEventWriter<>(m_chronicle,m_serializer);
             }
         } catch(Exception e) {
+            if(m_writer != null) {
+                m_writer.close();
+            }
+
             //TODO: check what to do
             m_chronicle = null;
+            m_writer = null;
+
             LOGGER.warn("Exception",e);
         }
     }
@@ -79,6 +86,10 @@ public class ChronicleDomainEventStore<T> extends AbstractDomainEventStore<T> {
         if(m_chronicle != null) {
             m_chronicle.close();
         }
+
+        if(m_writer != null) {
+            m_writer.close();
+        }
     }
 
     @Override
@@ -87,7 +98,7 @@ public class ChronicleDomainEventStore<T> extends AbstractDomainEventStore<T> {
     }
 
     @Override
-    public void add(DomainEventMessage<T> message) {
+    public void add(final DomainEventMessage<T> message) {
         if(m_writer != null) {
             m_writer.write(message);
         }

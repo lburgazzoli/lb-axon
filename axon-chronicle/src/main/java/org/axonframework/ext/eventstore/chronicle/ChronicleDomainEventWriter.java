@@ -15,6 +15,7 @@
  */
 package org.axonframework.ext.eventstore.chronicle;
 
+import java.io.Closeable;
 import net.openhft.chronicle.Chronicle;
 import net.openhft.chronicle.ExcerptAppender;
 import org.axonframework.domain.DomainEventMessage;
@@ -23,10 +24,12 @@ import org.axonframework.serializer.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.axonframework.ext.eventstore.CloseableDomainEventWriter;
+
 /**
  *
  */
-public class ChronicleDomainEventWriter<T> {
+public class ChronicleDomainEventWriter<T> implements CloseableDomainEventWriter<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleDomainEventWriter.class);
 
     private final Serializer m_serializer;
@@ -54,7 +57,8 @@ public class ChronicleDomainEventWriter<T> {
      *
      * @param message the mesage to persist
      */
-    public void write(DomainEventMessage<T> message) {
+    @Override
+    public void write(final DomainEventMessage<T> message) {
         if(m_excerpt != null) {
             SerializedObject<byte[]> data = m_serializer.serialize(message,byte[].class);
 
@@ -62,6 +66,14 @@ public class ChronicleDomainEventWriter<T> {
             m_excerpt.writeInt(data.getData().length);
             m_excerpt.write(data.getData());
             m_excerpt.finish();
+        }
+    }
+
+    @Override
+    public void close() {
+        if(m_excerpt != null) {
+            m_excerpt.close();
+            m_excerpt = null;
         }
     }
 }

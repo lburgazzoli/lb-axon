@@ -60,7 +60,7 @@ public class ChronicleEventStore<T> extends AbstractEventStore {
      * @param basePath   the Chronicle base path
      * @param serializer the DomainEventStream serializer
      */
-    public ChronicleEventStore(String basePath,Serializer serializer) {
+    public ChronicleEventStore(String basePath, final Serializer serializer) {
         m_basePath = basePath;
         m_serializer = serializer;
         m_domainEventStore = Maps.newConcurrentMap();
@@ -97,7 +97,7 @@ public class ChronicleEventStore<T> extends AbstractEventStore {
             DomainEventMessage<T> dem = events.next();
             if(size == 0) {
                 storageId = ChronicleEventStoreUtil.getStorageIdentifier(type, dem);
-                des  = m_domainEventStore.get(storageId);
+                des = m_domainEventStore.get(storageId);
 
                 if(des == null) {
                     // create a new DomainEventStore
@@ -129,8 +129,8 @@ public class ChronicleEventStore<T> extends AbstractEventStore {
 
     @Override
     public DomainEventStream readEvents(String type, Object identifier) {
-        String mapId = ChronicleEventStoreUtil.getStorageIdentifier(type, identifier.toString());
-        CloseableDomainEventStore<T> hdes = m_domainEventStore.get(mapId);
+        final String mapId = ChronicleEventStoreUtil.getStorageIdentifier(type, identifier.toString());
+        final CloseableDomainEventStore<T> hdes = m_domainEventStore.get(mapId);
 
         if(hdes != null) {
             return hdes.getEventStream();

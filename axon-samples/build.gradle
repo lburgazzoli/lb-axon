@@ -12,8 +12,8 @@ dependencies {
     compile "com.hazelcast:hazelcast-client:$versions.hazelcast"
     compile "org.springframework:spring-context:$versions.spring"
 	
-	runtime "org.slf4j:slf4j-log4j12:$versions.slf4j"
-    runtime "log4j:log4j:$versions.log4j"
+    runtime "ch.qos.logback:logback-core:$versions.logback"
+    runtime "ch.qos.logback:logback-classic:$versions.logback"
 }
 
 jar {
