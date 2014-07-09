@@ -16,7 +16,6 @@
 package org.axonframework.ext.osgi.test;
 
 import org.junit.Test;
-import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
@@ -37,7 +36,6 @@ import static org.ops4j.pax.exam.CoreOptions.*;
 /**
  * @author lburgazzoli
  */
-//@Ignore
 @RunWith(PaxExam.class)
 public class OSGiBundleTest extends OSGiTestCommon {
     private static final Map<String,Integer> BUNDLES = new HashMap<String,Integer>() {{
