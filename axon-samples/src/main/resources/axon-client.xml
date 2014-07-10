@@ -19,9 +19,9 @@
        xmlns:hz="http://www.hazelcast.com/schema/spring"
        xsi:schemaLocation="
             http://www.springframework.org/schema/beans
-            http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+            http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
             http://www.hazelcast.com/schema/spring
-            http://www.hazelcast.com/schema/spring/hazelcast-spring-3.1.xsd">
+            http://www.hazelcast.com/schema/spring/hazelcast-spring-3.2.xsd">
 
     <!-- ******************************************************************* -->
     <!-- HAZELCAST                                                           -->
@@ -39,17 +39,17 @@
     <!--                                                                     -->
     <!-- ******************************************************************* -->
 
-    <bean id="axon-hz-proxy" class="org.axonframework.ext.hazelcast.HzProxy">
-        <constructor-arg ref="axon-hz-node"/>
-        <property name="prefix"    value="axon"/>
+    <bean id="axon-hz-instance" class="com.github.lburgazzoli.hazelcast.HzPrefixedInstance">
+        <constructor-arg ref   = "axon-hz-node"/>
+        <constructor-arg value = "axon"/>
     </bean>
 
     <bean id             = "axon-service"
           class          = "org.axonframework.ext.hazelcast.samples.executor.AxonService"
           init-method    = "init"
           destroy-method = "destroy">
-        <constructor-arg value="axon-node"/>
-        <constructor-arg ref  ="axon-hz-proxy"/>
+        <constructor-arg value = "axon-node"/>
+        <constructor-arg ref   = "axon-hz-instance"/>
     </bean>
 
 </beans>

@@ -48,10 +48,20 @@ public class HzEventBusTerminal implements EventBusTerminal,MessageListener<Even
      * @param hzInstance the hazelcast instance
      */
     public HzEventBusTerminal(HazelcastInstance hzInstance) {
+        this(hzInstance, null, null);
+    }
+
+    /**
+     *
+     * @param hzInstance the hazelcast instance
+     * @param publisher  the data publisher
+     * @param subscriber the data subscriber
+     */
+    public HzEventBusTerminal(HazelcastInstance hzInstance, IHzTopicPublisher publisher, IHzTopicSubscriber subscriber) {
         m_hzInstance = hzInstance;
         m_clusters   = Sets.newHashSet();
-        m_publisher  = null;
-        m_subscriber = null;
+        m_publisher  = publisher;
+        m_subscriber = subscriber;
         m_subscribed = new AtomicBoolean(false);
     }
 

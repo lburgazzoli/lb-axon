@@ -51,9 +51,6 @@ public class DataItemCmd {
     //
     // *************************************************************************
 
-    /**
-     *
-     */
     @Revision("1")
     public static final class Update implements Serializable {
 

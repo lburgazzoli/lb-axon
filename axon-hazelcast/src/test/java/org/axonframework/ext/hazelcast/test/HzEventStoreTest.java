@@ -16,11 +16,11 @@
 package org.axonframework.ext.hazelcast.test;
 
 import com.google.common.collect.Lists;
+import com.hazelcast.core.HazelcastInstance;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.domain.SimpleDomainEventStream;
 import org.axonframework.eventstore.EventStore;
-import org.axonframework.ext.hazelcast.HzProxy;
 import org.axonframework.ext.hazelcast.store.HzEventStore;
 import org.axonframework.ext.hazelcast.test.model.HzAxonEventMessage;
 import org.junit.After;
@@ -32,11 +32,8 @@ import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- *
- */
 public class HzEventStoreTest extends HzTestBase {
-    private HzProxy m_proxy = null;
+    private HazelcastInstance m_instance = null;
 
     // *************************************************************************
     //
@@ -44,12 +41,12 @@ public class HzEventStoreTest extends HzTestBase {
 
     @Before
     public void setUp() throws Exception {
-        m_proxy = createHzProxy();
+        m_instance = createInstance();
     }
 
     @After
     public void tearDown() throws Exception {
-        m_proxy.shutdown();
+        m_instance.shutdown();
     }
 
     // *************************************************************************
@@ -60,7 +57,7 @@ public class HzEventStoreTest extends HzTestBase {
     public void testSaveStreamAndReadBack() {
         String     type  = "org.axonframework.ext.eventstore.chronicle.test";
         String     aid   = UUID.randomUUID().toString();
-        EventStore store = new HzEventStore(m_proxy);
+        EventStore store = new HzEventStore(m_instance);
         int        evts  = 10;
 
         List<DomainEventMessage<?>> demWrite = Lists.newArrayListWithCapacity(evts);

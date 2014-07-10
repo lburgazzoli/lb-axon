@@ -13,6 +13,7 @@ dependencies {
     compile project(':axon-common')
 	
     compile "com.hazelcast:hazelcast:$versions.hazelcast"
+    compile "com.github.lburgazzoli:lb-hazelcast-common:$versions.lbHazelcast"
 }
 
 jar {

@@ -15,57 +15,55 @@
  */
 package org.axonframework.ext.hazelcast.samples.executor;
 
+import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import org.axonframework.ext.hazelcast.HzConstants;
-import org.axonframework.ext.hazelcast.HzProxy;
 import org.axonframework.ext.hazelcast.samples.model.DataItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class AxonProcessor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AxonProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AxonProcessor.class)
 
     // *************************************************************************
     //
     // *************************************************************************
 
     public static void main(String[] args) {
-        System.setProperty("hazelcast.logging.type","slf4j");
-        System.setProperty("hazelcast.jmx","false");
+        System.setProperty("hazelcast.logging.type","slf4j")
+        System.setProperty("hazelcast.jmx","false")
 
-        ConfigurableApplicationContext context = null;
-        AxonService engine = null;
-        HzProxy proxy = null;
+        def context = null;
+        def engine = null;
+        def instance = null;
 
         try {
-            context = new ClassPathXmlApplicationContext("axon-processor.xml");
+            context = new ClassPathXmlApplicationContext("axon-processor.xml")
+            instance = context.getBean("axon-hz-instance",HazelcastInstance.class)
 
-            proxy = context.getBean("axon-hz-proxy",HzProxy.class);
-
-            engine = context.getBean("axon-service",AxonService.class);
-            engine.addAggregateType(DataItem.class);
+            engine = context.getBean("axon-service",AxonService.class)
+            engine.addAggregateType(DataItem.class)
 
             try {
-                for(int i=0;i<10000;i++) {
-                    LOGGER.debug("Sleep");
+                for(i in 0..10000) {
+                    LOGGER.debug("Sleep")
 
-                    IMap<String,String> map = proxy.getMap(HzConstants.REG_AGGREGATES);
+                    IMap<String,String> map = instance.getMap(HzConstants.REG_AGGREGATES)
                     for(String key : map.localKeySet()) {
-                        LOGGER.debug("Local Key : {}",key);
+                        LOGGER.debug("Local Key : {}",key)
                     }
 
-                    Thread.sleep(5000);
+                    Thread.sleep(5000)
                 }
             } catch (InterruptedException e) {
-                LOGGER.warn("InterruptedException", e);
+                LOGGER.warn("InterruptedException", e)
             }
 
         } catch(Exception e) {
-            LOGGER.warn("Exception",e);
+            LOGGER.warn("Exception",e)
         } finally {
-            context.close();
+            context.close()
         }
     }
 }

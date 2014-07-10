@@ -11,7 +11,9 @@ dependencies {
     compile "com.hazelcast:hazelcast-spring:$versions.hazelcast"
     compile "com.hazelcast:hazelcast-client:$versions.hazelcast"
     compile "org.springframework:spring-context:$versions.spring"
-	
+
+    compile "com.github.lburgazzoli:lb-hazelcast-common:$versions.lbHazelcast"
+
     runtime "ch.qos.logback:logback-core:$versions.logback"
     runtime "ch.qos.logback:logback-classic:$versions.logback"
 }
@@ -34,14 +36,14 @@ task axonHzSimpleApp(dependsOn: classes) << {
     }
 }
 
-task axonClient(dependsOn: classes) << {
+task axonHzClient(dependsOn: classes) << {
     javaexec {
         main = 'org.axonframework.ext.hazelcast.samples.executor.AxonClient'
         classpath = project.runtimeClasspath
     }
 }
 
-task axonProcessor(dependsOn: classes) << {
+task axonHzProcessor(dependsOn: classes) << {
     javaexec {
         main = 'org.axonframework.ext.hazelcast.samples.executor.AxonProcessor'
         classpath = project.runtimeClasspath

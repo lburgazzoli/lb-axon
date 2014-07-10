@@ -37,7 +37,6 @@ import org.axonframework.eventhandling.annotation.AnnotationEventListenerAdapter
 import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
 import org.axonframework.ext.cache.GuavaCache;
 import org.axonframework.ext.hazelcast.HzConstants;
-import org.axonframework.ext.hazelcast.HzProxy;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
 import org.axonframework.ext.hazelcast.distributed.commandbus.executor.HzCommandBusConnector;
@@ -83,12 +82,8 @@ public class AxonService implements HzTaskDispatcher {
         this(nodeName,Hazelcast.newHazelcastInstance(config));
     }
 
-    public AxonService(final String nodeName, final HazelcastInstance hz) {
-        this(nodeName,new HzProxy(hz));
-    }
-
-    public AxonService(final String nodeName, final HzProxy proxy) {
-        m_hzInstance = proxy;
+    public AxonService(final String nodeName, final HazelcastInstance hzInstance) {
+        m_hzInstance   = hzInstance;
         m_nodeName     = nodeName;
         m_evtBusTer    = null;
         m_connector    = null;
