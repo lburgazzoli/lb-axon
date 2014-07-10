@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class HzEventStoreTest extends HzTestBase {
     private HazelcastInstance m_instance = null;
@@ -46,7 +47,9 @@ public class HzEventStoreTest extends HzTestBase {
 
     @After
     public void tearDown() throws Exception {
-        m_instance.shutdown();
+        if(m_instance != null)  {
+            m_instance.shutdown();
+        }
     }
 
     // *************************************************************************
@@ -55,6 +58,8 @@ public class HzEventStoreTest extends HzTestBase {
 
     @Test
     public void testSaveStreamAndReadBack() {
+        assertNotNull("HazelcastInstance is null",m_instance);
+
         String     type  = "org.axonframework.ext.eventstore.chronicle.test";
         String     aid   = UUID.randomUUID().toString();
         EventStore store = new HzEventStore(m_instance);
