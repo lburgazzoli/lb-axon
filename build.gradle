@@ -28,7 +28,7 @@ subprojects {
     group               = 'com.github.lburgazzoli'
     sourceCompatibility = '1.8'
     targetCompatibility = '1.8'
-
+  
     ext {
         versions = [
             'slf4j'              : '1.7.5',
@@ -72,7 +72,7 @@ subprojects {
         gitRoot          = 'https://github.com/lburgazzoli'
         gitProject       = 'https://github.com/lburgazzoli/lb-axon'
     }
-    
+   
     repositories {
         mavenLocal()
         mavenCentral()
@@ -93,7 +93,7 @@ subprojects {
         compile "org.axonframework:axon-core:$versions.axon"
         compile "org.axonframework:axon-distributed-commandbus:$versions.axon"
         compile "org.jgroups:jgroups:$versions.jgroups"
-        compile "org.codehaus.groovy:groovy:$versions.groovy"
+        compile "org.codehaus.groovy:groovy-all:$versions.groovy"
         compile "joda-time:joda-time:$versions.jodaTime"
         
         testCompile "junit:junit:$versions.junit"
