@@ -34,7 +34,8 @@ test {
     systemProperties = configurations.testCompile.resolvedConfiguration.resolvedArtifacts.collectEntries {
         [ (it.moduleVersion.id.group + ":" + it.moduleVersion.id.name) : "${it.moduleVersion.id.version}" ]
     } + [ 
-        'project.version' : "${project.version}" 
+        'project.version'                    : "${project.version}" ,
+        'org.ops4j.pax.url.mvn.proxySupport' : 'true'
     ]
 }
     
