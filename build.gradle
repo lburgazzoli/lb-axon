@@ -55,6 +55,7 @@ subprojects {
             'groovy'             : '2.3.4',
             'jodaTime'           : '2.3',
             'vertx'              : '2.1.0',
+            'vertxPlatform'      : '2.1.1',
             'vertxGroovy'        : '2.1.0-final',
             'lbHazelcast'        : '1.0.0-SNAPSHOT'
         ]

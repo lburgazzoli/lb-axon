@@ -6,7 +6,7 @@ project.ext {
 dependencies {
     compile project(':axon-common')
     compile "io.vertx:vertx-core:$versions.vertx"
-    compile "io.vertx:vertx-platform:$versions.vertx"
+    compile "io.vertx:vertx-platform:$versions.vertxPlatform"
     compile "io.vertx:lang-groovy:$versions.vertxGroovy"
 }
 
