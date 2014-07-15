@@ -48,7 +48,7 @@ subprojects {
             'paxUrl'             : '2.1.0',
             'jgroups'            : '3.4.4.Final',
             'commonsLang'        : '3.3.2',
-            'commonsBeanutils'   : '1.9.1',
+            'commonsBeanutils'   : '1.9.2',
             'commonsCollections' : '4.0',
             'javaxCache'         : '1.0.0',
             'spring'             : '3.2.9.RELEASE',
