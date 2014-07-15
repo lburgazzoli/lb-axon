@@ -60,7 +60,7 @@ public class HzEventStoreTest extends HzTestBase {
     public void testSaveStreamAndReadBack() {
         assertNotNull("HazelcastInstance is null",m_instance);
 
-        String     type  = "org.axonframework.ext.eventstore.chronicle.test";
+        String     type  = "org.axonframework.ext.store.chronicle.test";
         String     aid   = UUID.randomUUID().toString();
         EventStore store = new HzEventStore(m_instance);
         int        evts  = 10;

@@ -15,30 +15,5 @@
  */
 package org.axonframework.ext.osgi;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
-
-/**
- * TODO: scan bundles for SPI
- * TODO: register an AxonServiceLoader
- */
-public class AxonActivator implements BundleActivator {
-
-    /**
-     * c-tor
-     */
-    public AxonActivator() {
-    }
-
-    // *************************************************************************
-    //
-    // *************************************************************************
-
-    @Override
-    public void start(BundleContext context) throws Exception {
-    }
-
-    @Override
-    public void stop(BundleContext context) throws Exception {
-    }
+public class AxonOSGi {
 }

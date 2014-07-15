@@ -22,7 +22,7 @@ import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.domain.SimpleDomainEventStream;
 import org.axonframework.ext.eventstore.CloseableEventStore;
-import org.axonframework.ext.eventstore.chronicle.ChronicleEventStore;
+import org.axonframework.ext.chronicle.store.ChronicleEventStore;
 import org.axonframework.ext.eventstore.chronicle.test.model.ChronicleAxonEvent;
 import org.axonframework.ext.eventstore.chronicle.test.model.ChronicleAxonEventMessage;
 import org.junit.After;

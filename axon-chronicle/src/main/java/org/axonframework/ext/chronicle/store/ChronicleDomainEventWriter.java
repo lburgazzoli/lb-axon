@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.eventstore.chronicle;
+package org.axonframework.ext.chronicle.store;
 
-import java.io.Closeable;
 import net.openhft.chronicle.Chronicle;
 import net.openhft.chronicle.ExcerptAppender;
 import org.axonframework.domain.DomainEventMessage;

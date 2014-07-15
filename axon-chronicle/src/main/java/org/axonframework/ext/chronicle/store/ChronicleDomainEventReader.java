@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.axonframework.ext.eventstore.chronicle;
+package org.axonframework.ext.chronicle.store;
 
 import net.openhft.chronicle.Chronicle;
 import net.openhft.chronicle.ExcerptTailer;
 import org.apache.commons.lang3.StringUtils;
 import org.axonframework.domain.DomainEventMessage;
-import org.axonframework.domain.DomainEventStream;
 import org.axonframework.serializer.Serializer;
 import org.axonframework.serializer.SimpleSerializedObject;
 import org.slf4j.Logger;

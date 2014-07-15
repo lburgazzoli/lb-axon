@@ -19,7 +19,7 @@ import com.github.lburgazzoli.hazelcast.HzConf
 import com.hazelcast.config.Config
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
-import org.axonframework.ext.eventstore.chronicle.ChronicleEventStore
+import org.axonframework.ext.chronicle.store.ChronicleEventStore
 
 class AxonSamplesUtils {
     static def Config newHazelcastLocalConfig() {
