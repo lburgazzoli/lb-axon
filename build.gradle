@@ -4,11 +4,14 @@
 
 buildscript {
     repositories {
+        mavenCentral()
+        mavenLocal()
         jcenter()
     }
 
     dependencies {
         classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7.1'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.5-beta-6'
     }
 }
 
@@ -23,6 +26,7 @@ subprojects {
     apply plugin: 'osgi'
     apply plugin: 'maven'
     apply plugin: 'nexus'
+    apply plugin: 'com.github.ben-manes.versions'
 
     version             = '1.0.0-SNAPSHOT'
     group               = 'com.github.lburgazzoli'
@@ -31,32 +35,29 @@ subprojects {
   
     ext {
         versions = [
-            'slf4j'              : '1.7.5',
+            'slf4j'              : '1.7.7',
             'logback'            : '1.1.2',
-            'jackson'            : '2.4.1',
-            'jacksonAnnotations' : '2.4.1',
-            'openhftLang'        : '6.4.5-SNAPSHOT',
-            'openhftChronicle'   : '3.2.0-SNAPSHOT',
-            'hazelcast'          : '3.2.3',
+            'jackson'            : '2.4.2',
+            'jacksonAnnotations' : '2.4.2',
+            'openhftLang'        : '6.4.6',
+            'openhftChronicle'   : '3.2.1',
+            'hazelcast'          : '3.3',
             'osgi'               : '5.0.0',
-            'guava'              : '17.0',
-            'axon'               : '2.2',
-            'disruptor'          : '3.2.1',
+            'guava'              : '18.0',
+            'axon'               : '2.3.1',
+            'disruptor'          : '3.3.0',
             'junit'              : '4.11',
-            'felix'              : '4.4.0',
-            'paxExam'            : '4.0.0',
+            'felix'              : '4.4.1',
+            'paxExam'            : '4.2.0',
             'paxUrl'             : '2.1.0',
-            'jgroups'            : '3.4.4.Final',
+            'jgroups'            : '3.5.0.Final',
             'commonsLang'        : '3.3.2',
             'commonsBeanutils'   : '1.9.2',
             'commonsCollections' : '4.0',
             'javaxCache'         : '1.0.0',
             'spring'             : '3.2.9.RELEASE',
-            'groovy'             : '2.3.4',
-            'jodaTime'           : '2.3',
-            'vertx'              : '2.1.0',
-            'vertxPlatform'      : '2.1.1',
-            'vertxGroovy'        : '2.1.0-final',
+            'groovy'             : '2.3.6',
+            'jodaTime'           : '2.4',
             'lbHazelcast'        : '1.0.0-SNAPSHOT'
         ]
 
@@ -70,7 +71,7 @@ subprojects {
             }
         }
 
-        gradleVersion    = '2.0'
+        gradleVersion    = '2.1'
         gradleScriptDir  = "${rootProject.projectDir}/gradle"
         prefix           = 'lb'
         isReleaseVersion = !version.endsWith("SNAPSHOT")

@@ -2,7 +2,6 @@ rootProject.name = "lb-axon"
 
 include "axon-common"
 include "axon-hazelcast"
-include "axon-vertx"
 include "axon-chronicle"
 include "axon-osgi"
 include "axon-samples"
