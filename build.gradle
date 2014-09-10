@@ -58,7 +58,7 @@ subprojects {
             'spring'             : '3.2.9.RELEASE',
             'groovy'             : '2.3.6',
             'jodaTime'           : '2.4',
-            'lbHazelcast'        : '1.0.0-SNAPSHOT'
+            'lbHazelcast'        : '3.3.0-SNAPSHOT'
         ]
 
         if(!project.hasProperty('nexusUsername') && !project.hasProperty('nexusPassword')) {

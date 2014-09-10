@@ -15,7 +15,7 @@
  */
 package org.axonframework.ext.hazelcast.samples.model;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import org.axonframework.serializer.Revision;
 
 import java.io.Serializable;
@@ -31,7 +31,7 @@ public class DataItemEvt {
         private String m_text;
 
         public AbstractEvent() {
-            m_id = null;
+            m_id   = null;
             m_text = null;
         }
 
@@ -58,7 +58,7 @@ public class DataItemEvt {
 
         @Override
         public String toString() {
-            return Objects.toStringHelper(this)
+            return MoreObjects.toStringHelper(this)
                 .add("id"  , getId())
                 .add("test", getText())
                 .toString();

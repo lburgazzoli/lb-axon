@@ -15,7 +15,7 @@
  */
 package org.axonframework.ext.hazelcast.distributed.commandbus.queue;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.hazelcast.nio.ObjectDataInput;
 import com.hazelcast.nio.ObjectDataOutput;
 import com.hazelcast.nio.serialization.DataSerializable;
@@ -84,7 +84,7 @@ public class HzCommandBusNode implements DataSerializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
             .add("name"         , m_name)
             .add("inbox"        , m_queueName)
             .add("lastHeartBeat", new Date(m_lastHeartBeat))
