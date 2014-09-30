@@ -16,6 +16,7 @@
 package org.axonframework.ext.eventstore.chronicle.test.model;
 
 import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 import java.io.Serializable;
 
@@ -53,7 +54,7 @@ public class ChronicleAxonEvent implements Serializable {
 
     @Override
     public String toString() {
-        return Objects.toStringHelper(this)
+        return MoreObjects.toStringHelper(this)
             .add("data" , m_data)
             .toString();
     }
