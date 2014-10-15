@@ -10,7 +10,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.7.1'
+        classpath 'com.bmuschko:gradle-nexus-plugin:2.0'
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.5'
     }
 }
@@ -25,7 +25,7 @@ subprojects {
     apply plugin: 'groovy'
     apply plugin: 'osgi'
     apply plugin: 'maven'
-    apply plugin: 'nexus'
+    apply plugin: 'com.bmuschko.nexus'
     apply plugin: 'com.github.ben-manes.versions'
 
     version             = '1.0.0-SNAPSHOT'
@@ -40,7 +40,7 @@ subprojects {
             'jackson'            : '2.4.2',
             'jacksonAnnotations' : '2.4.2',
             'openhftLang'        : '6.4.6',
-            'openhftChronicle'   : '3.2.1',
+            'openhftChronicle'   : '3.2.4',
             'hazelcast'          : '3.3.1',
             'osgi'               : '5.0.0',
             'guava'              : '18.0',
@@ -48,7 +48,7 @@ subprojects {
             'disruptor'          : '3.3.0',
             'junit'              : '4.11',
             'felix'              : '4.4.1',
-            'paxExam'            : '4.2.0',
+            'paxExam'            : '4.3.0',
             'paxUrl'             : '2.2.0',
             'jgroups'            : '3.5.0.Final',
             'commonsLang'        : '3.3.2',
@@ -77,6 +77,7 @@ subprojects {
         isReleaseVersion = !version.endsWith("SNAPSHOT")
         gitRoot          = 'https://github.com/lburgazzoli'
         gitProject       = 'https://github.com/lburgazzoli/lb-axon'
+        osgiVersion      = project.version.replaceAll('-','.')
     }
    
     repositories {
@@ -111,9 +112,9 @@ subprojects {
         manifest.attributes['Bundle-Description'     ] = "${project.prefix} :: ${project.name}"
         manifest.attributes['Bundle-Name'            ] = "${project.prefix} :: ${project.name}"
         manifest.attributes['Bundle-SymbolicName'    ] = "${project.group}-${project.prefix}-${project.name}"
-        manifest.attributes['Bundle-Version'         ] = project.version.replaceAll('-','.')
-        manifest.attributes['Implementation-Title'   ] = "${project.group}-${project.prefix}-${project.name}-${project.version}"
-        manifest.attributes['Implementation-Version' ] = project.version
+        manifest.attributes['Bundle-Version'         ] = osgiVersion
+        manifest.attributes['Implementation-Title'   ] = "${project.group}-${project.prefix}-${project.name}-${osgiVersion}"
+        manifest.attributes['Implementation-Version' ] = osgiVersion
         manifest.attributes['Implementation-Vendor'  ] = 'lb'
 
         manifest.classesDir = new File("$buildDir/classes/main")
