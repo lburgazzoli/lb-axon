@@ -13,9 +13,6 @@ dependencies {
     compile "org.springframework:spring-context:$versions.spring"
 
     compile "com.github.lburgazzoli:lb-hazelcast-common:$versions.lbHazelcast"
-
-    runtime "ch.qos.logback:logback-core:$versions.logback"
-    runtime "ch.qos.logback:logback-classic:$versions.logback"
 }
 
 jar {

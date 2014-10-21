@@ -21,6 +21,8 @@ import org.apache.commons.io.FileUtils;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.domain.SimpleDomainEventStream;
+import org.axonframework.ext.chronicle.store.IndexedChronicleEventStore;
+import org.axonframework.ext.chronicle.store.VanillaChronicleEventStore;
 import org.axonframework.ext.eventstore.CloseableEventStore;
 import org.axonframework.ext.chronicle.store.ChronicleEventStore;
 import org.axonframework.ext.eventstore.chronicle.test.model.ChronicleAxonEvent;
@@ -64,12 +66,45 @@ public class ChronicleEventStoreTest {
     // *************************************************************************
 
     @Test
-    public void testSaveStreamAndReadBack() {
+    public void testIndexedSaveStreamAndReadBack() {
         final String type  = "axon-chronicle-test";
         final String aid   = UUID.randomUUID().toString();
         final int    evts  = 10;
 
-        try(CloseableEventStore store = new ChronicleEventStore(DATA_DIR.getAbsolutePath())) {
+        try(CloseableEventStore store = new IndexedChronicleEventStore(DATA_DIR.getAbsolutePath())) {
+            List<DomainEventMessage<?>> demw = Lists.newArrayListWithCapacity(evts);
+            for(int i=0;i<evts;i++) {
+                demw.add(new ChronicleAxonEventMessage(aid,i,"evt-" + i));
+            }
+
+            store.appendEvents(type,new SimpleDomainEventStream(demw));
+
+            List<DomainEventMessage<?>> demr = Lists.newArrayListWithCapacity(evts);
+            DomainEventStream des = store.readEvents(type,aid);
+            while (des.hasNext()) {
+                demr.add(des.next());
+            }
+
+            assertEquals(demw.size(),demr.size());
+
+            for(int i=0;i<evts;i++) {
+                assertEquals(demw.get(i).getIdentifier(),demr.get(i).getIdentifier());
+                assertEquals(demw.get(i).getPayloadType(),demr.get(i).getPayloadType());
+                assertEquals(demw.get(i).getPayloadType(),ChronicleAxonEvent.class);
+                assertEquals(demw.get(i).getPayload(),demr.get(i).getPayload());
+            }
+        } catch(IOException e) {
+            LOGGER.warn("IOException",e);
+        }
+    }
+
+    @Test
+    public void testVanillaSaveStreamAndReadBack() {
+        final String type  = "axon-chronicle-test";
+        final String aid   = UUID.randomUUID().toString();
+        final int    evts  = 10;
+
+        try(CloseableEventStore store = new VanillaChronicleEventStore(DATA_DIR.getAbsolutePath())) {
             List<DomainEventMessage<?>> demw = Lists.newArrayListWithCapacity(evts);
             for(int i=0;i<evts;i++) {
                 demw.add(new ChronicleAxonEventMessage(aid,i,"evt-" + i));

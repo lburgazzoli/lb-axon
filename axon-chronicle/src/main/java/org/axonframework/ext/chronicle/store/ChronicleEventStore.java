@@ -17,7 +17,7 @@ package org.axonframework.ext.chronicle.store;
 
 
 import com.google.common.collect.Maps;
-import net.openhft.chronicle.tools.ChronicleTools;
+import net.openhft.chronicle.ChronicleConfig;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.ext.eventstore.AbstractEventStore;
@@ -34,12 +34,12 @@ import java.util.Map;
 /**
  *
  */
-public class ChronicleEventStore<T> extends AbstractEventStore {
+public abstract class ChronicleEventStore<T> extends AbstractEventStore {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleEventStore.class);
 
     private final Serializer m_serializer;
     private final String m_basePath;
-    private final Map<String,CloseableDomainEventStore<T>> m_domainEventStore;
+    private final Map<String,ChronicleDomainEventStore<T>> m_domainEventStore;
 
     // *************************************************************************
     //
@@ -51,7 +51,7 @@ public class ChronicleEventStore<T> extends AbstractEventStore {
      * @param basePath the Chronicle base path
      */
     public ChronicleEventStore(String basePath) {
-        this(basePath,new XStreamSerializer());
+        this(basePath, new XStreamSerializer());
     }
 
     /**
@@ -66,8 +66,6 @@ public class ChronicleEventStore<T> extends AbstractEventStore {
         m_domainEventStore = Maps.newConcurrentMap();
 
         LOGGER.debug("BasePath for ChronicleEventStore is {}",m_basePath);
-
-        ChronicleTools.warmup();
     }
 
     // *************************************************************************
@@ -76,7 +74,7 @@ public class ChronicleEventStore<T> extends AbstractEventStore {
 
     @Override
     public void close() throws IOException {
-        for(CloseableDomainEventStore des : m_domainEventStore.values()) {
+        for(final ChronicleDomainEventStore des : m_domainEventStore.values()) {
             des.close();
         }
     }
@@ -91,7 +89,7 @@ public class ChronicleEventStore<T> extends AbstractEventStore {
         int size = 0;
 
         String storageId = null;
-        CloseableDomainEventStore<T> des = null;
+        ChronicleDomainEventStore<T> des = null;
 
         while(events.hasNext()) {
             DomainEventMessage<T> dem = events.next();
@@ -101,13 +99,15 @@ public class ChronicleEventStore<T> extends AbstractEventStore {
 
                 if(des == null) {
                     // create a new DomainEventStore
-                    des = new ChronicleDomainEventStore<>(
+                    des = createDomainEventStore(
                         m_serializer,
                         m_basePath,
                         storageId,
                         type,
                         dem.getAggregateIdentifier().toString()
                     );
+
+                    des.init();
 
                     m_domainEventStore.put(storageId,des);
                 }
@@ -138,4 +138,24 @@ public class ChronicleEventStore<T> extends AbstractEventStore {
 
         return NullDomainEventStream.INSTANCE;
     }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    /**
+     * @param serializer
+     * @param basePath
+     * @param storageId
+     * @param aggregateType
+     * @param aggregateId
+     * @return
+     */
+    protected abstract ChronicleDomainEventStore<T> createDomainEventStore(
+        Serializer serializer,
+        String basePath,
+        String storageId,
+        String aggregateType,
+        String aggregateId);
+
 }

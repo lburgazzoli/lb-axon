@@ -17,15 +17,18 @@ package org.axonframework.ext.eventstore.chronicle.test.model;
 
 import com.google.common.base.Objects;
 import com.google.common.base.MoreObjects;
+import net.openhft.lang.io.Bytes;
+import net.openhft.lang.io.serialization.BytesMarshallable;
+import net.openhft.lang.model.constraints.NotNull;
 
 import java.io.Serializable;
 
 /**
  *
  */
-public class ChronicleAxonEvent implements Serializable {
+public class ChronicleAxonEvent implements BytesMarshallable {
 
-    private final Object m_data;
+    private Object m_data;
 
     /**
      * c-tor
@@ -79,5 +82,15 @@ public class ChronicleAxonEvent implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hashCode(m_data);
+    }
+
+    @Override
+    public void readMarshallable(@NotNull Bytes bytes) throws IllegalStateException {
+        m_data = bytes.readObject();
+    }
+
+    @Override
+    public void writeMarshallable(@NotNull Bytes bytes) {
+        bytes.writeObject(m_data);
     }
 }

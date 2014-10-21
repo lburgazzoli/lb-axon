@@ -20,6 +20,8 @@ import com.hazelcast.config.Config
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.FilenameUtils
 import org.axonframework.ext.chronicle.store.ChronicleEventStore
+import org.axonframework.ext.chronicle.store.IndexedChronicleEventStore
+import org.axonframework.ext.chronicle.store.VanillaChronicleEventStore
 
 class AxonSamplesUtils {
     static def Config newHazelcastLocalConfig() {
@@ -33,12 +35,20 @@ class AxonSamplesUtils {
         return config;
     }
 
-    static def ChronicleEventStore defaultChronicleEventStore() {
+    static def ChronicleEventStore indexedChronicleEventStore() {
         String basePath = FilenameUtils.concat(
             FileUtils.tempDirectoryPath,
-            "chronicle/axon-evt-store");
+            "chronicle/-ndexed/axon-evt-store");
 
-        return new ChronicleEventStore(basePath);
+        return new IndexedChronicleEventStore(basePath);
+    }
+
+    static def ChronicleEventStore vanillaChronicleEventStore() {
+        String basePath = FilenameUtils.concat(
+            FileUtils.tempDirectoryPath,
+            "chronicle-vanilla/axon-evt-store");
+
+        return new VanillaChronicleEventStore(basePath);
     }
 
     public static void sleep(long ms) {

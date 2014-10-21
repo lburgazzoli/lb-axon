@@ -24,14 +24,10 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
 import static org.ops4j.pax.exam.CoreOptions.*;
 
 /**
@@ -59,7 +55,8 @@ public class OSGiBundleTest extends OSGiTestCommon {
             systemProperty("org.osgi.framework.storage.clean").value("true"),
             systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("WARN"),
             mavenBundleEnv("org.slf4j", "slf4j-api"),
-            mavenBundleEnv("org.slf4j", "slf4j-simple").noStart(),
+            mavenBundleEnv("org.apache.logging.log4j","log4j-api"),
+            mavenBundleEnv("org.apache.logging.log4j","log4j-core"),
             mavenBundleEnv("org.apache.commons", "commons-lang3"),
             mavenBundleEnv("commons-collections", "commons-collections"),
             mavenBundleEnv("com.hazelcast", "hazelcast"),

@@ -17,8 +17,6 @@ package org.axonframework.ext.chronicle.store;
 
 
 import net.openhft.chronicle.Chronicle;
-import net.openhft.chronicle.IndexedChronicle;
-import org.apache.commons.io.FilenameUtils;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.ext.eventstore.AbstractDomainEventStore;
@@ -31,7 +29,7 @@ import java.io.IOException;
 /**
  *
  */
-public class ChronicleDomainEventStore<T> extends AbstractDomainEventStore<T> {
+public abstract class ChronicleDomainEventStore<T> extends AbstractDomainEventStore<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChronicleDomainEventStore.class);
 
     private final String m_basePath;
@@ -49,36 +47,19 @@ public class ChronicleDomainEventStore<T> extends AbstractDomainEventStore<T> {
      * @param aggregateType the AggregateType
      * @param aggregateId   the AggregateId
      */
-    public ChronicleDomainEventStore(Serializer serializer, String basePath, String storageId, String aggregateType, String aggregateId) {
+    protected ChronicleDomainEventStore(Serializer serializer, String basePath, String storageId, String aggregateType, String aggregateId) {
         super(storageId,aggregateType,aggregateId);
 
         m_serializer = serializer;
         m_basePath = basePath;
-
-        try {
-            String dataPath = FilenameUtils.concat(m_basePath,storageId);
-            LOGGER.debug("IndexedChronicle => BasePath: {}, DataPath: {}",basePath, dataPath);
-
-            m_chronicle = new IndexedChronicle(dataPath);
-            if(m_chronicle != null) {
-                m_writer = new ChronicleDomainEventWriter<>(m_chronicle,m_serializer);
-            }
-        } catch(Exception e) {
-            if(m_writer != null) {
-                m_writer.close();
-            }
-
-            //TODO: check what to do
-            m_chronicle = null;
-            m_writer = null;
-
-            LOGGER.warn("Exception",e);
-        }
+        m_writer = null;
     }
 
     @Override
     public void clear() {
-        //TODO: implements
+        if(m_chronicle != null) {
+            m_chronicle.clear();
+        }
     }
 
     @Override
@@ -109,5 +90,20 @@ public class ChronicleDomainEventStore<T> extends AbstractDomainEventStore<T> {
         return m_chronicle != null
              ? new ChronicleDomainEventReader(m_chronicle,m_serializer)
              : null;
+    }
+
+    // *************************************************************************
+    //
+    // *************************************************************************
+
+    public abstract void init();
+
+    protected void init(final Chronicle chronicle) {
+        m_chronicle = chronicle;
+        m_writer = new ChronicleDomainEventWriter<>(m_chronicle, m_serializer);
+    }
+
+    protected String getBasePath() {
+        return m_basePath;
     }
 }

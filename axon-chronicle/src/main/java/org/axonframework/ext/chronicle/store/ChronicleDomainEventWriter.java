@@ -54,7 +54,7 @@ public class ChronicleDomainEventWriter<T> implements CloseableDomainEventWriter
     /**
      * TODO: check serialization
      *
-     * @param message the mesage to persist
+     * @param message the message to persist
      */
     @Override
     public void write(final DomainEventMessage<T> message) {
