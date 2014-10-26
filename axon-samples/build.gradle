@@ -28,22 +28,25 @@ jar {
 
 task axonHzSimpleApp(dependsOn: classes) << {
     javaexec {
-        main = 'org.axonframework.ext.hazelcast.samples.queue.SimpleApp'
+        main      = 'org.axonframework.ext.hazelcast.samples.queue.SimpleApp'
         classpath = project.runtimeClasspath
+        jvmArgs   = [ '-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager' ]
     }
 }
 
 task axonHzClient(dependsOn: classes) << {
     javaexec {
-        main = 'org.axonframework.ext.hazelcast.samples.executor.AxonClient'
+        main      = 'org.axonframework.ext.hazelcast.samples.executor.AxonClient'
         classpath = project.runtimeClasspath
+        jvmArgs   = [ '-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager' ]
     }
 }
 
 task axonHzProcessor(dependsOn: classes) << {
     javaexec {
-        main = 'org.axonframework.ext.hazelcast.samples.executor.AxonProcessor'
+        main      = 'org.axonframework.ext.hazelcast.samples.executor.AxonProcessor'
         classpath = project.runtimeClasspath
+        jvmArgs   = [ '-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager' ]
     }
 }
 
