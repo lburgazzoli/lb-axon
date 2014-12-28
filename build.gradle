@@ -10,8 +10,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.bmuschko:gradle-nexus-plugin:2.0'
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.5'
+        classpath 'com.bmuschko:gradle-nexus-plugin:2.2'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.6'
     }
 }
 
@@ -35,30 +35,30 @@ subprojects {
   
     ext {
         versions = [
-            'slf4j'              : '1.7.7',
+            'slf4j'              : '1.7.9',
             'log4j2'             : '2.1',
-            'jackson'            : '2.4.2',
-            'jacksonAnnotations' : '2.4.2',
-            'openhftLang'        : '6.4.10',
-            'openhftChronicle'   : '3.2.4',
-            'hazelcast'          : '3.3.1',
+            'jackson'            : '2.4.4',
+            'jacksonAnnotations' : '2.4.4',
+            'openhftLang'        : '6.4.18',
+            'openhftChronicle'   : '3.3.3',
+            'hazelcast'          : '3.4',
             'osgi'               : '5.0.0',
             'guava'              : '18.0',
             'axon'               : '2.3.2',
             'disruptor'          : '3.3.0',
-            'junit'              : '4.11',
+            'junit'              : '4.12',
             'felix'              : '4.4.1',
-            'paxExam'            : '4.3.0',
-            'paxUrl'             : '2.2.0',
-            'jgroups'            : '3.5.0.Final',
+            'paxExam'            : '4.4.0',
+            'paxUrl'             : '2.3.0',
+            'jgroups'            : '3.6.1.Final',
             'commonsLang'        : '3.3.2',
             'commonsBeanutils'   : '1.9.2',
             'commonsCollections' : '4.0',
             'javaxCache'         : '1.0.0',
             'spring'             : '3.2.9.RELEASE',
-            'groovy'             : '2.3.7',
-            'jodaTime'           : '2.4',
-            'lbHazelcast'        : '3.3.1-SNAPSHOT',
+            'groovy'             : '2.3.9',
+            'jodaTime'           : '2.6',
+            'lbHazelcast'        : '3.4.0-SNAPSHOT',
             'jdom'               : '2.0.2',
             'xom'                : '1.2.10'
         ]
@@ -73,7 +73,7 @@ subprojects {
             }
         }
 
-        gradleVersion    = '2.1'
+        gradleVersion    = '2.2.1'
         gradleScriptDir  = "${rootProject.projectDir}/gradle"
         prefix           = 'lb'
         isReleaseVersion = !version.endsWith("SNAPSHOT")
@@ -85,14 +85,15 @@ subprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+        jcenter()
 
         maven { url 'http://repo.springsource.org/release/' }
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
 
     dependencies {
-        compile "org.slf4j:slf4j-api:$versions.slf4j"
-        compile "org.slf4j:slf4j-ext:$versions.slf4j"
+        compile("org.slf4j:slf4j-api:$versions.slf4j") { transitive = false }
+        compile("org.slf4j:slf4j-ext:$versions.slf4j") { transitive = false }
 
         runtime "org.apache.logging.log4j:log4j-api:$versions.log4j2"
         runtime "org.apache.logging.log4j:log4j-core:$versions.log4j2"
@@ -148,10 +149,13 @@ subprojects {
     // *************************************************************************
 
     nexus {
-        attachJavadoc = true
-        attachSources = true
-        attachTests   = false
-        sign          = false
+        sign    = false
+    }
+
+    extraArchive {
+        javadoc = true
+        sources = true
+        tests   = false
     }
 
     modifyPom {

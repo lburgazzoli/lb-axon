@@ -16,8 +16,7 @@
 package org.axonframework.ext.chronicle.store;
 
 
-import net.openhft.chronicle.ChronicleConfig;
-import net.openhft.chronicle.IndexedChronicle;
+import net.openhft.chronicle.ChronicleQueueBuilder;
 import org.apache.commons.io.FilenameUtils;
 import org.axonframework.serializer.Serializer;
 import org.slf4j.Logger;
@@ -29,8 +28,6 @@ import org.slf4j.LoggerFactory;
 public class IndexedChronicleDomainEventStore<T> extends ChronicleDomainEventStore<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedChronicleDomainEventStore.class);
 
-    private final ChronicleConfig m_chronicleConfig;
-
     /**
      * c-tor
      *
@@ -39,12 +36,9 @@ public class IndexedChronicleDomainEventStore<T> extends ChronicleDomainEventSto
      * @param storageId         the Chronicle data name
      * @param aggregateType     the AggregateType
      * @param aggregateId       the AggregateId
-     * @param chronicleConfig   the Chronicle config
      */
-    public IndexedChronicleDomainEventStore(Serializer serializer, String basePath, String storageId, String aggregateType, String aggregateId, ChronicleConfig chronicleConfig) {
+    public IndexedChronicleDomainEventStore(Serializer serializer, String basePath, String storageId, String aggregateType, String aggregateId) {
         super(serializer, basePath, storageId, aggregateType, aggregateId);
-
-        m_chronicleConfig = chronicleConfig;
     }
 
     @Override
@@ -53,9 +47,9 @@ public class IndexedChronicleDomainEventStore<T> extends ChronicleDomainEventSto
         LOGGER.debug("IndexedChronicle => BasePath: {}, DataPath: {}", getBasePath(), dataPath);
 
         try {
-            init(new IndexedChronicle(dataPath, m_chronicleConfig));
+            init(ChronicleQueueBuilder.indexed(dataPath).build());
         } catch(Exception e) {
-            LOGGER.warn("Exception",e);
+            LOGGER.warn("Exception", e);
         }
     }
 }

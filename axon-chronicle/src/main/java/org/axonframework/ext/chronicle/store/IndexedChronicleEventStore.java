@@ -15,50 +15,20 @@
  */
 package org.axonframework.ext.chronicle.store;
 
-
-import net.openhft.chronicle.Chronicle;
-import net.openhft.chronicle.ChronicleConfig;
-import org.axonframework.ext.eventstore.CloseableDomainEventStore;
 import org.axonframework.serializer.Serializer;
 import org.axonframework.serializer.xml.XStreamSerializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class IndexedChronicleEventStore<T> extends ChronicleEventStore {
-    private static final Logger LOGGER = LoggerFactory.getLogger(IndexedChronicleEventStore.class);
-
-    private final ChronicleConfig m_chronicleConfig;
-
     /**
      * c-tor
      *
      * @param basePath the Chronicle base path
      */
     public IndexedChronicleEventStore(String basePath) {
-        this(basePath, new XStreamSerializer(), ChronicleConfig.DEFAULT.clone());
-    }
-
-    /**
-     * c-tor
-     *
-     * @param basePath          the Chronicle base path
-     * @param chronicleConfig   the Chronicle configurations
-     */
-    public IndexedChronicleEventStore(String basePath, ChronicleConfig chronicleConfig) {
-        this(basePath, new XStreamSerializer(), chronicleConfig);
-    }
-
-    /**
-     * c-tor
-     *
-     * @param basePath   the Chronicle base path
-     * @param serializer the DomainEventStream serializer
-     */
-    public IndexedChronicleEventStore(String basePath, final Serializer serializer) {
-        this(basePath, serializer, ChronicleConfig.DEFAULT.clone());
+        this(basePath, new XStreamSerializer());
     }
 
     /**
@@ -66,18 +36,16 @@ public class IndexedChronicleEventStore<T> extends ChronicleEventStore {
      *
      * @param basePath          the Chronicle base path
      * @param serializer        the DomainEventStream serializer
-     * @param chronicleConfig   the Chronicle configurations
      */
-    public IndexedChronicleEventStore(String basePath, final Serializer serializer, ChronicleConfig chronicleConfig) {
+    public IndexedChronicleEventStore(String basePath, final Serializer serializer) {
         super(basePath, serializer);
-
-        m_chronicleConfig = chronicleConfig;
     }
 
     // *************************************************************************
     //
     // *************************************************************************
 
+    @Override
     protected ChronicleDomainEventStore<T> createDomainEventStore(
         Serializer serializer, String basePath, String storageId, String aggregateType, String aggregateId) {
         return new IndexedChronicleDomainEventStore<>(
@@ -85,8 +53,7 @@ public class IndexedChronicleEventStore<T> extends ChronicleEventStore {
             basePath,
             storageId,
             aggregateType,
-            aggregateId,
-            m_chronicleConfig
+            aggregateId
         );
     }
 }

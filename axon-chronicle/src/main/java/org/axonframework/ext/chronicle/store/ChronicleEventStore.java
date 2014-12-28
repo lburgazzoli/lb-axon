@@ -17,7 +17,6 @@ package org.axonframework.ext.chronicle.store;
 
 
 import com.google.common.collect.Maps;
-import net.openhft.chronicle.ChronicleConfig;
 import org.axonframework.domain.DomainEventMessage;
 import org.axonframework.domain.DomainEventStream;
 import org.axonframework.ext.eventstore.AbstractEventStore;

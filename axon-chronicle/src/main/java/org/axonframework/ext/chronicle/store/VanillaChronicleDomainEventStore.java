@@ -16,9 +16,7 @@
 package org.axonframework.ext.chronicle.store;
 
 
-import net.openhft.chronicle.IndexedChronicle;
-import net.openhft.chronicle.VanillaChronicle;
-import net.openhft.chronicle.VanillaChronicleConfig;
+import net.openhft.chronicle.ChronicleQueueBuilder;
 import org.apache.commons.io.FilenameUtils;
 import org.axonframework.serializer.Serializer;
 import org.slf4j.Logger;
@@ -30,8 +28,6 @@ import org.slf4j.LoggerFactory;
 public class VanillaChronicleDomainEventStore<T> extends ChronicleDomainEventStore<T> {
     private static final Logger LOGGER = LoggerFactory.getLogger(VanillaChronicleDomainEventStore.class);
 
-    private final VanillaChronicleConfig m_chronicleConfig;
-
     /**
      * c-tor
      *
@@ -40,12 +36,9 @@ public class VanillaChronicleDomainEventStore<T> extends ChronicleDomainEventSto
      * @param storageId         the Chronicle data name
      * @param aggregateType     the AggregateType
      * @param aggregateId       the AggregateId
-     * @param chronicleConfig   the Chronicle config
      */
-    public VanillaChronicleDomainEventStore(Serializer serializer, String basePath, String storageId, String aggregateType, String aggregateId, VanillaChronicleConfig chronicleConfig) {
+    public VanillaChronicleDomainEventStore(Serializer serializer, String basePath, String storageId, String aggregateType, String aggregateId) {
         super(serializer, basePath, storageId, aggregateType, aggregateId);
-
-        m_chronicleConfig = chronicleConfig;
     }
 
     @Override
@@ -54,7 +47,7 @@ public class VanillaChronicleDomainEventStore<T> extends ChronicleDomainEventSto
         LOGGER.debug("VanillaChronicle => BasePath: {}, DataPath: {}", getBasePath(), dataPath);
 
         try {
-            init(new VanillaChronicle(dataPath, m_chronicleConfig));
+            init(ChronicleQueueBuilder.vanilla(dataPath).build());
         } catch(Exception e) {
             LOGGER.warn("Exception",e);
         }
