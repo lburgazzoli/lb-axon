@@ -4,7 +4,7 @@ project.ext {
 }
 
 dependencies {
-    compile project(':axon-common')
+    compile project(':lb-axon-common')
 
     compile "net.openhft:lang:$versions.openhftLang"
     compile "net.openhft:chronicle:$versions.openhftChronicle"

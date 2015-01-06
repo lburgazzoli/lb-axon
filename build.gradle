@@ -37,10 +37,10 @@ subprojects {
         versions = [
             'slf4j'              : '1.7.9',
             'log4j2'             : '2.1',
-            'jackson'            : '2.4.4',
+            'jackson'            : '2.5.0',
             'jacksonAnnotations' : '2.4.4',
-            'openhftLang'        : '6.4.18',
-            'openhftChronicle'   : '3.3.3',
+            'openhftLang'        : '6.4.21',
+            'openhftChronicle'   : '3.3.4',
             'hazelcast'          : '3.4',
             'osgi'               : '5.0.0',
             'guava'              : '18.0',
@@ -75,7 +75,6 @@ subprojects {
 
         gradleVersion    = '2.2.1'
         gradleScriptDir  = "${rootProject.projectDir}/gradle"
-        prefix           = 'lb'
         isReleaseVersion = !version.endsWith("SNAPSHOT")
         gitRoot          = 'https://github.com/lburgazzoli'
         gitProject       = 'https://github.com/lburgazzoli/lb-axon'
@@ -118,13 +117,13 @@ subprojects {
     }
 
     jar {
-        baseName = "${project.prefix}-${project.name}"
+        baseName = "${project.name}"
 
-        manifest.attributes['Bundle-Description'     ] = "${project.prefix} :: ${project.name}"
-        manifest.attributes['Bundle-Name'            ] = "${project.prefix} :: ${project.name}"
-        manifest.attributes['Bundle-SymbolicName'    ] = "${project.group}-${project.prefix}-${project.name}"
+        manifest.attributes['Bundle-Description'     ] = "${project.name}"
+        manifest.attributes['Bundle-Name'            ] = "${project.name}"
+        manifest.attributes['Bundle-SymbolicName'    ] = "${project.group}-${project.name}"
         manifest.attributes['Bundle-Version'         ] = osgiVersion
-        manifest.attributes['Implementation-Title'   ] = "${project.group}-${project.prefix}-${project.name}-${osgiVersion}"
+        manifest.attributes['Implementation-Title'   ] = "${project.group}-${project.name}-${osgiVersion}"
         manifest.attributes['Implementation-Version' ] = osgiVersion
         manifest.attributes['Implementation-Vendor'  ] = 'lb'
 
@@ -160,8 +159,8 @@ subprojects {
 
     modifyPom {
         project {
-            name          = "${project.prefix}-${project.name}"
-            description   = "${project.prefix}-${project.name}"
+            name          = "${project.name}"
+            description   = "${project.name}"
             url           = "${project.gitProject}"
             packaging     = 'jar'
 

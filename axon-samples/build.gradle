@@ -4,8 +4,8 @@ project.ext {
 }
 
 dependencies {
-    compile project(':axon-hazelcast')
-    compile project(':axon-chronicle')
+    compile project(':lb-axon-hazelcast')
+    compile project(':lb-axon-chronicle')
 
     compile "com.hazelcast:hazelcast:$versions.hazelcast"
     compile "com.hazelcast:hazelcast-spring:$versions.hazelcast"

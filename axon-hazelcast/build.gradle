@@ -10,10 +10,14 @@ project.ext {
 }
 
 dependencies {
-    compile project(':axon-common')
+    compile project(':lb-axon-common')
 	
     compile "com.hazelcast:hazelcast:$versions.hazelcast"
     compile "com.github.lburgazzoli:lb-hazelcast-common:$versions.lbHazelcast"
+    compile "com.github.lburgazzoli:lb-hazelcast-serialization:$versions.lbHazelcast"
+    compile "com.github.lburgazzoli:lb-hazelcast-serialization-fst:$versions.lbHazelcast"
+    compile "com.github.lburgazzoli:lb-hazelcast-serialization-kryo:$versions.lbHazelcast"
+    compile "com.github.lburgazzoli:lb-hazelcast-serialization-json:$versions.lbHazelcast"
 }
 
 jar {

@@ -4,9 +4,9 @@ project.ext {
 }
 
 dependencies {
-    compile project(':axon-common')
-    compile project(':axon-chronicle')
-    compile project(':axon-hazelcast')
+    compile project(':lb-axon-common')
+    compile project(':lb-axon-chronicle')
+    compile project(':lb-axon-hazelcast')
 
     compile("org.osgi:org.osgi.core:$versions.osgi")
     compile("org.osgi:org.osgi.compendium:$versions.osgi")

@@ -5,3 +5,7 @@ include "axon-hazelcast"
 include "axon-chronicle"
 include "axon-osgi"
 include "axon-samples"
+
+rootProject.children.each { 
+    it.name = "lb-" + it.name 
+}
