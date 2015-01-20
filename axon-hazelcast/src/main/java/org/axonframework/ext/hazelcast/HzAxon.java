@@ -15,5 +15,21 @@
  */
 package org.axonframework.ext.hazelcast;
 
-public class AxonHazelcast {
+import org.axonframework.cache.JCacheAdapter;
+
+import javax.cache.Caching;
+
+public class HzAxon {
+    /**
+     *
+     * @param cacheName
+     * @return
+     */
+    public static JCacheAdapter cacheAdapter(String cacheName) {
+        return new JCacheAdapter(
+                Caching.getCachingProvider()
+                    .getCacheManager()
+                    .getCache(cacheName, Object.class, Object.class)
+        );
+    }
 }
