@@ -11,7 +11,7 @@ buildscript {
 
     dependencies {
         classpath 'com.bmuschko:gradle-nexus-plugin:2.2'
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.6'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.7'
     }
 }
 
@@ -43,7 +43,7 @@ subprojects {
             'hazelcast'          : '3.4',
             'osgi'               : '5.0.0',
             'guava'              : '18.0',
-            'axon'               : '2.3.2',
+            'axon'               : '2.4',
             'disruptor'          : '3.3.0',
             'junit'              : '4.12',
             'felix'              : '4.4.1',
@@ -54,9 +54,9 @@ subprojects {
             'commonsBeanutils'   : '1.9.2',
             'commonsCollections' : '4.0',
             'javaxCache'         : '1.0.0',
-            'spring'             : '3.2.9.RELEASE',
+            'spring'             : '4.1.4.RELEASE',
             'groovy'             : '2.3.9',
-            'jodaTime'           : '2.6',
+            'jodaTime'           : '2.7',
             'lbHazelcast'        : '3.4.0-SNAPSHOT',
             'jdom'               : '2.0.2',
             'xom'                : '1.2.10'
@@ -177,6 +177,10 @@ subprojects {
                 developerConnection = "scm:git:${project.gitProject}.git"
             }
         }
+    }
+
+    dependencyUpdates {
+        revision = 'release'
     }
 }
 
