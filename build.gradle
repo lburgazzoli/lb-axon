@@ -10,8 +10,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.bmuschko:gradle-nexus-plugin:2.2'
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.6'
+        classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.8'
     }
 }
 
@@ -35,29 +35,29 @@ subprojects {
   
     ext {
         versions = [
-            'slf4j'              : '1.7.10',
-            'log4j2'             : '2.1',
-            'jackson'            : '2.5.0',
+            'slf4j'              : '1.7.12',
+            'log4j2'             : '2.2',
+            'jackson'            : '2.5.1',
             'openhftLang'        : '6.4.21',
             'openhftChronicle'   : '3.3.4',
-            'hazelcast'          : '3.4',
+            'hazelcast'          : '3.4.2',
             'osgi'               : '5.0.0',
             'guava'              : '18.0',
-            'axon'               : '2.3.2',
+            'axon'               : '2.4',
             'disruptor'          : '3.3.0',
             'junit'              : '4.12',
             'felix'              : '4.4.1',
             'paxExam'            : '4.4.0',
             'paxUrl'             : '2.3.0',
-            'jgroups'            : '3.6.1.Final',
-            'commonsLang'        : '3.3.2',
+            'jgroups'            : '3.6.3.Final',
+            'commonsLang'        : '3.4',
             'commonsBeanutils'   : '1.9.2',
             'commonsCollections' : '4.0',
             'javaxCache'         : '1.0.0',
             'spring'             : '3.2.9.RELEASE',
-            'groovy'             : '2.3.9',
-            'jodaTime'           : '2.6',
-            'lbHazelcast'        : '3.4.0-SNAPSHOT',
+            'groovy'             : '2.4.3',
+            'jodaTime'           : '2.7',
+            'lbHazelcast'        : '3.4.2-SNAPSHOT',
             'jdom'               : '2.0.2',
             'xom'                : '1.2.10'
         ]
@@ -72,7 +72,7 @@ subprojects {
             }
         }
 
-        gradleVersion    = '2.2.1'
+        gradleVersion    = '2.3'
         gradleScriptDir  = "${rootProject.projectDir}/gradle"
         isReleaseVersion = !version.endsWith("SNAPSHOT")
         gitRoot          = 'https://github.com/lburgazzoli'
@@ -125,9 +125,6 @@ subprojects {
         manifest.attributes['Implementation-Title'   ] = "${project.group}-${project.name}-${osgiVersion}"
         manifest.attributes['Implementation-Version' ] = osgiVersion
         manifest.attributes['Implementation-Vendor'  ] = 'lb'
-
-        manifest.classesDir = new File("$buildDir/classes/main")
-        manifest.classpath  = project.runtimeClasspath
     }
 
     test {
