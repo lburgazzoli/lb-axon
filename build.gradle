@@ -39,7 +39,7 @@ subprojects {
             'log4j2'             : '2.2',
             'jackson'            : '2.5.1',
             'openhftLang'        : '6.4.21',
-            'openhftChronicle'   : '3.3.4',
+            'openhftChronicle'   : '3.4.2',
             'hazelcast'          : '3.4.2',
             'osgi'               : '5.0.0',
             'guava'              : '18.0',
@@ -54,7 +54,7 @@ subprojects {
             'commonsBeanutils'   : '1.9.2',
             'commonsCollections' : '4.0',
             'javaxCache'         : '1.0.0',
-            'spring'             : '3.2.9.RELEASE',
+            'spring'             : '4.1.4.RELEASE',
             'groovy'             : '2.4.3',
             'jodaTime'           : '2.7',
             'lbHazelcast'        : '3.4.2-SNAPSHOT',
@@ -90,7 +90,7 @@ subprojects {
     }
 
     dependencies {
-        compile("org.slf4j:slf4j-api:$versions.slf4j") { transitive = false }
+        compile("org.slf4j:slf4j-api:$versions.slf4j") { transitive = false }  
         compile("org.slf4j:slf4j-ext:$versions.slf4j") { transitive = false }
 
         runtime "org.apache.logging.log4j:log4j-api:$versions.log4j2"
@@ -174,6 +174,10 @@ subprojects {
                 developerConnection = "scm:git:${project.gitProject}.git"
             }
         }
+    }
+
+    dependencyUpdates {
+        revision = 'release'
     }
 }
 

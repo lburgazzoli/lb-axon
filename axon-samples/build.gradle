@@ -11,7 +11,6 @@ dependencies {
     compile "com.hazelcast:hazelcast-spring:$versions.hazelcast"
     compile "com.hazelcast:hazelcast-client:$versions.hazelcast"
     compile "org.springframework:spring-context:$versions.spring"
-
     compile "com.github.lburgazzoli:lb-hazelcast-common:$versions.lbHazelcast"
 }
 

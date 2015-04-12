@@ -17,7 +17,6 @@ package org.axonframework.ext.repository;
 
 import org.axonframework.cache.Cache;
 import org.axonframework.eventhandling.EventBus;
-import org.axonframework.eventsourcing.AggregateFactory;
 import org.axonframework.eventsourcing.CachingEventSourcingRepository;
 import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
 import org.axonframework.eventsourcing.GenericAggregateFactory;
@@ -48,9 +47,11 @@ public class CachingEventSourcingRepositoryFactory<T> implements IRepositoryFact
 
     @Override
     public <I, T extends EventSourcedAggregateRoot<I>> Repository<T> createRepository(Class<T> type) {
-        AggregateFactory<T> af = new GenericAggregateFactory<>(type);
+        final CachingEventSourcingRepository<T> repo =
+            new CachingEventSourcingRepository<>(
+                new GenericAggregateFactory<>(type),
+                m_evtStore);
 
-        CachingEventSourcingRepository<T> repo = new CachingEventSourcingRepository<>(af,m_evtStore);
         repo.setEventBus(m_evtBus);
         repo.setCache(m_cache);
 

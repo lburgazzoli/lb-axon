@@ -35,7 +35,7 @@ import org.axonframework.eventhandling.EventListener;
 import org.axonframework.eventhandling.SimpleEventBus;
 import org.axonframework.eventhandling.annotation.AnnotationEventListenerAdapter;
 import org.axonframework.eventsourcing.EventSourcedAggregateRoot;
-import org.axonframework.ext.cache.GuavaCache;
+import org.axonframework.ext.hazelcast.HzAxon;
 import org.axonframework.ext.hazelcast.HzConstants;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommand;
 import org.axonframework.ext.hazelcast.distributed.commandbus.HzCommandReply;
@@ -92,7 +92,7 @@ public class AxonService implements HzTaskDispatcher {
         m_evtStore     = null;
         m_evtBus       = null;
 
-        m_cache          = new GuavaCache(m_nodeName);
+        m_cache          = HzAxon.cacheAdapter("default");
         m_eventListeners = Sets.newHashSet();
         m_eventHandlers  = Maps.newConcurrentMap();
         m_aggregates     = Maps.newConcurrentMap();
@@ -113,25 +113,25 @@ public class AxonService implements HzTaskDispatcher {
 
     public void destroy() {
         LOGGER.debug("Cleanup - EventListeners ({})",m_eventListeners.size());
-        for(EventListener listener : m_eventListeners) {
-            m_evtBus.unsubscribe(listener);
-        }
-
+        m_eventListeners.forEach((listener) -> m_evtBus.unsubscribe(listener));
         m_eventListeners.clear();
 
         LOGGER.debug("Cleanup - EventHandlers ({})",m_eventHandlers.size());
-        for(EventListener listener : m_eventHandlers.values()) {
-            m_evtBus.unsubscribe(listener);
-        }
-
+        m_eventHandlers.values().forEach((listener) -> m_evtBus.unsubscribe(listener));
         m_eventHandlers.clear();
 
         LOGGER.debug("Cleanup - AggregateSubscription ({})",m_aggregates.size());
-        for(AggregateSubscription<?> subscription : m_aggregates.values()) {
-            for (String supportedCommand : subscription.handler.supportedCommands()) {
-                m_cmdBus.unsubscribe(supportedCommand, subscription.handler);
-            }
-        }
+        m_aggregates.values().forEach((subscription) ->
+            subscription.handler.supportedCommands().forEach(
+                (supportedCommand) -> m_cmdBus.unsubscribe(supportedCommand, subscription.handler)
+            )
+        );
+
+        m_aggregates.values().forEach((subscription) ->
+                subscription.handler.supportedCommands().forEach(
+                    (supportedCommand) -> m_cmdBus.unsubscribe(supportedCommand, subscription.handler)
+                )
+        );
 
         m_aggregates.clear();
 
