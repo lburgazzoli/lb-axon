@@ -54,18 +54,19 @@ public class OSGiBundleTest extends OSGiTestCommon {
         return options(
             systemProperty("org.osgi.framework.storage.clean").value("true"),
             systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value("WARN"),
-            mavenBundleEnv("org.slf4j", "slf4j-api"),
-            mavenBundleEnv("org.apache.logging.log4j","log4j-api"),
-            mavenBundleEnv("org.apache.logging.log4j","log4j-core"),
-            mavenBundleEnv("org.apache.commons", "commons-lang3"),
-            mavenBundleEnv("commons-collections", "commons-collections"),
-            mavenBundleEnv("com.hazelcast", "hazelcast"),
-            mavenBundleEnv("org.axonframework", "axon-core"),
-            mavenBundleEnv("org.axonframework", "axon-distributed-commandbus"),
-            mavenBundleEnv("com.google.guava","guava"),
-            mavenBundleEnv("javax.cache", "cache-api"),
+            mavenBundleAsInProject("org.slf4j", "slf4j-api"),
+            mavenBundleAsInProject("org.apache.logging.log4j","log4j-api"),
+            mavenBundleAsInProject("org.apache.logging.log4j","log4j-core"),
+            mavenBundleAsInProject("org.apache.logging.log4j","log4j-slf4j-impl"),
+            mavenBundleAsInProject("org.apache.commons", "commons-lang3"),
+            mavenBundleAsInProject("commons-collections", "commons-collections"),
+            mavenBundleAsInProject("com.hazelcast", "hazelcast"),
+            mavenBundleAsInProject("org.axonframework", "axon-core"),
+            mavenBundleAsInProject("org.axonframework", "axon-distributed-commandbus"),
+            mavenBundleAsInProject("com.google.guava","guava"),
+            mavenBundleAsInProject("javax.cache", "cache-api"),
+            mavenBundleAsInProject("joda-time", "joda-time"),
             mavenBundle("org.apache.geronimo.specs", "geronimo-servlet_3.0_spec"),
-            mavenBundle("joda-time", "joda-time"),
             axonBundle("axon-common"),
             axonBundle("axon-hazelcast"),
             junitBundles(),
@@ -91,7 +92,6 @@ public class OSGiBundleTest extends OSGiTestCommon {
         for(final Map.Entry<String, Integer> entry : BUNDLES.entrySet()) {
             final Bundle bundle = findBundle(entry.getKey(), bundles);
             assertNotNull("Bundle <" + entry.getKey() + "> does not exist", bundle);
-            //assertEquals((int)entry.getValue(), bundle.getState());
         }
     }
 }

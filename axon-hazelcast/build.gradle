@@ -13,11 +13,25 @@ dependencies {
     compile project(':lb-axon-common')
 	
     compile "com.hazelcast:hazelcast:$versions.hazelcast"
-    compile "com.github.lburgazzoli:lb-hazelcast-common:$versions.lbHazelcast"
-    compile "com.github.lburgazzoli:lb-hazelcast-serialization:$versions.lbHazelcast"
-    compile "com.github.lburgazzoli:lb-hazelcast-serialization-fst:$versions.lbHazelcast"
-    compile "com.github.lburgazzoli:lb-hazelcast-serialization-kryo:$versions.lbHazelcast"
-    compile "com.github.lburgazzoli:lb-hazelcast-serialization-json:$versions.lbHazelcast"
+    compile "com.hazelcast:hazelcast-spring:$versions.hazelcast"
+    compile "com.hazelcast:hazelcast-client:$versions.hazelcast"
+    compile "org.springframework:spring-context:$versions.spring"
+    
+    compile("com.github.lburgazzoli:lb-hazelcast-common:$versions.lbHazelcast") {
+        exclude group: 'org.slf4j'
+    }
+    compile("com.github.lburgazzoli:lb-hazelcast-serialization:$versions.lbHazelcast") {
+        exclude group: 'org.slf4j'
+    }
+    compile("com.github.lburgazzoli:lb-hazelcast-serialization-fst:$versions.lbHazelcast") {
+        exclude group: 'org.slf4j'
+    }
+    compile("com.github.lburgazzoli:lb-hazelcast-serialization-kryo:$versions.lbHazelcast") {
+        exclude group: 'org.slf4j'
+    }
+    compile("com.github.lburgazzoli:lb-hazelcast-serialization-json:$versions.lbHazelcast") {
+        exclude group: 'org.slf4j'
+    }
 }
 
 jar {

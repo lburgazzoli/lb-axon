@@ -61,8 +61,8 @@ public class OSGiTestCommon {
      * @param systemProperyKey
      * @return
      */
-    protected MavenArtifactProvisionOption mavenBundleEnv(final String groupId,final String artifactId) {
-        return mavenBundle(groupId, artifactId, System.getProperty(groupId + ":" + artifactId));
+    protected MavenArtifactProvisionOption mavenBundleAsInProject(final String groupId,final String artifactId) {
+        return mavenBundle(groupId, artifactId).versionAsInProject();
     }
 
     /**

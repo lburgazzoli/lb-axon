@@ -6,12 +6,6 @@ project.ext {
 dependencies {
     compile project(':lb-axon-hazelcast')
     compile project(':lb-axon-chronicle')
-
-    compile "com.hazelcast:hazelcast:$versions.hazelcast"
-    compile "com.hazelcast:hazelcast-spring:$versions.hazelcast"
-    compile "com.hazelcast:hazelcast-client:$versions.hazelcast"
-    compile "org.springframework:spring-context:$versions.spring"
-    compile "com.github.lburgazzoli:lb-hazelcast-common:$versions.lbHazelcast"
 }
 
 jar {
