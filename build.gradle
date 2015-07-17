@@ -11,7 +11,30 @@ buildscript {
 
     dependencies {
         classpath 'com.bmuschko:gradle-nexus-plugin:2.3.1'
-        classpath 'com.github.ben-manes:gradle-versions-plugin:0.10.1'
+        classpath 'com.github.ben-manes:gradle-versions-plugin:0.11.3'
+    }
+}
+
+// *****************************************************************************
+//
+// *****************************************************************************
+
+allprojects {
+    configurations {
+        all {
+            resolutionStrategy {
+                componentSelection {
+                    all { ComponentSelection selection ->
+                        boolean rejected = [ 'M1', 'M2' ,'rc', 'Alpha' , 'Beta', "EA"].any { qualifier ->
+                            return selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+                        }
+                        if (rejected) {
+                            selection.reject('Release candidate')
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -38,26 +61,26 @@ subprojects {
             'slf4j'              : '1.7.12',
             'log4j2'             : '2.3',
             'jackson'            : '2.5.1',
-            'openhftLang'        : '6.6.7',
-            'openhftChronicle'   : '3.4.3',
-            'hazelcast'          : '3.4.2',
+            'openhftLang'        : '6.6.11',
+            'openhftChronicle'   : '3.4.4',
+            'hazelcast'          : '3.5',
             'osgi'               : '5.0.0',
             'guava'              : '18.0',
-            'axon'               : '2.4.1',
-            'disruptor'          : '3.3.0',
+            'axon'               : '2.4.2',
+            'disruptor'          : '3.3.2',
             'junit'              : '4.12',
-            'felix'              : '4.6.1',
+            'felix'              : '5.0.1',
             'paxExam'            : '4.5.0',
             'paxUrl'             : '2.4.1',
-            'jgroups'            : '3.6.3.Final',
+            'jgroups'            : '3.6.4.Final',
             'commonsLang'        : '3.4',
             'commonsBeanutils'   : '1.9.2',
             'commonsCollections' : '4.0',
             'javaxCache'         : '1.0.0',
             'spring'             : '4.1.4.RELEASE',
-            'groovy'             : '2.4.3',
-            'jodaTime'           : '2.8',
-            'lbHazelcast'        : '3.4.2-SNAPSHOT',
+            'groovy'             : '2.4.4',
+            'jodaTime'           : '2.8.1',
+            'lbHazelcast'        : '3.5.0-SNAPSHOT',
             'jdom'               : '2.0.2',
             'xom'                : '1.2.10'
         ]
@@ -67,7 +90,7 @@ subprojects {
             nexusPassword = "$System.env.CI_DEPLOY_PASSWORD"
         }
 
-        gradleVersion    = '2.4'
+        gradleVersion    = '2.5'
         gradleScriptDir  = "${rootProject.projectDir}/gradle"
         isReleaseVersion = !version.endsWith("SNAPSHOT")
         gitRoot          = 'https://github.com/lburgazzoli'
